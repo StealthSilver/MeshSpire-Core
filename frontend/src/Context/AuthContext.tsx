@@ -4,10 +4,9 @@ import type { ReactNode } from "react";
 interface AuthContextType {
   username: string;
   token: string | null;
-  setUser: (username: string, token: string , id:string) => void;
+  setUser: (username: string, token: string, id: string) => void;
   logout: () => void;
   userId: string | null;
-
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,21 +19,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedName = localStorage.getItem("name");
-const storedId = localStorage.getItem("userId");
+    const storedId = localStorage.getItem("userId");
 
     if (storedToken) setToken(storedToken);
     if (storedName) setUsername(storedName);
     if (storedId) setUserId(storedId);
-
   }, []);
 
-  const setUser = (name: string, token: string , id:string) => {
+  const setUser = (name: string, token: string, id: string) => {
     setUsername(name);
     setToken(token);
     setUserId(id);
     localStorage.setItem("name", name);
     localStorage.setItem("token", token);
-    localStorage.setItem("userId" , id);
+    localStorage.setItem("userId", id);
   };
 
   const logout = () => {
@@ -47,7 +45,7 @@ const storedId = localStorage.getItem("userId");
   };
 
   return (
-    <AuthContext.Provider value={{ username, token,userId ,  setUser, logout }}>
+    <AuthContext.Provider value={{ username, token, userId, setUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

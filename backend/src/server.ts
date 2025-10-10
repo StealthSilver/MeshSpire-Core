@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+dotenv.config();
 import { createServer } from "http";
 import { Server as IOServer } from "socket.io";
 import cookieParser from "cookie-parser";
@@ -10,8 +11,6 @@ import userRoutes from "./routes/user.route";
 import roomRoutes from "./routes/room.route";
 import { RoomController } from "./controller/room.controller";
 import profileRoute from "./routes/profile.route";
-
-dotenv.config();
 
 const app = express();
 
@@ -29,7 +28,7 @@ app.use(
 
 app.use("/api/v0/user", userRoutes);
 app.use("/api/v0/room", roomRoutes);
-app.use("/api/v0/profile" , profileRoute);
+app.use("/api/v0/profile", profileRoute);
 const server = createServer(app);
 const io = new IOServer(server, {
   cors: {
@@ -39,11 +38,9 @@ const io = new IOServer(server, {
   },
 });
 
-
 io.on("connection", (socket) => {
   console.log("socket connected:", socket.id);
   RoomController(io, socket);
-
 });
 
 const PORT = 8000;

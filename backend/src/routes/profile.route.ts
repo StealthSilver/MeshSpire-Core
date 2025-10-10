@@ -40,7 +40,7 @@ profileRoute.post(
       if (!parsed.success) {
         return res
           .status(StatusCodes.BAD_REQUEST)
-          .json({  message: "Invalid data" });
+          .json({ message: "Invalid data" });
       }
 
       // ✅ Check if profile already exists
@@ -62,8 +62,8 @@ profileRoute.post(
       // ✅ Create new profile with user data included
       const newProfile = await Profile.create({
         userId,
-        name: user.name,        // fetched from User model
-        email: user.email,      // fetched from User model
+        name: user.name, // fetched from User model
+        email: user.email, // fetched from User model
         ...parsed.data,
       });
 
@@ -81,72 +81,82 @@ profileRoute.post(
 );
 
 // ✅ Get profile by userId
-profileRoute.get("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.params.id;
-    const profile = await Profile.findOne({ userId }).select("-__v");
-    if (!profile) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: "Profile not found" });
+profileRoute.get(
+  "/:id",
+  authMiddleware,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.params.id;
+      const profile = await Profile.findOne({ userId }).select("-__v");
+      if (!profile) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "Profile not found" });
+      }
+      res.status(StatusCodes.OK).json(profile);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
-    res.status(StatusCodes.OK).json(profile);
-  } catch (err) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
   }
-});
+);
 
 // ✅ Update profile
-profileRoute.put("/update", authMiddleware, async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Unauthorized" });
-    }
+profileRoute.put(
+  "/update",
+  authMiddleware,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ message: "Unauthorized" });
+      }
 
-    const { avatar, gender, age, bio, skills, role, languages } = req.body;
+      const { avatar, gender, age, bio, skills, role, languages } = req.body;
 
-    const updatedProfile = await Profile.findOneAndUpdate(
-      { userId },
-      {
-        $set: {
-          ...(avatar && { avatar }),
-          ...(gender && { gender }),
-          ...(age !== undefined && { age }),
-          ...(bio && { bio }),
-          ...(skills
-            ? {
-                skills: Array.isArray(skills)
-                  ? skills
-                  : skills.split(",").map((s: string) => s.trim()),
-              }
-            : {}),
-          ...(role && { role }),
-          ...(languages
-            ? {
-                languages: Array.isArray(languages)
-                  ? languages
-                  : languages.split(",").map((l: string) => l.trim()),
-              }
-            : {}),
+      const updatedProfile = await Profile.findOneAndUpdate(
+        { userId },
+        {
+          $set: {
+            ...(avatar && { avatar }),
+            ...(gender && { gender }),
+            ...(age !== undefined && { age }),
+            ...(bio && { bio }),
+            ...(skills
+              ? {
+                  skills: Array.isArray(skills)
+                    ? skills
+                    : skills.split(",").map((s: string) => s.trim()),
+                }
+              : {}),
+            ...(role && { role }),
+            ...(languages
+              ? {
+                  languages: Array.isArray(languages)
+                    ? languages
+                    : languages.split(",").map((l: string) => l.trim()),
+                }
+              : {}),
+          },
         },
-      },
-      { new: true, runValidators: true }
-    );
+        { new: true, runValidators: true }
+      );
 
-    if (!updatedProfile) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: "Profile not found" });
+      if (!updatedProfile) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "Profile not found" });
+      }
+
+      res
+        .status(StatusCodes.OK)
+        .json({ message: "Profile updated successfully", updatedProfile });
+    } catch (err) {
+      console.error(err);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
-
-    res
-      .status(StatusCodes.OK)
-      .json({ message: "Profile updated successfully", updatedProfile });
-  } catch (err) {
-    console.error(err);
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
   }
-});
+);
 
 export default profileRoute;

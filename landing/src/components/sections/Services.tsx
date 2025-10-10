@@ -7,14 +7,17 @@ import { Icon } from "@/components/ui/Icon";
 import { Timeline } from "@/components/ui/Timeline";
 import AnimatedFlowSVG from "../ui/AnimatedFlow";
 
-const timelineData = (isDark: boolean) => [
+const timelineData = () => [
   {
     title: "Signup and create account",
     content: (
       <p
-        className={`text-sm md:text-[20px] leading-[1.9] max-w-md transition-colors duration-500 ${
-          isDark ? "text-white/90" : "text-black/90"
-        }`}
+        className="
+          text-base md:text-lg leading-relaxed max-w-md
+          transition-colors duration-500
+          text-[var(--color-font)]/90
+          font-[var(--font-secondary)]
+        "
       >
         Signup and create a student profile to find the best tutors for you. No
         payments, free signup. Access all the topics you want to learn.
@@ -25,9 +28,12 @@ const timelineData = (isDark: boolean) => [
     title: "Enter the topic you want to learn",
     content: (
       <p
-        className={`text-sm md:text-[20px] leading-[1.9] max-w-md transition-colors duration-500 ${
-          isDark ? "text-white/90" : "text-black/90"
-        }`}
+        className="
+          text-base md:text-lg leading-relaxed max-w-md
+          transition-colors duration-500
+          text-[var(--color-font)]/90
+          font-[var(--font-secondary)]
+        "
       >
         Select the tutor you want to learn from. We have wide range of tutors
         which will match your learning style.
@@ -38,9 +44,12 @@ const timelineData = (isDark: boolean) => [
     title: "Connect to your tutor instantly",
     content: (
       <p
-        className={`text-sm md:text-[20px] leading-[1.9] max-w-md transition-colors duration-500 ${
-          isDark ? "text-white/90" : "text-black/90"
-        }`}
+        className="
+          text-base md:text-lg leading-relaxed max-w-md
+          transition-colors duration-500
+          text-[var(--color-font)]/90
+          font-[var(--font-secondary)]
+        "
       >
         Instantly connect to your tutor and learn. You getting it right is our
         responsibility. Solve instant assignments, give tests and a lot more.
@@ -56,91 +65,73 @@ const Content = () => {
 
   useEffect(() => {
     const updateHeight = () => {
-      if (timelineRef.current) setTimelineHeight(timelineRef.current.offsetHeight);
+      if (timelineRef.current)
+        setTimelineHeight(timelineRef.current.offsetHeight);
     };
     updateHeight();
     window.addEventListener("resize", updateHeight);
     return () => window.removeEventListener("resize", updateHeight);
   }, []);
 
-  const isDark = theme === "dark";
-
   return (
-   <section
-  id="services"
-  className={`py-16 px-6 mt-32  flex flex-col items-center justify-center mx-4 rounded-3xl  gap-24 overflow-x-hidden transition-colors duration-700 ${
-    isDark
-      ? "bg-gradient-to-br from-gray-900 via-black to-gray-800 shadow-xl"
-      : "bg-gradient-to-br from-white via-gray-50 to-gray-200 backdrop-blur-sm shadow-lg"
-
-  }`}
->
-
-      {/* Section Header */}
+    <section
+      id="services"
+      className="
+        py-20 md:py-22 px-6 md:mt-32 flex flex-col items-center justify-center mx-4 
+        gap-10 md:gap-24 overflow-x-hidden 
+        transition-colors duration-700
+        bg-[var(--background)] text-[var(--color-font)] 
+      "
+    >
       <div className="flex flex-col items-center justify-center gap-4 w-full">
         <div
-          className={`border-2 flex flex-col items-center md:items-start mx-auto p-8 max-w-xs md:max-w-none relative rounded-2xl shadow-2xl backdrop-blur-sm transition-all duration-700 ${
-            isDark ? "border-white/20 bg-black/20" : "border-black/20 bg-white/50"
-          } hover:scale-105`}
+          className="
+            border-2 flex flex-col items-center md:items-start mx-auto p-4
+            max-w-xs md:max-w-none relative transition-all duration-700 
+            border-[var(--foreground)]/20 bg-[var(--background)]/60
+          "
         >
-          <Icon
-            className={`absolute h-6 w-6 -top-4 -left-4 transition-colors duration-500 ${
-              isDark ? "text-white/70" : "text-black/70"
-            }`}
-          />
-          <Icon
-            className={`absolute h-6 w-6 -bottom-4 -left-4 transition-colors duration-500 ${
-              isDark ? "text-white/70" : "text-black/70"
-            }`}
-          />
-          <Icon
-            className={`absolute h-6 w-6 -top-4 -right-4 transition-colors duration-500 ${
-              isDark ? "text-white/70" : "text-black/70"
-            }`}
-          />
-          <Icon
-            className={`absolute h-6 w-6 -bottom-4 -right-4 transition-colors duration-500 ${
-              isDark ? "text-white/70" : "text-black/70"
-            }`}
-          />
+          <Icon className="absolute h-6 w-6 -top-4 -left-4 text-[var(--color-font)]/70 transition-colors" />
+          <Icon className="absolute h-6 w-6 -bottom-4 -left-4 text-[var(--color-font)]/70 transition-colors" />
+          <Icon className="absolute h-6 w-6 -top-4 -right-4 text-[var(--color-font)]/70 transition-colors" />
+          <Icon className="absolute h-6 w-6 -bottom-4 -right-4 text-[var(--color-font)]/70 transition-colors" />
+
           <h2
-            className={`text-3xl md:text-5xl font-khula font-extrabold text-center md:text-left transition-colors duration-700 ${
-              isDark ? "text-white" : "text-black"
-            }`}
+            className="
+              text-2xl md:text-2xl lg:text-3xl font-[var(--font-primary)] 
+               text-center md:text-left transition-colors 
+              text-[var(--color-font)]
+            "
           >
             Learning made easy
           </h2>
         </div>
       </div>
 
-      {/* Timeline + Animated SVG */}
-      <div className="flex flex-col md:flex-row items-center justify-center gap-16 md:gap-28 w-full max-w-7xl">
-        {/* Timeline */}
-        <div ref={timelineRef} className="hidden md:flex w-full md:w-1/2">
-          <Timeline data={timelineData(isDark)} hoverEffect scaleOnHover />
+      <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-14 w-full max-w-7xl font-[var(--font-primary)] ">
+        <div ref={timelineRef} className="hidden md:flex w-full md:w-1/2 mt-10">
+          <Timeline data={timelineData()} hoverEffect />
         </div>
 
-        {/* Animated Flow */}
         <div
-          className="hidden md:flex w-full md:w-1/2 justify-center items-start relative"
+          className="hidden md:flex w-full md:w-1/2 justify-center items-start relative font-[var(--font-primary)] "
           style={{
-            height: timelineHeight ? `${timelineHeight - 180}px` : "500px",
+            height: timelineHeight ? `${timelineHeight - 250}px` : "400px",
           }}
         >
           <div
             style={{
-              height: timelineHeight ? `${timelineHeight - 180}px` : "500px",
+              height: timelineHeight ? `${timelineHeight - 250}px` : "400px",
               width: "100%",
             }}
-            className="animate-float hover:scale-105 transition-transform duration-700"
+            className="animate-float transition-transform duration-700"
           >
-            <AnimatedFlowSVG  />
+            <AnimatedFlowSVG />
           </div>
         </div>
 
-        {/* Mobile Timeline */}
         <div className="flex md:hidden flex-col gap-12 w-full">
-          <Timeline data={timelineData(isDark)} hoverEffect scaleOnHover />
+          <Timeline data={timelineData()} hoverEffect />
         </div>
       </div>
     </section>

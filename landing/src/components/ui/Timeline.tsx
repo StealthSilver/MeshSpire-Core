@@ -38,7 +38,7 @@ export const Timeline = ({
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start 10%", "end 50%"],
+    offset: ["start 40%", "end 40%"],
   });
 
   const heightTransform = useTransform(scrollYProgress, [0, 1], [0, height]);
@@ -46,7 +46,7 @@ export const Timeline = ({
 
   return (
     <div
-      className="w-full font-catamaran md:px-10 relative"
+      className="w-full font-[var(--font-primary)] md:px-10 relative"
       ref={containerRef}
     >
       <div ref={ref} className="relative max-w-7xl mx-auto pb-20">
@@ -58,8 +58,7 @@ export const Timeline = ({
               ${scaleOnHover ? "hover:scale-[1.02]" : ""}
             `}
           >
-            {/* Indicator Circle */}
-            <div className="absolute left-3 md:left-8 flex items-center justify-center z-10">
+            <div className="absolute left-3 md:left-3.5 flex items-center justify-center z-10">
               <motion.div
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 0.8 }}
@@ -78,19 +77,17 @@ export const Timeline = ({
               </motion.div>
             </div>
 
-            {/* Title */}
             <h3
-              className={`text-xl md:text-4xl font-extrabold pl-16 md:pl-20 transition-colors duration-500 ${
+              className={`text-xl md:text-4xl  pl-16 md:pl-20 transition-colors duration-500 ${
                 isDark ? "text-neutral-300" : "text-neutral-700"
               }`}
             >
               {item.title}
             </h3>
 
-            {/* Content */}
             <div
-              className={`pl-16 md:pl-20 pr-4 w-full text-[18px] md:text-lg leading-[1.8] transition-colors duration-500  ${
-                isDark ? "text-neutral-300" : "text-neutral-700"
+              className={`pl-16 md:pl-20 pr-4 w-full text-[14px] md:text-lg leading-[1.8] transition-colors duration-500 font-[var(--font-secondary)]   ${
+                isDark ? "text-neutral-400" : "text-neutral-700"
               }`}
             >
               {item.content}
@@ -98,25 +95,22 @@ export const Timeline = ({
           </motion.div>
         ))}
 
-        {/* Timeline Line */}
         <div
           className="absolute md:left-8 left-6 top-0 w-[3px] rounded-full overflow-hidden"
           style={{ height: height + "px" }}
         >
-          {/* Background Line */}
           <div
             className={`absolute inset-x-0 top-0 w-full h-full rounded-full transition-colors duration-500 ${
               isDark ? "bg-neutral-700" : "bg-neutral-300"
             }`}
           />
 
-          {/* Scroll Animated Line */}
           <motion.div
             style={{
               height: heightTransform,
               opacity: opacityTransform,
             }}
-            className="absolute inset-x-0 top-0 w-full rounded-full bg-gradient-to-b from-green-400 via-purple-500 to-pink-500"
+            className="absolute inset-x-0 top-0 w-full rounded-full bg-gradient-to-b from-purple-600 via-green-500 to-purple-700"
           />
         </div>
       </div>

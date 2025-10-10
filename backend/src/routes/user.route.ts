@@ -19,7 +19,37 @@ const signinSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+function generateTokens(userId: string) {
+  if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
+    throw new Error("JWT secrets not defined");
+  }
 
+  const accessOptions: SignOptions = {
+    // @ts-ignore
+    expiresIn: process.env.ACCESS_TOKEN_EXPIRES || "15m",
+  };
+  const refreshOptions: SignOptions = {
+    // @ts-ignore
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRES || "7d",
+  };
+
+  const access = jwt.sign(
+    { sub: userId },
+    process.env.JWT_ACCESS_SECRET,
+    accessOptions
+  );
+  const refresh = jwt.sign(
+    { sub: userId },
+    process.env.JWT_REFRESH_SECRET,
+    refreshOptions
+  );
+
+  return { access, refresh };
+}
+
+// --------------------
+// Signup Route
+// --------------------
 router.post("/signup", async (req: Request, res: Response) => {
   try {
     const parsed = signupSchema.safeParse(req.body);
@@ -50,11 +80,11 @@ router.post("/signup", async (req: Request, res: Response) => {
       userId: user._id,
       name: user.name,
       avatar: "",
-      gender: "other",     // default
+      gender: "other", // default
       age: undefined,
       bio: "",
       skills: [],
-      role: "student",     // default role
+      role: "student", // default role
       languages: [],
     });
 
@@ -108,55 +138,29 @@ router.post("/signup", async (req: Request, res: Response) => {
   }
 });
 
-
 router.post("/signin", async (req: Request, res: Response) => {
   try {
     const parsed = signinSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        message: "enter valid information"
-      })
+        message: "enter valid information",
+      });
     }
-    const { email, password } = parsed.data;
 
+    const { email, password } = parsed.data;
     const user = await User.findOne({ email });
-    if (!user) {
+    if (!user)
       return res
         .status(StatusCodes.UNAUTHORIZED)
         .json({ message: "Invalid credentials" });
-    }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+    if (!isPasswordValid)
       return res
         .status(StatusCodes.UNAUTHORIZED)
         .json({ message: "Invalid credentials" });
-    }
-
-    if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
-      throw new Error("JWT secrets are not defined in environment variables");
-    }
-
-    const accessOptions: SignOptions = {
-      expiresIn:
-        (process.env.ACCESS_TOKEN_EXPIRES as SignOptions["expiresIn"]) || "15m",
-    };
-    const refreshOptions: SignOptions = {
-      expiresIn:
-        (process.env.REFRESH_TOKEN_EXPIRES as SignOptions["expiresIn"]) || "7d",
-    };
-
-    const access = jwt.sign(
-      { sub: user._id },
-      process.env.JWT_ACCESS_SECRET as Secret,
-      accessOptions
-    );
-
-    const refresh = jwt.sign(
-      { sub: user._id },
-      process.env.JWT_REFRESH_SECRET as Secret,
-      refreshOptions
-    );
+    // @ts-ignore
+    const { access, refresh } = generateTokens(user._id.toString());
 
     res.cookie("refreshToken", refresh, {
       httpOnly: true,
@@ -167,11 +171,7 @@ router.post("/signin", async (req: Request, res: Response) => {
 
     res.status(StatusCodes.OK).json({
       access,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
+      user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (err) {
     console.error(err);
@@ -181,46 +181,80 @@ router.post("/signin", async (req: Request, res: Response) => {
   }
 });
 
+// --------------------
+// Google OAuth Routes
+// --------------------
+
+// Step 1: Redirect user to Google
+router.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+// Step 2: Google callback
+router.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { session: false, failureRedirect: "/" }),
+  async (req: Request, res: Response) => {
+    try {
+      const user = req.user as IUser;
+      // @ts-ignore
+      const { access, refresh } = generateTokens(user._id.toString());
+
+      res.cookie("refreshToken", refresh, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      // Redirect back to frontend with access token
+      const redirectUrl = `${process.env.FRONTEND_URL}/dashboard?token=${access}`;
+      res.redirect(redirectUrl);
+    } catch (err) {
+      console.error(err);
+      res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+    }
+  }
+);
+
+// --------------------
+// Me Route
+// --------------------
 router.get("/me", async (req: Request, res: Response) => {
   try {
     const auth = req.headers.authorization;
-    if (!auth) {
+    if (!auth)
       return res
         .status(StatusCodes.UNAUTHORIZED)
         .json({ message: "Missing Authorization header" });
-    }
 
     const parts = auth.split(" ");
-    if (parts.length !== 2 || parts[0] !== "Bearer") {
+    if (parts.length !== 2 || parts[0] !== "Bearer")
       return res
         .status(StatusCodes.UNAUTHORIZED)
         .json({ message: "Malformed Authorization header" });
-    }
-    const token = parts[1];
 
-    if (!process.env.JWT_ACCESS_SECRET) {
+    const token = parts[1];
+    if (!process.env.JWT_ACCESS_SECRET)
       throw new Error("JWT_ACCESS_SECRET is not defined");
-    }
 
     const payload = jwt.verify(
       token,
       process.env.JWT_ACCESS_SECRET as Secret
-    ) as {
-      sub: string;
-    };
+    ) as { sub: string };
     const user: IUser | null = await User.findById(payload.sub).select(
       "-password"
     );
-    if (!user) {
+    if (!user)
       return res
         .status(StatusCodes.NOT_FOUND)
         .json({ message: "User not found" });
-    }
 
     res.status(StatusCodes.OK).json(user);
   } catch (err) {
     console.error(err);
-    return res
+    res
       .status(StatusCodes.UNAUTHORIZED)
       .json({ message: "Invalid or expired token" });
   }

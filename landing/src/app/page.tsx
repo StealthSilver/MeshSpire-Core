@@ -8,7 +8,7 @@ import Testimonial from "@/components/sections/Testimonial";
 
 export default function Home() {
   return (
-    <main>
+    <main className="bg-[var(--background)]">
       <Navbar />
       <Hero />
       <Services />

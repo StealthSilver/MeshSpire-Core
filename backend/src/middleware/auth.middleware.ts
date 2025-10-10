@@ -1,11 +1,23 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import jwt from "jsonwebtoken";
+import jwt, { Secret } from "jsonwebtoken";
 
-export interface AuthRequest extends Request {
-  user?: { id: string };
+// ✅ 1️⃣ Extend the global Express.User (used by Passport)
+declare global {
+  namespace Express {
+    interface User {
+      id: string;
+      email?: string;
+    }
+  }
 }
 
+// ✅ 2️⃣ Define AuthRequest properly
+export interface AuthRequest extends Request {
+  user?: Express.User;
+}
+
+// ✅ 3️⃣ Auth middleware
 export function authMiddleware(
   req: AuthRequest,
   res: Response,
@@ -13,28 +25,35 @@ export function authMiddleware(
 ) {
   try {
     const authHeader = req.headers.authorization;
+
     if (!authHeader) {
       return res
         .status(StatusCodes.UNAUTHORIZED)
         .json({ message: "Missing Authorization header" });
     }
 
-    const parts = authHeader.split(" ");
-    if (parts.length !== 2 || parts[0] !== "Bearer") {
+    const [bearer, token] = authHeader.split(" ");
+    if (bearer !== "Bearer" || !token) {
       return res
         .status(StatusCodes.UNAUTHORIZED)
         .json({ message: "Malformed Authorization header" });
     }
 
-    const token = parts[1];
     if (!process.env.JWT_ACCESS_SECRET) {
       throw new Error("JWT_ACCESS_SECRET is not defined");
     }
 
-    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET) as {
+    const payload = jwt.verify(
+      token,
+      process.env.JWT_ACCESS_SECRET as Secret
+    ) as {
       sub: string;
+      email?: string;
     };
-    req.user = { id: payload.sub };
+
+    // ✅ Attach user info
+    req.user = { id: payload.sub, email: payload.email };
+
     next();
   } catch (err) {
     console.error("JWT verification failed:", err);

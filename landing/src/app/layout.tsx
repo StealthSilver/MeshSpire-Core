@@ -4,7 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import ThemeHeadIcons from "@/components/ui/ThemeHeadIcon";
 import ClientWrapper from "@/components/ui/ClientWrapper";
-import { DM_Sans, Khula, Catamaran } from "next/font/google";
+import { DM_Sans, Geist } from "next/font/google";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -12,16 +12,10 @@ const dmSans = DM_Sans({
   variable: "--font-dm-sans",
 });
 
-const khula = Khula({
+const geist = Geist({
   subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
-  variable: "--font-khula",
-});
-
-const catamaran = Catamaran({
-  subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
-  variable: "--font-catamaran",
+  weight: ["400", "500", "700"],
+  variable: "--font-geist",
 });
 
 export const metadata: Metadata = {
@@ -66,7 +60,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${dmSans.variable} ${khula.variable} ${catamaran.variable}`}
+      className={`${dmSans.variable} ${geist.variable}`}
     >
       <head>
         <ThemeHeadIcons />

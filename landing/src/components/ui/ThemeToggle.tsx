@@ -35,11 +35,11 @@ export default function ThemeToggle() {
       aria-label={`Switch to ${isDark ? "light" : "dark"} theme`}
       title={`Switch to ${isDark ? "light" : "dark"} theme`}
       className="
-        relative inline-flex items-center justify-center gap-2 rounded-full border px-2 py-2 text-sm font-mono
-        transition-colors
-        bg-white text-black border-black hover:bg-black hover:text-white
-        dark:bg-black dark:text-white dark:border-white dark:hover:bg-white dark:hover:text-black
-      "
+    relative inline-flex items-center justify-center gap-2 rounded-full border px-2 py-2 text-sm font-mono
+    transition-colors
+    bg-[var(--background)] text-[var(--color-font)] border-[var(--foreground)]
+    hover:bg-[var(--foreground)] hover:text-[var(--background)]
+  "
     >
       <AnimatePresence mode="wait" initial={false}>
         {isDark ? (
