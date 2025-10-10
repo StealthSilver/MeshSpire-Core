@@ -1,58 +1,99 @@
-import React from "react";
-import Navbar from "../Component/Navbar";
-import Sidebar from "../Component/Sidebar";
-import MeetComp from "../Component/MeetComp";
-
-interface Meeting {
-  id: number;
-  theoremName: string;
-  teacherName: string;
-}
+import React, { useState } from "react";
+import Navbar from "../Components/Navbar";
+import Sidebar from "../Components/Sidebar";
+import { Carousel, Card } from "../Components/ui/Card-Coursel";
+import image1 from "../assets/calculus.png";
+import image2 from "../assets/algebra.png";
+import image3 from "../assets/digital_logic.png";
+import image4 from "../assets/probablity.png";
+import image5 from "../assets/quantum-computing.png";
+import image6 from "../assets/python.png";
 
 const Dashboard: React.FC = () => {
-  // Array of meetings
-  const meetings: Meeting[] = [
-    { id: 1, theoremName: "Pythagoras Theorem", teacherName: "Mr. Sharma" },
-    { id: 2, theoremName: "Fermat's Last Theorem", teacherName: "Ms. Gupta" },
-    { id: 3, theoremName: "Euler's Formula", teacherName: "Dr. Mehta" },
-    { id: 4, theoremName: "Binomial Theorem", teacherName: "Mr. Singh" },
-    { id: 5, theoremName: "Taylor Series", teacherName: "Ms. Verma" },
-    { id: 6, theoremName: "Lagrange Multipliers", teacherName: "Dr. Kapoor" },
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+
+  const meetings = [
+    {
+      id: 1,
+      theoremName: "Calculus",
+      teacherName: "Mr. Sharma",
+      imageUrl: image1,
+      rating: 4.5,
+    },
+    {
+      id: 2,
+      theoremName: "Algebra",
+      teacherName: "Ms. Gupta",
+      imageUrl: image2,
+      rating: 4,
+    },
+    {
+      id: 3,
+      theoremName: "Digital Logic",
+      teacherName: "Dr. Mehta",
+      imageUrl: image3,
+      rating: 3.5,
+    },
+    {
+      id: 4,
+      theoremName: "Probability",
+      teacherName: "Mr. Singh",
+      imageUrl: image4,
+      rating: 5,
+    },
+    {
+      id: 5,
+      theoremName: "Quantum Computing",
+      teacherName: "Ms. Verma",
+      imageUrl: image5,
+      rating: 4.2,
+    },
+    {
+      id: 6,
+      theoremName: "Python Programming",
+      teacherName: "Ms. Verma",
+      imageUrl: image6,
+      rating: 4.8,
+    },
   ];
 
-  return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
-      <div className="flex flex-1">
-        <Sidebar />
-
-        {/* Main content */}
-        <div className="flex flex-col flex-1 ml-10 md:ml-10">
-          <Navbar />
-
-          <div className="px-4 sm:px-6 lg:px-10 py-8 flex flex-col items-center py-20 pl-10">
-            {/* Optional Title */}
-            <h1 className="text-5xl font-bold text-white py-5">
-              Welcome to MeshSpire
-            </h1>
-
-            {/* Grid layout for MeetComp */}
-            <div className="grid grid-cols-1  lg:grid-cols-3 gap-6 w-full max-w-[1200px] ">
-              {meetings.map((meeting) => (
-                <MeetComp
-                  key={meeting.id}
-                  theoremName={meeting.theoremName}
-                  teacherName={meeting.teacherName}
-                  onJoin={() =>
-                    console.log(`Joining ${meeting.theoremName}...`)
-                  }
-                  onDetails={() =>
-                    console.log(`Showing details of ${meeting.theoremName}...`)
-                  }
-                />
-              ))}
-            </div>
+  const cards = meetings.map((m, index) => (
+    <Card
+      key={index}
+      index={index}
+      card={{
+        src: m.imageUrl,
+        title: m.theoremName,
+        category: `Instructor: ${m.teacherName}`,
+        rating: m.rating,
+        content: (
+          <div>
+            <p className="text-gray-700">
+              Learn about {m.theoremName} with {m.teacherName}. Dive into its
+              proofs, applications, and visual understanding.
+            </p>
           </div>
-        </div>
+        ),
+      }}
+    />
+  ));
+
+  return (
+    <div className="min-h-screen bg-black text-white flex">
+      <Sidebar onExpandChange={setIsSidebarExpanded} />
+      <div
+        className={`flex-1 transition-all duration-300 ${
+          isSidebarExpanded ? "ml-56" : "ml-20"
+        }`}
+      >
+        <Navbar isSidebarExpanded={isSidebarExpanded} />
+        <main className="px-6 py-8 transition-all duration-300">
+          <h1 className="text-3xl text-white mb-6 font-semibold">
+            Your Next Lessons
+          </h1>
+
+          <Carousel items={cards} />
+        </main>
       </div>
     </div>
   );

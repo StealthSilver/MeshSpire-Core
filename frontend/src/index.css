@@ -1,1 +1,18 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
+
+/* Set IBM Plex Sans as the default font */
+@layer base {
+  html {
+    font-family: "IBM Plex Sans", sans-serif;
+  }
+}
+
+/* Hide scrollbars globally */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

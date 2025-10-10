@@ -51,30 +51,24 @@ export default function AuthPage() {
     }
   };
 
-  // ---- Google OAuth Handler ----
   const handleGoogleSignin = () => {
-    // Redirect to backend endpoint handling Google OAuth
-    // Example: your backend should redirect to Google's consent screen
     window.location.href = `${API.defaults.baseURL}/user/auth/google`;
   };
 
   return (
     <div className="relative flex items-center justify-center h-screen overflow-hidden text-white">
-      {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 via-purple-700 to-neutral-900 animate-gradient-xy"></div>
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-[600px] h-[600px] bg-purple-700/20 rounded-full blur-3xl top-10 left-[-200px] animate-burn-slow"></div>
-        <div className="absolute w-[500px] h-[500px] bg-slate-700/10 rounded-full blur-3xl bottom-0 right-[-150px] animate-burn-slower"></div>
+        <div className="absolute w-[600px] h-[600px] bg-purple-800/20 rounded-full blur-3xl top-10 left-[-200px] animate-burn-slow"></div>
+        <div className="absolute w-[500px] h-[500px] bg-slate-800/10 rounded-full blur-3xl bottom-0 right-[-150px] animate-burn-slower"></div>
         <div className="absolute w-[400px] h-[400px] bg-purple-800/20 rounded-full blur-3xl top-1/3 right-1/3 animate-burn-slowest"></div>
       </div>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-3xl"></div>
 
-      {/* Auth Box */}
       <motion.div
         layout
         className="relative z-10 backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-8 w-96 min-h-[520px] flex flex-col justify-center"
       >
-        {/* Toggle SignIn / SignUp */}
         <div className="flex justify-center mb-8 relative">
           <div className="bg-white/10 backdrop-blur-sm rounded-full flex w-64 p-1 relative overflow-hidden">
             <motion.div
@@ -102,7 +96,6 @@ export default function AuthPage() {
           </div>
         </div>
 
-        {/* Animated Form */}
         <AnimatePresence mode="wait">
           {isSignin ? (
             <motion.div
@@ -163,7 +156,6 @@ export default function AuthPage() {
                 </div>
               </div>
 
-              {/* Google Sign In */}
               <div className="mt-6">
                 <div className="flex items-center justify-center my-4">
                   <div className="h-[1px] bg-white/20 w-1/3"></div>
@@ -240,7 +232,6 @@ export default function AuthPage() {
         </AnimatePresence>
       </motion.div>
 
-      {/* Background Animations */}
       <style>{`
         @keyframes gradient-xy {
           0%, 100% { background-position: 0% 0%; }

@@ -4,10 +4,9 @@ import type { ReactNode } from "react";
 interface AuthContextType {
   username: string;
   token: string | null;
-  userId: string | null;
-  loading: boolean;
-  setUser: (name: string, token: string, id: string) => void;
+  setUser: (username: string, token: string, id: string) => void;
   logout: () => void;
+  userId: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,33 +15,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [username, setUsername] = useState("");
   const [token, setToken] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tokenFromURL = params.get("token");
-    const nameFromURL = params.get("name");
-    const idFromURL = params.get("id");
-
-    if (tokenFromURL && nameFromURL && idFromURL) {
-      setUser(nameFromURL, tokenFromURL, idFromURL);
-
-      window.history.replaceState({}, "", window.location.pathname);
-      setLoading(false);
-      return;
-    }
-
     const storedToken = localStorage.getItem("token");
     const storedName = localStorage.getItem("name");
     const storedId = localStorage.getItem("userId");
 
-    if (storedToken && storedName && storedId) {
-      setToken(storedToken);
-      setUsername(storedName);
-      setUserId(storedId);
-    }
-
-    setLoading(false);
+    if (storedToken) setToken(storedToken);
+    if (storedName) setUsername(storedName);
+    if (storedId) setUserId(storedId);
   }, []);
 
   const setUser = (name: string, token: string, id: string) => {
@@ -64,10 +45,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider
-      value={{ username, token, userId, loading, setUser, logout }}
-    >
-      {!loading && children}
+    <AuthContext.Provider value={{ username, token, userId, setUser, logout }}>
+      {children}
     </AuthContext.Provider>
   );
 }

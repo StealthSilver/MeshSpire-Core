@@ -5,7 +5,11 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SearchIcon from "@mui/icons-material/Search";
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  isSidebarExpanded: boolean;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
   const { username, logout, userId } = useAuth();
   const [userDropDown, setUserDropDown] = useState(false);
   const navigate = useNavigate();
@@ -16,7 +20,6 @@ const Navbar: React.FC = () => {
     navigate("/");
   };
 
-  // Close dropdown on clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -34,10 +37,13 @@ const Navbar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="sticky top-0 z-50 backdrop-blur-md px-8 py-4 flex items-center justify-between ml-[100px] md:mr-[100px]">
-      {/* Left: Greeting */}
+    <nav
+      className={`sticky top-0 z-40 backdrop-blur-xl border border-[rgba(255,255,255,0.2)] 
+      bg-slate-900/70 text-white py-2 flex items-center justify-between transition-all duration-300
+      ${isSidebarExpanded ? "ml-4" : "ml-4"} mr-4 rounded-xl mt-4 px-4`}
+    >
       <div
-        className="text-white font-extrabold text-2xl hover:text-cyan-400 transition-colors cursor-pointer"
+        className="text-lg font-semibold cursor-pointer"
         onClick={() => navigate("/dashboard")}
       >
         {username
@@ -45,34 +51,35 @@ const Navbar: React.FC = () => {
           : "Hello, Guest"}
       </div>
 
-      {/* Right: Search Bar, Notification & User */}
-      <div className="flex items-center gap-4 relative">
-        {/* Search Bar */}
-        <div className="relative hidden lg:flex items-center ">
+      <div className="flex items-center gap-5 relative">
+        <div className="relative hidden lg:flex items-center">
           <input
             type="text"
             placeholder="Search..."
-            className="w-80 px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-72 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.12)] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
           <SearchIcon className="absolute right-3 text-gray-400 cursor-pointer" />
         </div>
 
-        {/* Notification Icon */}
-        <div className="relative cursor-pointer">
-          <NotificationsIcon className="text-gray-300 hover:text-cyan-400 transition-colors" />
-        </div>
+        <NotificationsIcon className="text-gray-300 cursor-pointer hover:text-white transition" />
 
-        {/* User Icon */}
         <div className="relative" ref={dropdownRef}>
           <AccountCircleIcon
             fontSize="large"
-            className="text-gray-300 cursor-pointer"
+            className="text-gray-300 cursor-pointer hover:text-white transition"
             onClick={() => setUserDropDown(!userDropDown)}
           />
 
-          {/* Dropdown */}
           {userDropDown && (
-            <div className="absolute right-0 mt-3 w-40 bg-gray-800 text-white rounded-xl shadow-lg border border-gray-700 z-50">
+            <div
+              className={`absolute -right-4 top-10 mt-3 w-40 bg-slate-900/70 backdrop-blur-md text-white rounded-xl shadow-xl border border-[rgba(255,255,255,0.15)] 
+    transform transition-all duration-300 ease-out
+    ${
+      userDropDown
+        ? "opacity-100 translate-y-0"
+        : "opacity-0 -translate-y-3 pointer-events-none"
+    }`}
+            >
               <div className="px-4 py-2 border-b border-gray-700">
                 {username
                   ? `Hello, ${
@@ -81,14 +88,14 @@ const Navbar: React.FC = () => {
                   : "Hello, Guest"}
               </div>
               <div
-                className="px-4 py-2 border-b border-gray-700 cursor-pointer "
+                className="px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition"
                 onClick={() => navigate(`/profile/${userId}`)}
               >
                 Profile
               </div>
               <button
                 onClick={handleLogout}
-                className="w-full text-left px-4 py-2 hover:bg-red-600 hover:text-white transition-colors rounded-b-xl"
+                className="w-full text-left px-4 py-2 hover:bg-red-600 transition rounded-b-xl"
               >
                 Logout
               </button>
