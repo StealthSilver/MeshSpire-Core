@@ -132,6 +132,9 @@ const Meeting: React.FC = () => {
                   placeholder="Enter Room ID"
                   value={roomId}
                   onChange={(e) => setRoomId(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") joinMeeting();
+                   }}
                   className="flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-xl lg:rounded-2xl text-white bg-slate-900/70 border border-white/10 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-700 w-full text-sm sm:text-base"
                 />
 

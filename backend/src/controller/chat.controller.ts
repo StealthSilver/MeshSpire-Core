@@ -2,9 +2,10 @@ import { Server, Socket } from "socket.io";
 
 const chatRoomToUsers: Map<string, string[]> = new Map(); // room → socket IDs
 const userToChatRoom: Map<string, string> = new Map(); // socket → room
+//const socketToUserName: Map<string, string> = new Map();
 
 export function ChatController(io: Server, socket: Socket) {
-  console.log("💬 Chat socket connected:", socket.id);
+  console.log(" Chat socket connected:", socket.id);
 
   // Join Chat Room
   socket.on(
@@ -18,6 +19,8 @@ export function ChatController(io: Server, socket: Socket) {
       if (!users.includes(socket.id)) users.push(socket.id);
 
       userToChatRoom.set(socket.id, roomId);
+     // socketToUserName.set(socket.id, userName);
+
       socket.join(roomId);
       console.log(`💬 ${socket.id} joined chat in room ${roomId}`);
 

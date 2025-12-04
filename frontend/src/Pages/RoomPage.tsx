@@ -10,7 +10,7 @@ import ScreenShareIcon from "@mui/icons-material/ScreenShare";
 import StopScreenShareIcon from "@mui/icons-material/StopScreenShare";
 import ChatIcon from "@mui/icons-material/Chat";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
-
+import ChatBox from "./ChatBox";
 interface PendingCandidates {
   [socketId: string]: RTCIceCandidateInit[];
 }
@@ -45,16 +45,8 @@ const Room: React.FC = () => {
   const autoSendVideo =
     (location.state && (location.state as any).autoSendVideo) || false;
   const [showAlert, setShowAlert] = useState(false);
-  const [showChatAlert, setShowChatAlert] = useState(false);
   const roomId = roomIdParam || sessionStorage.getItem("currentRoom");
-
-  // Timer states
-  const [timeRemaining, setTimeRemaining] = useState(15 * 60); // 15 minutes in seconds
-  const [showTimeWarning, setShowTimeWarning] = useState(false);
-  const [warningMessage, setWarningMessage] = useState("");
-  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const fiveMinWarningShownRef = useRef(false);
-  const oneMinWarningShownRef = useRef(false);
+  const [showChat, setShowChat] = useState(false);
 
   const copyRoomId = () => {
     if (roomId) {
@@ -95,60 +87,6 @@ const Room: React.FC = () => {
   useEffect(() => {
     joinRoom();
   }, [joinRoom]);
-
-  // Timer effect - starts when meeting begins
-  useEffect(() => {
-    if (!localStream) return; // Only start timer when video call has started
-
-    // Start the timer
-    timerIntervalRef.current = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 0) {
-          // Time's up - end the meeting
-          if (timerIntervalRef.current) {
-            clearInterval(timerIntervalRef.current);
-          }
-          endCall();
-          return 0;
-        }
-
-        const newTime = prev - 1;
-
-        // Show 5 minutes warning (at 5:00 remaining)
-        if (newTime === 5 * 60 && !fiveMinWarningShownRef.current) {
-          fiveMinWarningShownRef.current = true;
-          setWarningMessage("⚠️ Only 5 minutes left!");
-          setShowTimeWarning(true);
-          setTimeout(() => setShowTimeWarning(false), 5000);
-        }
-
-        // Show 1 minute warning (at 1:00 remaining)
-        if (newTime === 1 * 60 && !oneMinWarningShownRef.current) {
-          oneMinWarningShownRef.current = true;
-          setWarningMessage("⚠️ Only 1 minute left!");
-          setShowTimeWarning(true);
-          setTimeout(() => setShowTimeWarning(false), 5000);
-        }
-
-        return newTime;
-      });
-    }, 1000);
-
-    return () => {
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-      }
-    };
-  }, [localStream]);
-
-  // Format time as MM:SS
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
 
   const addLocalTracksToPC = useCallback((pc: RTCPeerConnection) => {
     const stream = localStreamRef.current;
@@ -447,11 +385,6 @@ const Room: React.FC = () => {
   };
 
   const endCall = () => {
-    // Clear timer
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-    }
-
     if (localStream) localStream.getTracks().forEach((track) => track.stop());
     if (screenTrackRef.current) screenTrackRef.current.stop();
 
@@ -500,35 +433,7 @@ const Room: React.FC = () => {
           ✅ Room ID copied!
         </div>
       )}
-      {showChatAlert && (
-        <div className="absolute top-16 right-4 bg-violet-800 border-2 border-gray-400 text-white px-4 py-2 rounded-xl shadow-lg transition-opacity duration-700 animate-pulse">
-          💬 Chat feature coming soon!
-        </div>
-      )}
-      {showTimeWarning && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-600 border-2 border-yellow-400 text-white px-8 py-4 rounded-xl shadow-2xl transition-opacity duration-700 animate-pulse text-xl font-bold z-50">
-          {warningMessage}
-        </div>
-      )}
-
-      {/* Timer Display - Bottom Left */}
-      <div className="absolute bottom-20 left-4 bg-black/70 text-white px-4 py-2 rounded-lg shadow-lg z-30 border border-gray-600">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">Time:</span>
-          <span
-            className={`text-lg font-mono font-bold ${
-              timeRemaining <= 60
-                ? "text-red-500"
-                : timeRemaining <= 300
-                ? "text-yellow-400"
-                : "text-green-400"
-            }`}
-          >
-            {formatTime(timeRemaining)}
-          </span>
-        </div>
-      </div>
-
+      
       {/* Remote videos */}
       {Object.entries(remoteStreams).map(([id, stream]) => (
         <div
@@ -626,15 +531,19 @@ const Room: React.FC = () => {
 
         {/* Chat */}
         <button
-          onClick={() => {
-            setShowChatAlert(true);
-            setTimeout(() => setShowChatAlert(false), 2000);
-          }}
+          onClick={() => setShowChat((prev) => !prev)}
           className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
         >
           <ChatIcon fontSize="small" className="sm:text-base" />
         </button>
       </div>
+       {showChat && roomId && (
+        <ChatBox
+          roomId={roomId as string}
+          onClose={() => setShowChat(false)}
+        />
+      )}
+
     </div>
   );
 };
