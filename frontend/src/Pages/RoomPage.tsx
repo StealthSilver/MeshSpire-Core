@@ -538,7 +538,7 @@ const Room: React.FC = () => {
         </button>
       </div>
        {showChat && roomId && (
-        <ChatBox
+        <ChatBox 
           roomId={roomId as string}
           onClose={() => setShowChat(false)}
         />

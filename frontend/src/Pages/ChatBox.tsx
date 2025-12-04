@@ -42,6 +42,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, onClose }) => {
 
   // Send message
   const sendMessage = () => {
+  
     if (!input.trim()) return;
 
     const data: ChatMessage = {
@@ -49,6 +50,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, onClose }) => {
       message: input,
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
+   
 
     socket.emit("chat-message", { roomId, ...data });
     setMessages((prev) => [...prev, data]); // show mine instantly
