@@ -27,6 +27,16 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, onClose }) => {
 
   useEffect(scrollToBottom, [messages]);
 
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.emit("join-chat", { roomId, userName: socket.id });
+
+    return () => {
+      socket.emit("leave-chat");
+    };
+  }, [socket, roomId]);
+
   // Receive messages
   useEffect(() => {
     if (!socket) return;

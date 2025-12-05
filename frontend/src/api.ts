@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Use environment variable or fallback to production for deployment
-const baseURL = "https://meshspire-core-prod.onrender.com/api/v0";
+const baseURL = "http://localhost:8000/api/v0";
 
 const API = axios.create({
   baseURL,
