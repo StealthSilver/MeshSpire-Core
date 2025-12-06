@@ -48,24 +48,114 @@ export const upload = multer({
 export const getConversations = async (req: Request, res: Response) => {
   try {
     const userId = req.user?._id;
-    const userRole = req.user?.role;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    // Fetch user role from database since it's not in the JWT token
+    const User = (await import("../models/user.model")).default;
+    const user = await User.findById(userId).select("role").lean();
+    const userRole = user?.role;
+
+    console.log("📋 Fetching conversations for user:", { userId, userRole });
+
+    const query =
+      userRole === "tutor" ? { tutorId: userId } : { studentId: userId };
+
+    const allConversations = await Conversation.find(query)
+      .populate("studentId", "name email avatarUrl")
+      .populate("tutorId", "name email avatarUrl")
+      .populate("lessonId", "topic subject date time isPaid")
+      .sort({ lastMessageAt: -1 })
+      .lean();
+
+    console.log(`✅ Found ${allConversations.length} total conversations`);
+
+    // Filter to only show conversations for paid lessons
+    const conversations = allConversations.filter((conv: any) => {
+      const isPaid = conv.lessonId?.isPaid;
+      const hasStudentName = !!conv.studentId?.name;
+      const hasTutorName = !!conv.tutorId?.name;
+
+      console.log(`Conversation ${conv._id}:`, {
+        lessonId: conv.lessonId?._id,
+        topic: conv.lessonId?.topic,
+        isPaid,
+        studentName: conv.studentId?.name,
+        hasStudentName,
+        tutorName: conv.tutorId?.name,
+        hasTutorName,
+        studentId: conv.studentId?._id,
+        tutorId: conv.tutorId?._id,
+      });
+
+      // Show conversations where both user names exist (properly populated)
+      // Removed isPaid filter to allow chat immediately after tutor confirms
+      return hasStudentName && hasTutorName;
+    });
+
+    console.log(
+      `✅ Returning ${conversations.length} conversations with valid user data`
+    );
+
+    res.json(conversations);
+  } catch (error) {
+    console.error("❌ Error fetching conversations:", error);
+    res.status(500).json({ message: "Error fetching conversations" });
+  }
+};
+
+// Debug endpoint - Get all conversations without filtering (for debugging)
+export const getAllConversationsDebug = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?._id;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Fetch user role from database since it's not in the JWT token
+    const User = (await import("../models/user.model")).default;
+    const user = await User.findById(userId).select("role").lean();
+    const userRole = user?.role;
+
+    console.log("🔍 DEBUG: Fetching ALL conversations for user:", {
+      userId,
+      userRole,
+    });
+
     const query =
       userRole === "tutor" ? { tutorId: userId } : { studentId: userId };
 
     const conversations = await Conversation.find(query)
-      .populate("studentId", "name email avatar")
-      .populate("tutorId", "name email avatar")
-      .populate("lessonId", "topic subject date time")
-      .sort({ lastMessageAt: -1 });
+      .populate("studentId", "name email avatarUrl")
+      .populate("tutorId", "name email avatarUrl")
+      .populate("lessonId", "topic subject date time isPaid")
+      .sort({ lastMessageAt: -1 })
+      .lean();
 
-    res.json(conversations);
+    console.log(`🔍 DEBUG: Found ${conversations.length} total conversations`);
+
+    const debug = conversations.map((conv: any) => ({
+      id: conv._id,
+      lessonPaid: conv.lessonId?.isPaid,
+      lessonTopic: conv.lessonId?.topic,
+      studentId: conv.studentId?._id,
+      studentName: conv.studentId?.name,
+      tutorId: conv.tutorId?._id,
+      tutorName: conv.tutorId?.name,
+      lastMessage: conv.lastMessage,
+    }));
+
+    res.json({
+      count: conversations.length,
+      userId,
+      userRole,
+      conversations: debug,
+    });
   } catch (error) {
-    console.error("Error fetching conversations:", error);
+    console.error("❌ Error in debug conversations:", error);
     res.status(500).json({ message: "Error fetching conversations" });
   }
 };
@@ -96,8 +186,8 @@ export const getMessages = async (req: Request, res: Response) => {
     }
 
     const messages = await Message.find({ conversationId })
-      .populate("senderId", "name avatar")
-      .populate("receiverId", "name avatar")
+      .populate("senderId", "name avatarUrl")
+      .populate("receiverId", "name avatarUrl")
       .sort({ createdAt: 1 });
 
     // Mark messages as read
@@ -174,8 +264,8 @@ export const sendMessage = async (req: Request, res: Response) => {
     await conversation.save();
 
     const populatedMessage = await Message.findById(message._id)
-      .populate("senderId", "name avatar")
-      .populate("receiverId", "name avatar");
+      .populate("senderId", "name avatarUrl")
+      .populate("receiverId", "name avatarUrl");
 
     // Emit real-time message via Socket.IO
     if (io) {
@@ -251,8 +341,8 @@ export const uploadFile = async (req: Request, res: Response) => {
     await conversation.save();
 
     const populatedMessage = await Message.findById(message._id)
-      .populate("senderId", "name avatar")
-      .populate("receiverId", "name avatar");
+      .populate("senderId", "name avatarUrl")
+      .populate("receiverId", "name avatarUrl");
 
     res.status(201).json(populatedMessage);
   } catch (error) {
@@ -262,9 +352,15 @@ export const uploadFile = async (req: Request, res: Response) => {
 };
 
 // Create conversation when tutor confirms lesson
-export const createConversation = async (lessonId: string, tutorId: string) => {
+export const createConversation = async (
+  lessonId: string,
+  tutorUserId: string
+) => {
   try {
-    console.log("🔧 Creating conversation for lesson:", { lessonId, tutorId });
+    console.log("🔧 Creating conversation for lesson:", {
+      lessonId,
+      tutorUserId,
+    });
 
     const lesson = await Lesson.findById(lessonId);
     if (!lesson) {
@@ -273,30 +369,94 @@ export const createConversation = async (lessonId: string, tutorId: string) => {
 
     console.log("📚 Lesson found:", {
       studentId: lesson.studentId,
+      studentIdType: typeof lesson.studentId,
       topic: lesson.topic,
     });
+
+    // Verify the users exist
+    const User = (await import("../models/user.model")).default;
+    const student = await User.findById(lesson.studentId);
+    const tutor = await User.findById(tutorUserId);
+
+    console.log("👥 User verification:", {
+      studentExists: !!student,
+      studentName: student?.name,
+      studentEmail: student?.email,
+      tutorExists: !!tutor,
+      tutorName: tutor?.name,
+      tutorEmail: tutor?.email,
+    });
+
+    if (!student || !tutor) {
+      throw new Error(
+        `User not found - Student: ${!!student}, Tutor: ${!!tutor}`
+      );
+    }
 
     // Check if conversation already exists
     const existingConversation = await Conversation.findOne({
       lessonId,
       studentId: lesson.studentId,
-      tutorId,
-    });
+      tutorId: tutorUserId,
+    })
+      .populate("studentId", "name email avatarUrl")
+      .populate("tutorId", "name email avatarUrl")
+      .populate("lessonId", "topic subject date time");
 
     if (existingConversation) {
-      console.log("✅ Conversation already exists:", existingConversation._id);
+      console.log("✅ Conversation already exists:", {
+        id: existingConversation._id,
+        studentName: (existingConversation.studentId as any)?.name,
+        tutorName: (existingConversation.tutorId as any)?.name,
+      });
       return existingConversation;
     }
 
     const conversation = new Conversation({
       lessonId,
       studentId: lesson.studentId,
-      tutorId,
+      tutorId: tutorUserId,
     });
 
     await conversation.save();
-    console.log("✅ New conversation created:", conversation._id);
-    return conversation;
+    console.log("✅ New conversation saved:", {
+      id: conversation._id,
+      studentId: conversation.studentId,
+      tutorId: conversation.tutorId,
+      lessonId: conversation.lessonId,
+    });
+
+    // Populate the conversation before emitting
+    const populatedConversation = await Conversation.findById(conversation._id)
+      .populate("studentId", "name email avatarUrl")
+      .populate("tutorId", "name email avatarUrl")
+      .populate("lessonId", "topic subject date time")
+      .lean();
+
+    console.log("✅ Populated conversation:", {
+      id: populatedConversation?._id,
+      studentName: (populatedConversation?.studentId as any)?.name,
+      tutorName: (populatedConversation?.tutorId as any)?.name,
+      lessonTopic: (populatedConversation?.lessonId as any)?.topic,
+    });
+
+    // Emit real-time notification to both users
+    if (io && populatedConversation) {
+      console.log("📡 Emitting conversation-created to:", {
+        studentRoom: `user:${lesson.studentId}`,
+        tutorRoom: `user:${tutorUserId}`,
+      });
+      io.to(`user:${lesson.studentId}`).emit(
+        "conversation-created",
+        populatedConversation
+      );
+      io.to(`user:${tutorUserId}`).emit(
+        "conversation-created",
+        populatedConversation
+      );
+    }
+
+    return populatedConversation;
   } catch (error) {
     console.error("❌ Error creating conversation:", error);
     throw error;

@@ -4,7 +4,7 @@ import { Carousel, Card } from "../Components/ui/Card-Coursel";
 import FeaturedCard from "../Components/featuredCards";
 import LessonModel from "../Components/LessonModel";
 import LessonCarousel from "../Components/LessonCarousel";
-import { createLesson, getMyLessons } from "../api";
+import { createLesson, getMyLessons, deleteLesson } from "../api";
 import image1 from "../assets/calculus.png";
 import image2 from "../assets/algebra.png";
 import image3 from "../assets/digital_logic.png";
@@ -19,10 +19,18 @@ const Dashboard: React.FC = () => {
   const [lessons, setLessons] = useState<any[]>([]);
   const [openDetails, setOpenDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [edit, setEdit] = useState(false);
+  const [editData, setEditData] = useState(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    show: boolean;
+    lessonId: string | null;
+    lessonTitle: string;
+  }>({ show: false, lessonId: null, lessonTitle: "" });
 
   // Separate paid and unpaid lessons
   const unpaidLessons = lessons.filter((lesson) => !lesson.isPaid);
   const paidLessons = lessons.filter((lesson) => lesson.isPaid);
+  
 
   useEffect(() => {
     fetchLessons();
@@ -43,10 +51,27 @@ const Dashboard: React.FC = () => {
     };
   }, []);
 
+  const OnEditLesson = (lessonId: string) => {
+    const lesson = lessons.find((l) => l._id === lessonId);
+    setEdit(true);
+    setEditData(lesson);
+    setOpenCard(true);
+  }
+
   const fetchLessons = async () => {
     try {
       setLoading(true);
       const data = await getMyLessons();
+      console.log("📚 Fetched lessons:", data);
+      // Log confirmed tutors for each lesson
+      data.forEach((lesson: any, idx: number) => {
+        if (lesson.confirmedTutors && lesson.confirmedTutors.length > 0) {
+          console.log(
+            `Lesson ${idx} (${lesson.topic}) confirmed tutors:`,
+            lesson.confirmedTutors
+          );
+        }
+      });
       setLessons(data);
     } catch (error) {
       console.error("Error fetching lessons:", error);
@@ -76,6 +101,35 @@ const Dashboard: React.FC = () => {
         autoSendVideo: true,
       },
     });
+  };
+
+  const handleDeleteLesson = (lessonId: string, lessonTitle: string) => {
+    setDeleteConfirmation({
+      show: true,
+      lessonId,
+      lessonTitle,
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmation.lessonId) return;
+
+    try {
+      await deleteLesson(deleteConfirmation.lessonId);
+      await fetchLessons();
+      setDeleteConfirmation({ show: false, lessonId: null, lessonTitle: "" });
+      alert("Lesson deleted successfully");
+    } catch (error: any) {
+      console.error("Error deleting lesson:", error);
+      alert(
+        error.response?.data?.message ||
+        "Failed to delete lesson. Please try again."
+      );
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmation({ show: false, lessonId: null, lessonTitle: "" });
   };
 
   const meetings = [
@@ -174,10 +228,20 @@ const Dashboard: React.FC = () => {
                 topic={lesson.topic}
                 subject={lesson.subject}
                 time={`${lesson.date} • ${lesson.time}`}
-                onViewDetails={() => setOpenDetails(lesson)}
+                onViewDetails={() => {
+                  console.log("📝 View Details clicked for lesson:", lesson);
+                  console.log("📝 Confirmed tutors:", lesson.confirmedTutors);
+                  console.log("📝 Is paid:", lesson.isPaid);
+                  setOpenDetails(lesson);
+                }}
                 isPaid={false}
                 date={lesson.date}
                 lessonTime={lesson.time}
+                onEditLesson={() => OnEditLesson(lesson._id)}
+                onDelete={() => handleDeleteLesson(lesson._id, lesson.topic)}
+                hasConfirmedTutors={
+                  lesson.confirmedTutors && lesson.confirmedTutors.length > 0
+                }
               />
             ))}
           </LessonCarousel>
@@ -194,7 +258,7 @@ const Dashboard: React.FC = () => {
           <>
             <div className="flex justify-between items-center mt-8">
               <h2 className="text-2xl font-bold tracking-wide">
-                Confirmed Classes ✓
+                Confirmed Classes
               </h2>
             </div>
             <LessonCarousel>
@@ -204,11 +268,19 @@ const Dashboard: React.FC = () => {
                   topic={lesson.topic}
                   subject={lesson.subject}
                   time={`${lesson.date} • ${lesson.time}`}
-                  onViewDetails={() => setOpenDetails(lesson)}
+                  onViewDetails={() => {
+                    console.log(
+                      "View Details clicked for paid lesson:",
+                      lesson
+                    );
+                    setOpenDetails(lesson);
+                  }}
                   isPaid={true}
                   date={lesson.date}
                   lessonTime={lesson.time}
                   onStartMeeting={() => handleStartMeeting(lesson)}
+                  onDelete={() => handleDeleteLesson(lesson._id, lesson.topic)}
+                  onEditLesson={()=>OnEditLesson(lesson._id)}
                 />
               ))}
             </LessonCarousel>
@@ -227,14 +299,29 @@ const Dashboard: React.FC = () => {
       {openCard && (
         <FeaturedCard
           open={openCard}
-          onClose={() => setOpenCard(false)}
+          onClose={() => {setOpenCard(false); setEdit(false) }}
           onSchedule={handleScheduleLesson}
+          editMode={edit}
+          lessonData={editData}
+
         />
       )}
 
       {openDetails && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 px-4">
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-2xl w-full sm:w-[480px] space-y-5 shadow-2xl border border-violet-500/20 max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[9999] px-4"
+          onClick={() => {
+            console.log("Modal overlay clicked, closing...");
+            setOpenDetails(null);
+          }}
+        >
+          <div
+            className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-2xl w-full sm:w-[480px] space-y-5 shadow-2xl border border-violet-500/20 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => {
+              console.log("Modal content clicked");
+              e.stopPropagation();
+            }}
+          >
             <div className="flex justify-between items-start">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
                 {openDetails.topic}
@@ -284,86 +371,152 @@ const Dashboard: React.FC = () => {
                   </h3>
                   <div className="space-y-2">
                     {openDetails.confirmedTutors.map(
-                      (confirmedTutor: any, index: number) => (
-                        <div
-                          key={index}
-                          className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-xl border border-green-500/30 space-y-3"
-                        >
-                          <p className="text-gray-200 font-semibold">
-                            {confirmedTutor.tutorId?.name ||
-                              confirmedTutor.tutorId ||
-                              "Unknown Tutor"}
-                          </p>
+                      (confirmedTutor: any, index: number) => {
+                        console.log(
+                          `🔍 Processing tutor ${index}:`,
+                          confirmedTutor
+                        );
+                        console.log(
+                          `🔍 Tutor ID type:`,
+                          typeof confirmedTutor.tutorId
+                        );
+                        console.log(
+                          `🔍 Tutor ID value:`,
+                          confirmedTutor.tutorId
+                        );
 
-                          {confirmedTutor.tutorId?.email && (
-                            <p className="text-gray-400 text-sm">
-                              {confirmedTutor.tutorId.email}
+                        // Check if tutorId is populated (object) or just an ID (string)
+                        const isTutorPopulated =
+                          confirmedTutor.tutorId &&
+                          typeof confirmedTutor.tutorId === "object";
+                        const tutorName = isTutorPopulated
+                          ? confirmedTutor.tutorId.name
+                          : null;
+                        const tutorEmail = isTutorPopulated
+                          ? confirmedTutor.tutorId.email
+                          : null;
+                        const tutorId = isTutorPopulated
+                          ? confirmedTutor.tutorId._id
+                          : confirmedTutor.tutorId;
+
+                        console.log(`🔍 Extracted data:`, {
+                          isTutorPopulated,
+                          tutorName,
+                          tutorEmail,
+                          tutorId,
+                        });
+                        console.log(`🔍 isPaid:`, openDetails.isPaid);
+
+                        // Skip rendering if tutor data is invalid
+                        if (!tutorId) {
+                          console.warn(
+                            "⚠️ Invalid tutor data:",
+                            confirmedTutor
+                          );
+                          return null;
+                        }
+
+                        return (
+                          <div
+                            key={index}
+                            className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-xl border border-green-500/30 space-y-3"
+                          >
+                            <p className="text-gray-200 font-semibold">
+                              {tutorName || "Tutor"}
                             </p>
-                          )}
 
-                          {confirmedTutor.confirmedAt && (
-                            <p className="text-gray-400 text-xs">
-                              Confirmed:{" "}
-                              {new Date(
-                                confirmedTutor.confirmedAt
-                              ).toLocaleString()}
-                            </p>
-                          )}
+                            {tutorEmail && (
+                              <p className="text-gray-400 text-sm">
+                                {tutorEmail}
+                              </p>
+                            )}
 
-                          {!openDetails.isPaid && (
-                            <div className="flex flex-col sm:flex-row gap-3 pt-1">
-                              <button
-                                onClick={async () => {
-                                  console.log("Initiating payment...");
-                                  try {
-                                    const url = await payForLesson({
-                                      tutorId: confirmedTutor.tutorId._id,
-                                      lessonId: openDetails._id,
-                                    });
-                                    window.location.href = url; // redirect to Stripe
-                                  } catch (error) {
-                                    console.error("Payment Error:", error);
-                                    alert("Payment failed. Try again later.");
-                                  }
-                                }}
-                                className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500
-                                    transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-green-500/50
+                            {confirmedTutor.confirmedAt && (
+                              <p className="text-gray-400 text-xs">
+                                Confirmed:{" "}
+                                {new Date(
+                                  confirmedTutor.confirmedAt
+                                ).toLocaleString()}
+                              </p>
+                            )}
+
+                            {(() => {
+                              console.log(
+                                `🔘 Rendering buttons for tutor. isPaid: ${openDetails.isPaid}`
+                              );
+                              if (!openDetails.isPaid) {
+                                console.log(
+                                  "🔘 Showing Pay & Confirm and Teacher Details buttons"
+                                );
+                                return (
+                                  <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                                    <button
+                                      onClick={async () => {
+                                        console.log("💳 Initiating payment...");
+                                        try {
+                                          const url = await payForLesson({
+                                            tutorId: tutorId,
+                                            lessonId: openDetails._id,
+                                          });
+                                          window.location.href = url; // redirect to Stripe
+                                        } catch (error) {
+                                          console.error(
+                                            "Payment Error:",
+                                            error
+                                          );
+                                          alert(
+                                            "Payment failed. Try again later."
+                                          );
+                                        }
+                                      }}
+                                      className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500
+                                        transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-green-500/50
+                                        active:scale-95 text-white"
+                                    >
+                                      Pay & Confirm
+                                    </button>
+
+                                    <a
+                                      href={`${window.location.origin}/tutor/${tutorId}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      <button
+                                        className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
+                                    transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
                                     active:scale-95 text-white"
-                              >
-                                Pay & Confirm
-                              </button>
-
-                              <a href={`${window.location.origin}/tutor/${confirmedTutor.tutorId._id}`} target="_blank">
-                              <button
-
-                                className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
-                                transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
-                                active:scale-95 text-white"
-                              >
-                                Teacher Details
-                              </button>
-                              </a>
-
-                            </div>
-                          )}
-
-                          {openDetails.isPaid && (
-                            <div className="pt-1">
-                              <a href={`${window.location.origin}/tutor/${confirmedTutor.tutorId._id}`} target="_blank">
-
-                              <button
-                                
-                                className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
-                                       transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
-                                       active:scale-95 text-white"
-                              >
-                                Teacher Details
-                              </button>
-                              </a>
-                            </div>
-                          )}
-                        </div>
-                      )
+                                      >
+                                        Teacher Details
+                                      </button>
+                                    </a>
+                                  </div>
+                                );
+                              } else {
+                                console.log(
+                                  "🔘 Showing only Teacher Details button (paid)"
+                                );
+                                return (
+                                  <div className="pt-1">
+                                    <a
+                                      href={`${window.location.origin}/tutor/${tutorId}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      <button
+                                        className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
+                                           transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
+                                           active:scale-95 text-white"
+                                      >
+                                        Teacher Details
+                                      </button>
+                                    </a>
+                                  </div>
+                                );
+                              }
+                            })()}
+                          </div>
+                        );
+                      }
                     )}
                   </div>
                 </div>
@@ -384,15 +537,76 @@ const Dashboard: React.FC = () => {
               onClick={() => setOpenDetails(null)}
               className="w-full mt-4 bg-gradient-to-r from-violet-600 to-purple-600 
                        hover:from-violet-500 hover:to-purple-500 transition-all duration-300 
-                       px-4 py-3 rounded-xl fo  userId: openDetails.studentId,nt-semibold shadow-lg hover:shadow-violet-500/50"
+                       px-4 py-3 rounded-xl font-semibold shadow-lg hover:shadow-violet-500/50"
             >
               Close
             </button>
           </div>
         </div>
-      )
-      }
-    </div >
+      )}
+
+      {/* Delete Confirmation Popup */}
+      {deleteConfirmation.show && (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[10000] px-4"
+          onClick={cancelDelete}
+        >
+          <div
+            className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-2xl w-full sm:w-[400px] space-y-5 shadow-2xl border border-red-500/30"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-full bg-red-900/40">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-red-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-red-400">
+                Delete Lesson?
+              </h2>
+            </div>
+
+            <p className="text-gray-300">
+              Are you sure you want to delete the lesson{" "}
+              <span className="font-semibold text-white">
+                "{deleteConfirmation.lessonTitle}"
+              </span>
+              ? This action cannot be undone.
+            </p>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={cancelDelete}
+                className="flex-1 px-4 py-3 rounded-xl font-semibold 
+                         bg-gray-700 hover:bg-gray-600 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-3 rounded-xl font-semibold 
+                         bg-gradient-to-r from-red-600 to-red-700 
+                         hover:from-red-500 hover:to-red-600 
+                         transition-all shadow-lg hover:shadow-red-500/50"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

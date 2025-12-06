@@ -21,5 +21,10 @@ lessonRoute.post(
   LessonController.confirmLesson
 );
 lessonRoute.post("/cancel/:id", authMiddleware, LessonController.cancelLesson);
+lessonRoute.delete(
+  "/delete/:id",
+  authMiddleware,
+  LessonController.deleteLesson
+);
 
 export default lessonRoute;

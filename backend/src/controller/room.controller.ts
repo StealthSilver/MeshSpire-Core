@@ -21,6 +21,7 @@ export function RoomController(io: Server, socket: Socket) {
   });
 
   socket.on("send-message", (data: { receiverId: string; message: any }) => {
+    // add user name to message
     io.to(`user:${data.receiverId}`).emit("new-message", data.message);
     console.log(`Message sent to user ${data.receiverId}`);
   });

@@ -75,6 +75,21 @@ io.on("connection", (socket) => {
   console.log("socket connected:", socket.id);
   socketIO = io; // Store io instance
   setSocketIO(io); // Make available to chat controller
+
+  // Handle user room joining for chat notifications
+  socket.on("join-user-room", (userId: string) => {
+    const roomName = `user:${userId}`;
+    socket.join(roomName);
+    console.log(`User ${userId} joined room ${roomName}`);
+  });
+
+  socket.on("leave-user-room", (userId: string) => {
+    const roomName = `user:${userId}`;
+    socket.leave(roomName);
+    console.log(`User ${userId} left room ${roomName}`);
+  });
+
+  // Handle room-related events
   RoomController(io, socket);
 });
 

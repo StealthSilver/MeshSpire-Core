@@ -164,7 +164,8 @@ export class NotificationController {
       | "payment_success"
       | "payment_failed"
       | "meeting_starting"
-      | "new_lesson";
+      | "new_lesson"
+      | "chat_enabled";
     title: string;
     message: string;
     lessonId?: string;

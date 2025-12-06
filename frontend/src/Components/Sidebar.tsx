@@ -90,8 +90,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
       fetchUnreadCount();
     });
 
+    // Listen for new conversations
+    socket.on("conversation-created", () => {
+      fetchUnreadCount();
+    });
+
     return () => {
       socket.off("new-message");
+      socket.off("conversation-created");
     };
   }, [socket]);
 

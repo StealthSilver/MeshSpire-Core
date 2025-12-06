@@ -6,12 +6,14 @@ import {
   uploadFile,
   upload,
   getUnreadCount,
+  getAllConversationsDebug,
 } from "../controller/chat.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
 
 const router = express.Router();
 
 router.get("/conversations", authMiddleware, getConversations);
+router.get("/conversations/debug", authMiddleware, getAllConversationsDebug);
 router.get(
   "/conversations/:conversationId/messages",
   authMiddleware,

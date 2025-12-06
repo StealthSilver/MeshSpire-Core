@@ -55,7 +55,7 @@ const CTA = () => {
         </h1>
 
         <Link
-          href="https://dev.dn03fv11bz1ey.amplifyapp.com/"
+          href="https://meshspire-core.vercel.app/"
           className="mt-10
     rounded-full border px-18 py-1.5 transition-all duration-300
     bg-[var(--color-primary)] text-[var(--background)] dark:text-[var(--foreground)] border-[var(--color-primary)]

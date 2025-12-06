@@ -7,7 +7,8 @@ export interface INotification extends Document {
     | "payment_success"
     | "payment_failed"
     | "meeting_starting"
-    | "new_lesson";
+    | "new_lesson"
+    | "chat_enabled";
   title: string;
   message: string;
   lessonId?: mongoose.Types.ObjectId;
@@ -33,6 +34,7 @@ const NotificationSchema = new Schema<INotification>(
         "payment_failed",
         "meeting_starting",
         "new_lesson",
+        "chat_enabled",
       ],
       required: true,
     },

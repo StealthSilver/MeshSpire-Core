@@ -120,11 +120,18 @@ const TutorCalendar: React.FC = () => {
                   </h3>
                   <div className="space-y-2">
                     {openDetails.confirmedTutors.map(
-                      (ct: any, index: number) => (
-                        <div key={index} className="text-gray-300 text-sm">
-                          • {ct.tutorId?.name || "Unknown Tutor"}
-                        </div>
-                      )
+                      (ct: any, index: number) => {
+                        const tutorName =
+                          ct.tutorId?.name ||
+                          (typeof ct.tutorId === "string"
+                            ? "Tutor"
+                            : "Unknown Tutor");
+                        return (
+                          <div key={index} className="text-gray-300 text-sm">
+                            • {tutorName}
+                          </div>
+                        );
+                      }
                     )}
                   </div>
                 </div>

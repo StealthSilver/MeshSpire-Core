@@ -154,7 +154,8 @@ export class LessonController {
       console.log(" All scheduled lessons found:", allLessons.length);
       allLessons.forEach((l, i) => {
         console.log(
-          `  ${i + 1}. ${l.topic} - subject: "${l.subject
+          `  ${i + 1}. ${l.topic} - subject: "${
+            l.subject
           }" (${typeof l.subject})`
         );
       });
@@ -169,7 +170,8 @@ export class LessonController {
           );
         } else {
           console.log(
-            `❌ No match: "${lesson.subject
+            `❌ No match: "${
+              lesson.subject
             }" not in tutor subjects [${normalizedSubjects.join(", ")}]`
           );
         }
@@ -240,21 +242,31 @@ export class LessonController {
   static async confirmLesson(req: AuthRequest, res: Response) {
     try {
       const lessonId = req.params.id;
-      const tutor = await Profile.findOne({ userId: req.user?.id, role: "tutor" });
+      const userId = req.user?.id;
+
+      console.log("🔄 Confirm lesson request:", { lessonId, userId });
+
+      const tutor = await Profile.findOne({
+        userId: userId,
+        role: "tutor",
+      });
+
       if (!tutor) {
-        return res.status(StatusCodes.NOT_FOUND).json({ message: "Tutor not found" });
+        console.error("❌ Tutor profile not found for userId:", userId);
+        return res.status(StatusCodes.NOT_FOUND).json({
+          message:
+            "Tutor profile not found. Please complete your profile setup.",
+        });
       }
-      const tutorId = tutor._id;
 
-
-      if (!tutorId) {
-        return res
-          .status(StatusCodes.UNAUTHORIZED)
-          .json({ message: "Unauthorized" });
-      }
+      console.log("✅ Tutor profile found:", {
+        tutorId: tutor._id,
+        name: tutor.name,
+      });
 
       const lesson = await Lesson.findById(lessonId);
       if (!lesson) {
+        console.error("❌ Lesson not found:", lessonId);
         return res
           .status(StatusCodes.NOT_FOUND)
           .json({ message: "Lesson not found" });
@@ -262,31 +274,38 @@ export class LessonController {
 
       // Check if tutor already confirmed
       const alreadyConfirmed = lesson.confirmedTutors?.some(
-        (ct: any) => ct.tutorId.toString() === tutorId
+        (ct: any) => ct.tutorId.toString() === tutor.userId.toString()
       );
 
       if (alreadyConfirmed) {
+        console.log("⚠️ Tutor already confirmed this lesson");
         return res
           .status(StatusCodes.CONFLICT)
           .json({ message: "You have already confirmed this lesson" });
       }
 
-      // Add tutor to confirmed list
+      // Add tutor to confirmed list - use tutor.userId (User ID) not tutor._id (Profile ID)
       const updated = await Lesson.findByIdAndUpdate(
         lessonId,
         {
           $push: {
             confirmedTutors: {
-              tutorId: tutor._id,
-              userId: tutor.userId,
-              name: tutor.name,
-              confirmedAt: new Date()
-            }
+              tutorId: tutor.userId,
+              confirmedAt: new Date(),
+            },
           },
-
         },
         { new: true }
-      ).populate("confirmedTutors.tutorId", "name email userId");
+      )
+        .populate("confirmedTutors.tutorId", "name email")
+        .populate("studentId", "name email");
+
+      console.log("✅ Lesson confirmed successfully:", {
+        lessonId,
+        confirmedTutorsCount: updated?.confirmedTutors?.length,
+        confirmedTutors: updated?.confirmedTutors,
+        studentId: updated?.studentId,
+      });
 
       // Create notification for student
       if (lesson.studentId) {
@@ -294,19 +313,35 @@ export class LessonController {
           userId: lesson.studentId.toString(),
           type: "lesson_confirmed",
           title: "Lesson Confirmed",
-          message: `Your lesson "${lesson.topic}" has been confirmed by a tutor. You can now chat with them!`,
+          message: `Your lesson "${lesson.topic}" has been confirmed by ${tutor.name}. You can now chat with them!`,
+          lessonId: lessonId,
+        });
+      }
+
+      // Create notification for tutor
+      if (tutor.userId) {
+        await NotificationController.createNotification({
+          userId: tutor.userId.toString(),
+          type: "lesson_confirmed",
+          title: "Lesson Confirmed",
+          message: `You confirmed the lesson "${lesson.topic}". You can now chat with the student!`,
           lessonId: lessonId,
         });
       }
 
       // Create conversation between student and tutor
       try {
-        const conversation = await createConversation(lessonId, tutorId);
-        console.log(`✅ Chat conversation created for lesson ${lessonId}`, {
-          conversationId: conversation._id,
-          studentId: lesson.studentId,
-          tutorId: tutorId,
-        });
+        const conversation = await createConversation(
+          lessonId,
+          tutor.userId.toString()
+        );
+        if (conversation?._id) {
+          console.log(`✅ Chat conversation created for lesson ${lessonId}`, {
+            conversationId: conversation._id,
+            studentId: lesson.studentId,
+            tutorUserId: tutor.userId,
+          });
+        }
       } catch (convError) {
         console.error("Error creating conversation:", convError);
         // Don't fail the request if conversation creation fails
@@ -329,9 +364,66 @@ export class LessonController {
   static async cancelLesson(req: AuthRequest, res: Response) {
     try {
       const lessonId = req.params.id;
-      const tutorId = req.user?.id;
+      const userId = req.user?.id;
 
-      if (!tutorId) {
+      if (!userId) {
+        return res
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ message: "Unauthorized" });
+      }
+
+      // Get the tutor profile
+      const tutor = await Profile.findOne({
+        userId: userId,
+        role: "tutor",
+      });
+
+      if (!tutor) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "Tutor profile not found" });
+      }
+
+      const lesson = await Lesson.findById(lessonId);
+      if (!lesson) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "Lesson not found" });
+      }
+
+      // Remove tutor from confirmed list using the user's ID (not profile ID)
+      const updated = await Lesson.findByIdAndUpdate(
+        lessonId,
+        {
+          $pull: {
+            confirmedTutors: { tutorId: tutor.userId },
+          },
+        },
+        { new: true }
+      )
+        .populate("confirmedTutors.tutorId", "name email")
+        .populate("studentId", "name email");
+
+      res.status(StatusCodes.OK).json({
+        message: "Lesson cancellation successful",
+        lesson: updated,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: "Error cancelling lesson",
+        err,
+      });
+    }
+  }
+
+  // Delete a lesson (only by student who created it or admin)
+  static async deleteLesson(req: AuthRequest, res: Response) {
+    try {
+      const lessonId = req.params.id;
+      const userId = req.user?.id;
+
+      if (!userId) {
         return res
           .status(StatusCodes.UNAUTHORIZED)
           .json({ message: "Unauthorized" });
@@ -344,25 +436,23 @@ export class LessonController {
           .json({ message: "Lesson not found" });
       }
 
-      // Remove tutor from confirmed list
-      const updated = await Lesson.findByIdAndUpdate(
-        lessonId,
-        {
-          $pull: {
-            confirmedTutors: { tutorId },
-          },
-        },
-        { new: true }
-      ).populate("confirmedTutors.tutorId", "name email");
+      // Check if user is the student who created the lesson
+      if (lesson.studentId?.toString() !== userId) {
+        return res
+          .status(StatusCodes.FORBIDDEN)
+          .json({ message: "You can only delete lessons you created" });
+      }
+
+      // Delete the lesson
+      await Lesson.findByIdAndDelete(lessonId);
 
       res.status(StatusCodes.OK).json({
-        message: "Lesson cancellation successful",
-        lesson: updated,
+        message: "Lesson deleted successfully",
       });
     } catch (err) {
       console.error(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: "Error cancelling lesson",
+        message: "Error deleting lesson",
         err,
       });
     }

@@ -64,7 +64,7 @@ const Hero = () => {
 
         <div className="flex flex-col md:flex-row items-center justify-center pt-12 gap-4 md:gap-[120px]">
           <Link
-            href="https://dev.dn03fv11bz1ey.amplifyapp.com/"
+            href="https://meshspire-core.vercel.app/"
             className="
               rounded-full border px-18 py-1.5 transition-all duration-300
               bg-[var(--color-primary)] text-[var(--background)] dark:text-[var(--foreground)] border-[var(--color-primary)]

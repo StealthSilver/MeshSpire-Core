@@ -61,8 +61,14 @@ const Chat: React.FC = () => {
       );
     });
 
+    // Listen for new conversations
+    socket.on("conversation-created", () => {
+      fetchConversations();
+    });
+
     return () => {
       socket.off("new-message");
+      socket.off("conversation-created");
       if (userId) {
         socket.emit("leave-user-room", userId);
       }
@@ -87,9 +93,31 @@ const Chat: React.FC = () => {
     try {
       setLoading(true);
       const data = await getConversations();
+      console.log("📋 Fetched conversations from API:", {
+        count: data.length,
+        conversations: data,
+      });
+
+      if (data.length === 0) {
+        console.warn("⚠️ No conversations returned from API. This could mean:");
+        console.warn("1. No lessons have been confirmed by tutors");
+        console.warn("2. No confirmed lessons have been paid for yet");
+        console.warn("3. User data is not properly populated in conversations");
+      }
+
+      if (data.length > 0) {
+        console.log("First conversation details:", {
+          id: data[0]._id,
+          studentName: data[0].studentId?.name,
+          studentId: data[0].studentId?._id,
+          tutorName: data[0].tutorId?.name,
+          tutorId: data[0].tutorId?._id,
+          lessonTopic: data[0].lessonId?.topic,
+        });
+      }
       setConversations(data);
     } catch (error) {
-      console.error("Error fetching conversations:", error);
+      console.error("❌ Error fetching conversations:", error);
     } finally {
       setLoading(false);
     }
@@ -199,7 +227,15 @@ const Chat: React.FC = () => {
   };
 
   const getOtherUser = (conversation: Conversation) => {
-    return role === "tutor" ? conversation.studentId : conversation.tutorId;
+    if (!conversation) return null;
+    const otherUser =
+      role === "tutor" ? conversation.studentId : conversation.tutorId;
+    console.log("Getting other user:", {
+      role,
+      otherUser,
+      conversationId: conversation._id,
+    });
+    return otherUser;
   };
 
   const getUnreadCount = (conversation: Conversation) => {
@@ -241,13 +277,24 @@ const Chat: React.FC = () => {
                 No conversations yet
               </h3>
               <p className="text-gray-500 text-sm">
-                Conversations will appear here when tutors confirm your lessons
+                {role === "student"
+                  ? "Conversations will appear here after a tutor confirms your lesson and you complete payment"
+                  : "Conversations will appear here when you confirm lessons and students complete payment"}
               </p>
             </div>
           ) : (
             conversations.map((conv) => {
               const otherUser = getOtherUser(conv);
               const unreadCount = getUnreadCount(conv);
+
+              // Skip rendering if no user data
+              if (!otherUser || !otherUser.name) {
+                console.warn(
+                  "⚠️ Skipping conversation with missing user data:",
+                  conv
+                );
+                return null;
+              }
 
               return (
                 <button
@@ -312,25 +359,33 @@ const Chat: React.FC = () => {
                 <ArrowBackIcon />
               </button>
 
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center font-bold">
-                {getOtherUser(selectedConversation)
-                  .name.charAt(0)
-                  .toUpperCase()}
-              </div>
+              {(() => {
+                const otherUser = getOtherUser(selectedConversation);
+                if (!otherUser || !otherUser.name) {
+                  return <div className="text-gray-400">Loading user...</div>;
+                }
+                return (
+                  <>
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center font-bold">
+                      {otherUser.name.charAt(0).toUpperCase()}
+                    </div>
 
-              <div className="flex-1">
-                <h3 className="font-semibold text-white">
-                  {getOtherUser(selectedConversation).name}
-                </h3>
-                <p className="text-xs text-violet-400">
-                  {selectedConversation.lessonId.topic}
-                </p>
-              </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-white">
+                        {otherUser.name}
+                      </h3>
+                      <p className="text-xs text-violet-400">
+                        {selectedConversation.lessonId.topic}
+                      </p>
+                    </div>
 
-              <div className="text-right text-xs text-gray-400">
-                <p>{selectedConversation.lessonId.date}</p>
-                <p>{selectedConversation.lessonId.time}</p>
-              </div>
+                    <div className="text-right text-xs text-gray-400">
+                      <p>{selectedConversation.lessonId.date}</p>
+                      <p>{selectedConversation.lessonId.time}</p>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             {/* Messages */}

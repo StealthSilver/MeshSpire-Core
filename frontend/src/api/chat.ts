@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const BASE_URL =
+  import.meta.env.VITE_BACKEND_URL || "https://meshspire-core.onrender.com";
 
 const api = axios.create({
   baseURL: `${BASE_URL}/api/v0/chat`,
@@ -20,13 +21,13 @@ export interface Conversation {
     _id: string;
     name: string;
     email: string;
-    avatar?: string;
+    avatarUrl?: string;
   };
   tutorId: {
     _id: string;
     name: string;
     email: string;
-    avatar?: string;
+    avatarUrl?: string;
   };
   lastMessage?: string;
   lastMessageAt?: string;
@@ -42,12 +43,12 @@ export interface Message {
   senderId: {
     _id: string;
     name: string;
-    avatar?: string;
+    avatarUrl?: string;
   };
   receiverId: {
     _id: string;
     name: string;
-    avatar?: string;
+    avatarUrl?: string;
   };
   content: string;
   messageType: "text" | "file";
