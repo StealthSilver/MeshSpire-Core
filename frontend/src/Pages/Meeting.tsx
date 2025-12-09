@@ -96,11 +96,11 @@ const Meeting: React.FC = () => {
   };
 
   return (
-    <div className="h-full bg-black text-white w-full overflow-x-hidden flex flex-col">
-      <main className="flex-1 py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8 transition-all duration-300 flex items-center justify-center">
-        <div className="flex flex-col xl:flex-row items-center justify-center gap-6 sm:gap-8 lg:gap-12 xl:gap-16 max-w-7xl w-full">
+    <div className="bg-gradient-to-br from-black via-slate-950 to-slate-900 text-white w-full overflow-x-hidden flex flex-col min-h-screen">
+      <main className="flex-1 py-8 px-4 sm:px-8 transition-all duration-300 flex items-center justify-center">
+        <div className="flex flex-col xl:flex-row items-center justify-center gap-8 lg:gap-12 max-w-7xl w-full">
           {/* LEFT CONTENT */}
-          <div className="flex flex-col space-y-4 sm:space-y-5 lg:space-y-6 w-full xl:max-w-lg text-center xl:text-left">
+          <div className="flex flex-col space-y-6 w-full xl:max-w-lg text-center xl:text-left">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white">
               {cardData.title}
             </h1>
@@ -118,10 +118,10 @@ const Meeting: React.FC = () => {
             </p>
 
             {/* BUTTONS & INPUT */}
-            <div className="flex flex-col lg:flex-row items-center gap-3 sm:gap-4 w-full">
+            <div className="flex flex-col lg:flex-row items-center gap-4 w-full">
               <button
                 onClick={startMeeting}
-                className="w-full lg:w-auto px-6 sm:px-8 lg:px-10 py-2 sm:py-3 lg:py-4 bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 rounded-xl lg:rounded-2xl font-semibold shadow-lg text-sm sm:text-base lg:text-lg transition-all duration-200"
+                className="w-full lg:w-auto px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 rounded-xl font-semibold shadow-lg transition-all duration-300 border border-emerald-500/20"
               >
                 Start Meeting
               </button>
@@ -133,14 +133,22 @@ const Meeting: React.FC = () => {
                   value={roomId}
                   onChange={(e) => setRoomId(e.target.value)}
                   onKeyDown={(e) => {
+<<<<<<< HEAD
                     if (e.key === "Enter") joinMeeting();
                    }}
                   className="flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-xl lg:rounded-2xl text-white bg-slate-900/70 border border-white/10 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-700 w-full text-sm sm:text-base"
+=======
+                    if (e.key === "Enter") {
+                      joinMeeting();
+                    }
+                  }}
+                  className="flex-1 px-4 py-3 rounded-xl text-white bg-slate-900/70 border border-white/10 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
+>>>>>>> ea1f1bce9a55eaa9e73c069c5961e9f8b7c436e9
                 />
 
                 <button
                   onClick={joinMeeting}
-                  className="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 bg-gradient-to-r from-green-700 via-green-600 to-green-700 hover:from-green-600 hover:to-green-500 rounded-xl lg:rounded-2xl font-semibold shadow-lg text-sm sm:text-base lg:text-lg transition-all duration-200"
+                  className="w-full sm:w-auto px-8 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-semibold shadow-lg transition-all duration-300 border border-slate-600/20"
                 >
                   Join
                 </button>
@@ -149,8 +157,8 @@ const Meeting: React.FC = () => {
 
             {/* ROOM LINK */}
             {roomURL && (
-              <div className="mt-4 sm:mt-6 p-3 sm:p-4 lg:p-6 w-full bg-slate-900/60 border border-white/10 rounded-xl lg:rounded-2xl shadow-lg flex flex-col gap-3">
-                <p className="text-green-400 text-sm sm:text-base lg:text-lg font-medium">
+              <div className="mt-6 p-6 w-full bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl flex flex-col gap-3">
+                <p className="text-emerald-400 text-base lg:text-lg font-medium">
                   Share this link to invite others:
                 </p>
                 <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
@@ -158,11 +166,11 @@ const Meeting: React.FC = () => {
                     type="text"
                     value={roomURL}
                     readOnly
-                    className="flex-1 px-3 sm:px-4 py-2 rounded-lg lg:rounded-xl text-white bg-gray-800 border border-gray-700 focus:outline-none w-full text-xs sm:text-sm lg:text-base"
+                    className="flex-1 px-4 py-2 rounded-xl text-white bg-slate-800 border border-slate-700 focus:outline-none w-full"
                   />
                   <button
                     onClick={copyURL}
-                    className="px-3 sm:px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 rounded-lg lg:rounded-xl font-semibold transition-all duration-200 w-full sm:w-auto text-xs sm:text-sm lg:text-base"
+                    className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 rounded-xl font-semibold transition-all duration-300 w-full sm:w-auto border border-emerald-500/20"
                   >
                     Copy Link
                   </button>
@@ -172,13 +180,13 @@ const Meeting: React.FC = () => {
           </div>
 
           {/* RIGHT CONTENT - VIDEO */}
-          <div className="w-full sm:w-4/5 md:w-3/4 lg:w-2/3 xl:w-[400px] 2xl:w-[500px] aspect-video rounded-xl lg:rounded-2xl border border-white/10 bg-slate-900/80 shadow-xl overflow-hidden">
+          <div className="w-full sm:w-4/5 md:w-3/4 lg:w-2/3 xl:w-[500px] aspect-video rounded-2xl border border-white/10 bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl shadow-2xl overflow-hidden">
             <video
               ref={videoRef}
               autoPlay
               playsInline
               muted
-              className="w-full h-full object-cover rounded-lg lg:rounded-xl"
+              className="w-full h-full object-cover rounded-2xl"
             />
           </div>
         </div>

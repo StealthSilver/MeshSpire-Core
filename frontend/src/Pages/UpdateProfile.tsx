@@ -4,13 +4,24 @@ import { useAuth } from "../Context/AuthContext";
 import API from "../api";
 import { useNavigate } from "react-router-dom";
 import { FaUserAlt } from "react-icons/fa";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SaveIcon from "@mui/icons-material/Save";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import PersonIcon from "@mui/icons-material/Person";
+import EmailIcon from "@mui/icons-material/Email";
+import CakeIcon from "@mui/icons-material/Cake";
+import SchoolIcon from "@mui/icons-material/School";
+import WorkIcon from "@mui/icons-material/Work";
+import LanguageIcon from "@mui/icons-material/Language";
+import InfoIcon from "@mui/icons-material/Info";
 
 interface User {
   name: string;
   email: string;
   gender: string;
   age?: number;
-  class : number;
+  class: number;
   avatar?: string;
   bio?: string;
   skills?: string;
@@ -26,13 +37,14 @@ const UpdateProfile: React.FC = () => {
     email: "",
     gender: "",
     age: 0,
-    class : 0,
+    class: 0,
     avatar: "",
     bio: "",
     skills: "",
     role: "",
     languages: "",
   });
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
@@ -64,7 +76,6 @@ const UpdateProfile: React.FC = () => {
           avatar: profileData.avatar || "",
           bio: profileData.bio || "",
           skills: profileData.skills ? profileData.skills.join(", ") : "",
-          // prefer profile role if present else fallback to account role
           role: profileData.role || accountRole || "",
           languages: profileData.languages
             ? profileData.languages.join(", ")
@@ -123,7 +134,6 @@ const UpdateProfile: React.FC = () => {
       formData.append("age", user.age?.toString() || "");
       formData.append("class", user.class?.toString() || "");
       formData.append("bio", user.bio || "");
-      // Do NOT allow role mutation from profile update; role is fixed at signup.
       formData.append(
         "skills",
         user.skills
@@ -154,7 +164,7 @@ const UpdateProfile: React.FC = () => {
       });
 
       setMessage("Profile updated successfully!");
-      setTimeout(() => navigate(`/profile/${userId}`), 1000);
+      setTimeout(() => navigate(`/profile/${userId}`), 1500);
     } catch (err) {
       console.error(err);
       setMessage("Failed to update profile");
@@ -164,179 +174,284 @@ const UpdateProfile: React.FC = () => {
   };
 
   const Skeleton = () => (
-    <div className="animate-pulse w-full max-w-5xl bg-slate-900/60 border border-white/10 rounded-2xl shadow-xl backdrop-blur-xl p-6 sm:p-10">
-      <div className="flex flex-col md:flex-row gap-6 sm:gap-8">
-        <div className="flex flex-col items-center gap-4 md:w-1/3">
-          <div className="w-24 h-24 sm:w-32 sm:h-32 bg-slate-800 rounded-full"></div>
-          <div className="w-20 h-4 bg-slate-800 rounded"></div>
+    <div className="animate-pulse w-full max-w-6xl">
+      <div className="bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl rounded-2xl border border-white/10 p-8">
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-32 h-32 rounded-full bg-slate-800"></div>
+          <div className="w-48 h-6 bg-slate-800 rounded-lg mt-4"></div>
         </div>
-        <div className="flex flex-col gap-4 md:w-2/3">
-          {Array(6)
-            .fill(0)
-            .map((_, i) => (
-              <div key={i} className="w-full h-10 bg-slate-800 rounded"></div>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-20 bg-slate-800 rounded-xl"></div>
+          ))}
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-950 text-white">
-      <main className="flex flex-col items-center justify-start px-4 sm:px-6 md:px-8 py-6 sm:py-10 bg-gray-950 w-full overflow-y-auto">
-        <h1 className="text-3xl sm:text-4xl text-center mb-4 font-bold">
-          UPDATE PROFILE
-        </h1>
-
+    <div className="flex flex-col min-h-screen bg-black text-white overflow-x-hidden">
+      <main className="flex flex-col items-center justify-start px-4 sm:px-6 py-8 md:py-10">
         {loading ? (
           <Skeleton />
         ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="w-full max-w-5xl bg-slate-900/70 border border-white/10 rounded-2xl shadow-xl backdrop-blur-xl flex flex-col md:flex-row overflow-hidden"
-          >
-            {/* Left Section */}
-            <div className="md:w-1/3 bg-slate-900/80 border-b md:border-b-0 md:border-r border-white/10 p-6 sm:p-8 flex flex-col items-center gap-4">
-              {preview ? (
-                <img
-                  src={preview}
-                  alt={user.name}
-                  className="w-28 h-28 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-violet-700 shadow-lg"
-                />
-              ) : (
-                <FaUserAlt size={100} className="text-gray-500" />
-              )}
+          <div className="w-full max-w-6xl">
+            <form
+              onSubmit={handleSubmit}
+              className="bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden shadow-xl"
+            >
+              {/* Header with Avatar */}
+              <div className="bg-gradient-to-r from-emerald-900/30 via-green-900/20 to-slate-900/30 p-8 border-b border-white/10">
+                <div className="flex flex-col items-center gap-4">
+                  {/* Avatar */}
+                  <div className="relative group">
+                    {preview ? (
+                      <img
+                        src={preview}
+                        alt={user.name}
+                        className="w-32 h-32 rounded-full object-cover border-4 border-slate-900 shadow-xl"
+                      />
+                    ) : (
+                      <div className="w-32 h-32 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center border-4 border-slate-900 shadow-xl">
+                        <FaUserAlt className="text-5xl text-white" />
+                      </div>
+                    )}
 
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                id="avatarInput"
-                className="hidden"
-              />
+                    {/* Avatar Overlay Buttons */}
+                    <div className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        id="avatarInput"
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          document.getElementById("avatarInput")?.click()
+                        }
+                        className="p-2 bg-emerald-600 hover:bg-emerald-500 rounded-full transition-all shadow-lg"
+                        title="Change photo"
+                      >
+                        <PhotoCameraIcon className="text-xl" />
+                      </button>
+                      {preview && (
+                        <button
+                          type="button"
+                          onClick={handleRemovePhoto}
+                          className="p-2 bg-red-600 hover:bg-red-500 rounded-full transition-all shadow-lg"
+                          title="Remove photo"
+                        >
+                          <DeleteIcon className="text-xl" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
 
-              <button
-                type="button"
-                onClick={() => document.getElementById("avatarInput")?.click()}
-                className="px-4 sm:px-6 py-2 bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 transition-all duration-300 rounded-xl font-semibold shadow-md text-white text-sm sm:text-base"
-              >
-                Choose File
-              </button>
-
-              {preview && (
-                <button
-                  type="button"
-                  onClick={handleRemovePhoto}
-                  className="text-red-400 hover:text-red-300 text-sm"
-                >
-                  Remove Photo
-                </button>
-              )}
-
-              <p className="text-gray-400 text-sm sm:text-base">{user.email}</p>
-              <p className="text-gray-400 text-sm sm:text-base">{user.role}</p>
-
-              <button
-                className="mt-3 sm:mt-4 px-5 sm:px-6 py-2 bg-gradient-to-r from-gray-800 to-gray-800 hover:from-gray-700 hover:to-gray-700 transition-all duration-300 rounded-2xl font-semibold shadow-lg text-white text-sm sm:text-base"
-                onClick={() =>
-                  navigate(
-                    user.role === "tutor" ? "/tutor-dashboard" : "/dashboard"
-                  )
-                }
-                type="button"
-              >
-                Go back to Dashboard
-              </button>
-            </div>
-
-            {/* Right Section */}
-            <div className="md:w-2/3 p-6 sm:p-8 flex flex-col gap-5 sm:gap-6 overflow-y-auto scrollbar-thin scrollbar-thumb-violet-800 scrollbar-track-slate-900 max-h-[80vh] md:max-h-[90vh]">
-              {[
-                { label: "Name", name: "name", type: "text" },
-                { label: "Age", name: "age", type: "number" },
-                  { label: "Class", name: "class", type: "number" },
-                {
-                  label: "Skills (comma separated)",
-                  name: "skills",
-                  type: "text",
-                },
-                {
-                  label: "Languages (comma separated)",
-                  name: "languages",
-                  type: "text",
-                },
-              ].map((field) => (
-                <label key={field.name} className="flex flex-col text-gray-200">
-                  {field.label}
-                  <input
-                    type={field.type}
-                    name={field.name}
-                    value={(user as any)[field.name]}
-                    onChange={handleChange}
-                    className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition text-sm sm:text-base"
-                  />
-                </label>
-              ))}
-
-              <label className="flex flex-col text-gray-200">
-                Gender
-                <select
-                  name="gender"
-                  value={user.gender}
-                  onChange={handleChange}
-                  className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition text-sm sm:text-base"
-                >
-                  <option value="">Select Gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
-              </label>
-
-              <label className="flex flex-col text-gray-200">
-                Bio
-                <textarea
-                  name="bio"
-                  value={user.bio}
-                  onChange={handleChange}
-                  placeholder="Tell something about yourself"
-                  className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition resize-none text-sm sm:text-base"
-                  rows={4}
-                />
-              </label>
-
-              <div className="flex flex-col text-gray-200">
-                Role
-                <div className="mt-2 px-4 py-2 rounded-xl bg-slate-900/60 border border-white/10 text-sm sm:text-base select-none">
-                  {user.role || "Unknown"}
+                  <div className="text-center">
+                    <h1 className="text-3xl font-bold text-white mb-2">
+                      Edit Profile
+                    </h1>
+                    <p className="text-gray-400">
+                      Update your personal information
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={saving}
-                className={`mt-4 sm:mt-6 w-full py-2 sm:py-3 rounded-2xl font-semibold text-base sm:text-lg shadow-lg transition-all duration-300 ${
-                  saving
-                    ? "bg-slate-700 text-gray-400 cursor-not-allowed"
-                    : "bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 text-white"
-                }`}
-              >
-                {saving ? "Updating..." : "Update Profile"}
-              </button>
+              {/* Form Content */}
+              <div className="p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Name */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <PersonIcon className="text-emerald-400" />
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={user.name}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
+                      placeholder="Enter your name"
+                    />
+                  </div>
 
-              {message && (
-                <p
-                  className={`text-center mt-3 sm:mt-4 font-medium transition-all duration-300 ${
-                    message.includes("success")
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
-                >
-                  {message}
-                </p>
-              )}
-            </div>
-          </form>
+                  {/* Email (Read-only) */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <EmailIcon className="text-emerald-400" />
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={user.email}
+                      disabled
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/60 border border-white/10 outline-none text-gray-400 cursor-not-allowed"
+                    />
+                  </div>
+
+                  {/* Gender */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <PersonIcon className="text-emerald-400" />
+                      Gender
+                    </label>
+                    <select
+                      name="gender"
+                      value={user.gender}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  {/* Age */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <CakeIcon className="text-emerald-400" />
+                      Age
+                    </label>
+                    <input
+                      type="number"
+                      name="age"
+                      value={user.age}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
+                      placeholder="Enter your age"
+                    />
+                  </div>
+
+                  {/* Class */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <SchoolIcon className="text-emerald-400" />
+                      Class
+                    </label>
+                    <input
+                      type="number"
+                      name="class"
+                      value={user.class}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
+                      placeholder="Enter your class/grade"
+                    />
+                  </div>
+
+                  {/* Role (Read-only) */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <InfoIcon className="text-emerald-400" />
+                      Role
+                    </label>
+                    <div className="w-full px-4 py-3 rounded-lg bg-slate-900/60 border border-white/10 text-gray-400 flex items-center gap-2">
+                      <span className="px-3 py-1 bg-emerald-600/20 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm font-semibold">
+                        {user.role || "Unknown"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Skills */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all md:col-span-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <WorkIcon className="text-emerald-400" />
+                      Skills (comma separated)
+                    </label>
+                    <input
+                      type="text"
+                      name="skills"
+                      value={user.skills}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
+                      placeholder="e.g., JavaScript, React, Node.js"
+                    />
+                  </div>
+
+                  {/* Languages */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all md:col-span-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <LanguageIcon className="text-emerald-400" />
+                      Languages (comma separated)
+                    </label>
+                    <input
+                      type="text"
+                      name="languages"
+                      value={user.languages}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
+                      placeholder="e.g., English, Spanish, French"
+                    />
+                  </div>
+
+                  {/* Bio */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all md:col-span-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <InfoIcon className="text-emerald-400" />
+                      Bio
+                    </label>
+                    <textarea
+                      name="bio"
+                      value={user.bio}
+                      onChange={handleChange}
+                      placeholder="Tell us about yourself..."
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition resize-none text-white placeholder:text-gray-500"
+                      rows={4}
+                    />
+                  </div>
+                </div>
+
+                {/* Success/Error Message */}
+                {message && (
+                  <div
+                    className={`mt-6 p-4 rounded-xl border flex items-center gap-3 ${
+                      message.includes("success")
+                        ? "bg-emerald-600/20 border-emerald-500/30 text-emerald-400"
+                        : "bg-red-600/20 border-red-500/30 text-red-400"
+                    }`}
+                  >
+                    <InfoIcon />
+                    <span className="font-medium">{message}</span>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate(
+                        user.role === "tutor"
+                          ? "/tutor-dashboard"
+                          : "/dashboard"
+                      )
+                    }
+                    className="flex-1 px-6 py-4 bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 rounded-xl font-semibold transition-all shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <ArrowBackIcon />
+                    Back to Dashboard
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className={`flex-1 px-6 py-4 rounded-xl font-semibold transition-all shadow-lg flex items-center justify-center gap-2 ${
+                      saving
+                        ? "bg-slate-700 text-gray-400 cursor-not-allowed"
+                        : "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 hover:shadow-emerald-500/50"
+                    }`}
+                  >
+                    <SaveIcon />
+                    {saving ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
         )}
       </main>
     </div>

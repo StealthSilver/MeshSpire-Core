@@ -12,6 +12,7 @@ import {
   markAsRead,
   markAllAsRead,
   deleteNotification,
+  deleteAllNotifications,
   type Notification,
 } from "../api/notification";
 import { useNavigate } from "react-router-dom";
@@ -96,6 +97,15 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
     }
   };
 
+  const handleDeleteAllNotifications = async () => {
+    try {
+      await deleteAllNotifications();
+      await fetchNotifications();
+    } catch (error) {
+      console.error("Error deleting all notifications:", error);
+    }
+  };
+
   const handleNotificationClick = (notification: Notification) => {
     // Mark as read if unread
     if (!notification.isRead) {
@@ -145,9 +155,9 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
         className="relative cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <NotificationsIcon className="text-gray-300 hover:text-white transition text-lg sm:text-xl lg:text-2xl" />
+        <NotificationsIcon className="text-gray-300 hover:text-white transition-all duration-200 text-lg sm:text-xl lg:text-2xl" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -158,19 +168,21 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
         <div className="absolute -right-2 sm:-right-4 top-10 sm:top-12 mt-2 w-80 sm:w-96 bg-slate-900/95 backdrop-blur-xl text-white rounded-xl shadow-2xl border border-[rgba(255,255,255,0.15)] z-50 max-h-[500px] overflow-hidden flex flex-col">
           {/* Header */}
           <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between sticky top-0 bg-slate-900/95 backdrop-blur-xl">
-            <h3 className="text-lg font-semibold">Notifications</h3>
+            <h3 className="text-lg font-semibold font-['IBM_Plex_Sans']">
+              Notifications
+            </h3>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllAsRead}
-                  className="text-xs text-blue-400 hover:text-blue-300 transition"
+                  className="text-xs text-blue-400 hover:text-blue-300 transition-all duration-200 font-['IBM_Plex_Sans'] font-medium"
                 >
                   Mark all read
                 </button>
               )}
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-gray-400 hover:text-white transition"
+                className="text-gray-400 hover:text-white transition-all duration-200"
               >
                 <CloseIcon fontSize="small" />
               </button>
@@ -186,7 +198,9 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
             ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-4">
                 <NotificationsIcon className="text-gray-600 text-5xl mb-3" />
-                <p className="text-gray-400 text-sm">No notifications yet</p>
+                <p className="text-gray-400 text-sm font-['IBM_Plex_Sans']">
+                  No notifications yet
+                </p>
               </div>
             ) : (
               notifications.map((notification) => (
@@ -203,7 +217,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h4 className="text-sm font-semibold truncate">
+                        <h4 className="text-sm font-semibold truncate font-['IBM_Plex_Sans']">
                           {notification.title}
                         </h4>
                         <button
@@ -211,27 +225,27 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
                             e.stopPropagation();
                             handleDeleteNotification(notification._id);
                           }}
-                          className="flex-shrink-0 text-gray-500 hover:text-red-400 transition opacity-0 group-hover:opacity-100"
+                          className="flex-shrink-0 text-gray-500 hover:text-red-400 transition-all duration-200 opacity-0 group-hover:opacity-100"
                         >
                           <CloseIcon fontSize="small" />
                         </button>
                       </div>
-                      <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+                      <p className="text-xs text-gray-400 mt-1 line-clamp-2 font-['IBM_Plex_Sans']">
                         {notification.message}
                       </p>
                       {notification.lessonId &&
                         typeof notification.lessonId === "object" && (
-                          <p className="text-xs text-blue-400 mt-1">
+                          <p className="text-xs text-blue-400 mt-1 font-['IBM_Plex_Sans']">
                             {notification.lessonId.topic} •{" "}
                             {notification.lessonId.date}
                           </p>
                         )}
                       <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 font-['IBM_Plex_Sans']">
                           {formatTimeAgo(notification.createdAt)}
                         </span>
                         {!notification.isRead && (
-                          <span className="text-xs text-blue-400 font-semibold">
+                          <span className="text-xs text-blue-400 font-semibold font-['IBM_Plex_Sans']">
                             New
                           </span>
                         )}
@@ -242,6 +256,18 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
               ))
             )}
           </div>
+
+          {/* Clear All Button */}
+          {notifications.length > 0 && (
+            <div className="px-4 py-3 border-t border-gray-700 sticky bottom-0 bg-slate-900/95 backdrop-blur-xl">
+              <button
+                onClick={handleDeleteAllNotifications}
+                className="w-full py-2 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg transition-all duration-200 font-['IBM_Plex_Sans'] font-medium text-sm"
+              >
+                Clear All Notifications
+              </button>
+            </div>
+          )}
         </div>
       )}
 

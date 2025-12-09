@@ -1,25 +1,24 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
+import { getUnreadCount } from "../api/chat";
+import { useSocket } from "../providers/SocketProvider";
 import logo from "../assets/favicon.svg";
-import ExpandedLogo from "../assets/logo_dark.svg";
 import HomeIcon from "@mui/icons-material/Home";
 import ChatIcon from "@mui/icons-material/Chat";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EqualizerIcon from "@mui/icons-material/Equalizer";
 
-interface SidebarProps {
-  onExpandChange?: (expanded: boolean) => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
+const Sidebar: React.FC = () => {
   const [active, setActive] = useState("home");
   const [indicatorTop, setIndicatorTop] = useState(0);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
   const { role } = useAuth();
+  const { socket } = useSocket();
 
   const buttons = [
     {
@@ -28,7 +27,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
       label: "Home",
       path: role === "tutor" ? "/tutor-dashboard" : "/dashboard",
     },
-    { id: "chat", icon: <ChatIcon />, label: "Chat", path: "/dashboard/#chat" },
+    {
+      id: "chat",
+      icon: <ChatIcon />,
+      label: "Chat",
+      path: role === "tutor" ? "/tutor-dashboard/chat" : "/dashboard/chat",
+    },
     {
       id: "calendar",
       icon: <CalendarTodayIcon />,
@@ -40,78 +44,94 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
       id: "analytics",
       icon: <EqualizerIcon />,
       label: "Analytics",
-      path: "/dashboard/#analytics",
+      path:
+        role === "tutor"
+          ? "/tutor-dashboard/analytics"
+          : "/dashboard/analytics",
     },
     {
       id: "settings",
       icon: <SettingsIcon />,
       label: "Settings",
-      path: "/dashboard/#settings",
+      path:
+        role === "tutor" ? "/tutor-dashboard/settings" : "/dashboard/settings",
     },
   ];
+
+  // Set active button based on current route
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const activeButton = buttons.find((btn) => btn.path === currentPath);
+    if (activeButton) {
+      setActive(activeButton.id);
+    } else {
+      // Default to home if no match
+      setActive("home");
+    }
+  }, [location.pathname, role]);
 
   useEffect(() => {
     const activeIndex = buttons.findIndex((btn) => btn.id === active);
     const btn = buttonsRef.current[activeIndex];
     if (btn) {
       const iconCenter = btn.offsetTop + btn.offsetHeight / 2;
-      setIndicatorTop(iconCenter - 16);
+      setIndicatorTop(iconCenter - 20);
     }
   }, [active]);
+
+  useEffect(() => {
+    // Fetch unread count initially
+    fetchUnreadCount();
+
+    // Listen for new messages to update the badge
+    socket.on("new-message", () => {
+      fetchUnreadCount();
+    });
+
+    // Listen for new conversations
+    socket.on("conversation-created", () => {
+      fetchUnreadCount();
+    });
+
+    return () => {
+      socket.off("new-message");
+      socket.off("conversation-created");
+    };
+  }, [socket]);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const count = await getUnreadCount();
+      setUnreadCount(count);
+    } catch (error) {
+      console.error("Error fetching unread count:", error);
+    }
+  };
 
   const handleClick = (id: string, path: string) => {
     setActive(id);
     navigate(path);
   };
 
-  const handleMouseEnter = () => {
-    if (window.innerWidth >= 768) {
-      // expand only on desktop
-      setIsExpanded(true);
-      onExpandChange?.(true);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (window.innerWidth >= 768) {
-      setIsExpanded(false);
-      onExpandChange?.(false);
-    }
-  };
-
   return (
     <>
       {/* Desktop Sidebar */}
       <div
-        className={`hidden z-200 md:flex m-4 shadow-2xl flex-col items-center py-4 gap-6 h-[97%] fixed rounded-xl
-        backdrop-blur-xl bg-slate-900/70 border border-[rgba(255,255,255,0.2)]
-        transition-all duration-300 ease-in-out
-        ${isExpanded ? "w-52" : "w-16"}
-      `}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        className="hidden z-200 md:flex m-4 shadow-2xl flex-col items-center py-4 gap-6 h-[97%] fixed rounded-xl
+        backdrop-blur-xl bg-slate-900/80 border border-white/10 w-20"
       >
         {/* Logo */}
-        <div className="flex items-center justify-center w-full">
-          {isExpanded ? (
-            <img
-              src={ExpandedLogo}
-              alt="Logo"
-              className="transition-all duration-500 w-40"
-            />
-          ) : (
-            <img
-              src={logo}
-              alt="Logo"
-              className="transition-all duration-500 w-10"
-            />
-          )}
+        <div
+          className="flex items-center justify-center w-full cursor-pointer"
+          onClick={() => navigate("/dashboard")}
+        >
+          <img src={logo} alt="Logo" className="w-10" />
         </div>
 
         {/* Sidebar Buttons */}
-        <div className="relative w-full flex flex-col items-start mt-4 px-2">
+        <div className="relative w-full flex flex-col items-center mt-4 px-2">
           <div
-            className="absolute left-0 w-[4px] h-8 bg-white rounded-tr-md rounded-br-md transition-all duration-500"
+            className="absolute left-0 w-[4px] h-10 bg-green-400 rounded-tr-md rounded-br-md transition-all duration-300"
             style={{ top: indicatorTop }}
           />
 
@@ -122,22 +142,24 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
                 buttonsRef.current[index] = el;
               }}
               onClick={() => handleClick(btn.id, btn.path)}
-              className={`group relative flex items-center w-full py-3 px-3 my-1 rounded-xl transition-all duration-300
+              className={`group relative flex items-center justify-center w-full py-3 my-1 rounded-xl transition-all duration-300
                 ${
                   active === btn.id
-                    ? "bg-gray-800 text-white"
-                    : "text-gray-200 hover:bg-gray-800 hover:text-white"
+                    ? "bg-white/10 text-white"
+                    : "text-gray-400 hover:bg-white/5 hover:text-white"
                 }
               `}
             >
-              <span className="text-[1.6rem] flex justify-center items-center">
+              <span className="text-[1.6rem] flex justify-center items-center relative">
                 {btn.icon}
+                {btn.id === "chat" && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </span>
-              <span
-                className={`ml-4 text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${
-                  isExpanded ? "opacity-100" : "opacity-0"
-                }`}
-              >
+              {/* Tooltip */}
+              <span className="absolute left-full ml-4 px-3 py-2 bg-slate-800/95 text-white text-sm font-medium rounded-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50 border border-white/10">
                 {btn.label}
               </span>
             </button>
@@ -146,19 +168,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-slate-900/80 backdrop-blur-md border-t border-white/10 flex justify-around items-center py-2 z-50 md:hidden">
+      <div className="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-xl border-t border-white/10 flex justify-around items-center py-3 z-50 md:hidden">
         {buttons.map((btn) => (
           <button
             key={btn.id}
             onClick={() => handleClick(btn.id, btn.path)}
-            className={`flex flex-col items-center justify-center text-xs ${
+            className={`flex flex-col items-center justify-center text-xs relative transition-colors duration-200 ${
               active === btn.id
-                ? "text-green-400"
+                ? "text-white"
                 : "text-gray-400 hover:text-white"
             }`}
           >
-            <span className="text-[1.6rem]">{btn.icon}</span>
-            <span>{btn.label}</span>
+            <span className="text-[1.4rem] relative mb-1">
+              {btn.icon}
+              {btn.id === "chat" && unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </span>
+            <span className="text-[10px]">{btn.label}</span>
           </button>
         ))}
       </div>

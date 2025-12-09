@@ -17,7 +17,8 @@ const SocketContext = React.createContext<SocketContextValue | null>(null);
 // Custom hook to access socket instance
 export const useSocket = (): SocketContextValue => {
   const context = React.useContext(SocketContext);
-  if (!context) throw new Error("useSocket must be used within a SocketProvider");
+  if (!context)
+    throw new Error("useSocket must be used within a SocketProvider");
   return context;
 };
 
@@ -29,10 +30,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   // Create socket connection only once using useMemo
   const socket = useMemo<Socket>(
     () =>
-      io("https://meshspire-core-vjqd.onrender.com", {
-        transports: ["websocket"], // force WebSocket (better for signaling)
-        autoConnect: true,
-      }),
+      io(
+        import.meta.env.VITE_BACKEND_URL ||
+          "https://meshspire-core.onrender.com",
+        {
+          transports: ["websocket"], // force WebSocket (better for signaling)
+          autoConnect: true,
+        }
+      ),
     []
   );
 

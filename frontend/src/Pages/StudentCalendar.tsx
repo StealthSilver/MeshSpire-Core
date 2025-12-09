@@ -28,11 +28,11 @@ const StudentCalendar: React.FC = () => {
     setOpenDetails(lesson);
   };
 
-  const handlePayment = async (confirmedTutor: any) => {
+  const handlePayment = async (tutorData: { tutorId: string }) => {
     try {
       const paymentData = {
         lessonId: openDetails._id,
-        tutorId: confirmedTutor.tutorId?._id || confirmedTutor.tutorId,
+        tutorId: tutorData.tutorId,
       };
 
       const url = await payForLesson(paymentData);
@@ -133,56 +133,78 @@ const StudentCalendar: React.FC = () => {
                   </h3>
                   <div className="space-y-2">
                     {openDetails.confirmedTutors.map(
-                      (confirmedTutor: any, index: number) => (
-                        <div
-                          key={index}
-                          className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-xl border border-green-500/30 space-y-3"
-                        >
-                          <p className="text-gray-200 font-semibold">
-                            {confirmedTutor.tutorId?.name ||
-                              confirmedTutor.tutorId ||
-                              "Unknown Tutor"}
-                          </p>
+                      (confirmedTutor: any, index: number) => {
+                        // Check if tutorId is populated (object) or just an ID (string)
+                        const isTutorPopulated =
+                          confirmedTutor.tutorId &&
+                          typeof confirmedTutor.tutorId === "object";
+                        const tutorName = isTutorPopulated
+                          ? confirmedTutor.tutorId.name
+                          : null;
+                        const tutorEmail = isTutorPopulated
+                          ? confirmedTutor.tutorId.email
+                          : null;
+                        const tutorId = isTutorPopulated
+                          ? confirmedTutor.tutorId._id
+                          : confirmedTutor.tutorId;
 
-                          {confirmedTutor.tutorId?.email && (
-                            <p className="text-gray-400 text-sm">
-                              {confirmedTutor.tutorId.email}
+                        // Skip rendering if tutor data is invalid
+                        if (!tutorId) {
+                          console.warn("Invalid tutor data:", confirmedTutor);
+                          return null;
+                        }
+
+                        return (
+                          <div
+                            key={index}
+                            className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-xl border border-green-500/30 space-y-3"
+                          >
+                            <p className="text-gray-200 font-semibold">
+                              {tutorName || "Tutor"}
                             </p>
-                          )}
 
-                          {confirmedTutor.confirmedAt && (
-                            <p className="text-gray-400 text-xs">
-                              Confirmed:{" "}
-                              {new Date(
-                                confirmedTutor.confirmedAt
-                              ).toLocaleString()}
-                            </p>
-                          )}
+                            {tutorEmail && (
+                              <p className="text-gray-400 text-sm">
+                                {tutorEmail}
+                              </p>
+                            )}
 
-                          {!openDetails.isPaid && (
-                            <div className="flex flex-col sm:flex-row gap-3 pt-1">
-                              <button
-                                onClick={() => handlePayment(confirmedTutor)}
-                                className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 
+                            {confirmedTutor.confirmedAt && (
+                              <p className="text-gray-400 text-xs">
+                                Confirmed:{" "}
+                                {new Date(
+                                  confirmedTutor.confirmedAt
+                                ).toLocaleString()}
+                              </p>
+                            )}
+
+                            {!openDetails.isPaid && (
+                              <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                                <button
+                                  onClick={() =>
+                                    handlePayment({ tutorId: tutorId })
+                                  }
+                                  className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 
                                        hover:from-green-500 hover:to-emerald-500 transition-all duration-300 
                                        px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-green-500/50"
-                              >
-                                Pay Now
-                              </button>
-                            </div>
-                          )}
-
-                          {openDetails.isPaid && (
-                            <div className="pt-1">
-                              <div className="bg-green-900/20 border border-green-500/30 px-4 py-2 rounded-xl text-center">
-                                <span className="text-green-400 font-semibold">
-                                  ✓ Payment Completed
-                                </span>
+                                >
+                                  Pay Now
+                                </button>
                               </div>
-                            </div>
-                          )}
-                        </div>
-                      )
+                            )}
+
+                            {openDetails.isPaid && (
+                              <div className="pt-1">
+                                <div className="bg-green-900/20 border border-green-500/30 px-4 py-2 rounded-xl text-center">
+                                  <span className="text-green-400 font-semibold">
+                                    ✓ Payment Completed
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
                     )}
                   </div>
                 </div>

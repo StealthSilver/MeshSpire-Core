@@ -15,7 +15,7 @@ const MeetComp: React.FC<MeetProps> = ({
   const navigate = useNavigate();
 
   return (
-    <div className="backdrop-blur-lg bg-slate-900/60 border border-white/20 rounded-2xl overflow-hidden shadow-xl hover:bg-slate-900/80 transition-all duration-300 flex flex-col w-full">
+    <div className="bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl hover:shadow-emerald-500/20 hover:border-emerald-500/30 transition-all duration-300 flex flex-col w-full">
       <div className="h-40 w-full">
         <img
           src={imageUrl}
@@ -32,7 +32,7 @@ const MeetComp: React.FC<MeetProps> = ({
 
         <button
           onClick={() => navigate("/meeting")}
-          className="mt-4 w-full bg-purple-900 hover:bg-purple-800 text-white py-2 rounded-md transition"
+          className="mt-4 w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white py-2.5 rounded-xl transition-all duration-300 font-semibold shadow-lg border border-emerald-500/20"
         >
           Join Now
         </button>

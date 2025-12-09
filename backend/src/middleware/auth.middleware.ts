@@ -7,7 +7,9 @@ declare global {
   namespace Express {
     interface User {
       id: string;
+      _id: string;
       email?: string;
+      role?: string;
     }
   }
 }
@@ -52,7 +54,7 @@ export function authMiddleware(
     };
 
     // ✅ Attach user info
-    req.user = { id: payload.sub, email: payload.email };
+    req.user = { id: payload.sub, _id: payload.sub, email: payload.email };
 
     next();
   } catch (err) {

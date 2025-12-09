@@ -4,6 +4,21 @@ import { useAuth } from "../Context/AuthContext";
 import API from "../api";
 import { useNavigate } from "react-router-dom";
 import { FaUserAlt } from "react-icons/fa";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SaveIcon from "@mui/icons-material/Save";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import PersonIcon from "@mui/icons-material/Person";
+import EmailIcon from "@mui/icons-material/Email";
+import CakeIcon from "@mui/icons-material/Cake";
+import SchoolIcon from "@mui/icons-material/School";
+import WorkIcon from "@mui/icons-material/Work";
+import LanguageIcon from "@mui/icons-material/Language";
+import InfoIcon from "@mui/icons-material/Info";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import WorkHistoryIcon from "@mui/icons-material/WorkHistory";
+import DescriptionIcon from "@mui/icons-material/Description";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 
 interface User {
   name: string;
@@ -22,6 +37,7 @@ interface User {
   document?: string[];
   resume?: string;
 }
+
 const subjectsList = [
   "Mathematics",
   "Science",
@@ -53,6 +69,7 @@ const TutorUpdateProfile: React.FC = () => {
     document: [],
     resume: "",
   });
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
@@ -360,365 +377,447 @@ const TutorUpdateProfile: React.FC = () => {
   };
 
   const Skeleton = () => (
-    <div className="animate-pulse w-full max-w-5xl bg-slate-900/60 border border-white/10 rounded-2xl shadow-xl backdrop-blur-xl p-6 sm:p-10">
-      <div className="flex flex-col md:flex-row gap-6 sm:gap-8">
-        <div className="flex flex-col items-center gap-4 md:w-1/3">
-          <div className="w-24 h-24 sm:w-32 sm:h-32 bg-slate-800 rounded-full"></div>
-          <div className="w-20 h-4 bg-slate-800 rounded"></div>
+    <div className="animate-pulse w-full max-w-6xl">
+      <div className="bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl rounded-2xl border border-white/10 p-8">
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-32 h-32 rounded-full bg-slate-800"></div>
+          <div className="w-48 h-6 bg-slate-800 rounded-lg mt-4"></div>
         </div>
-        <div className="flex flex-col gap-4 md:w-2/3">
-          {Array(6)
-            .fill(0)
-            .map((_, i) => (
-              <div key={i} className="w-full h-10 bg-slate-800 rounded"></div>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="h-20 bg-slate-800 rounded-xl"></div>
+          ))}
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-950 text-white">
-      <main className="flex flex-col items-center justify-start px-4 sm:px-6 md:px-8 py-6 sm:py-10 bg-gray-950 w-full overflow-y-auto">
-        <h1 className="text-3xl sm:text-4xl text-center mb-4 font-bold">
-          UPDATE TUTOR PROFILE
-        </h1>
-
+    <div className="flex flex-col min-h-screen bg-black text-white overflow-x-hidden">
+      <main className="flex flex-col items-center justify-start px-4 sm:px-6 py-8 md:py-10">
         {loading ? (
           <Skeleton />
         ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="w-full max-w-5xl bg-slate-900/70 border border-white/10 rounded-2xl shadow-xl backdrop-blur-xl flex flex-col md:flex-row overflow-hidden"
-          >
-            {/* Left Section */}
-            <div className="md:w-1/3 bg-slate-900/80 border-b md:border-b-0 md:border-r border-white/10 p-6 sm:p-8 flex flex-col items-center gap-4">
-              {preview ? (
-                <img
-                  src={preview}
-                  alt={user.name}
-                  className="w-28 h-28 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-violet-700 shadow-lg"
-                />
-              ) : (
-                <FaUserAlt size={100} className="text-gray-500" />
-              )}
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                id="avatarInput"
-                className="hidden"
-              />
-
-              <button
-                type="button"
-                onClick={() => document.getElementById("avatarInput")?.click()}
-                className="px-4 sm:px-6 py-2 bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 transition-all duration-300 rounded-xl font-semibold shadow-md text-white text-sm sm:text-base"
-              >
-                Choose File
-              </button>
-
-              {preview && (
-                <button
-                  type="button"
-                  onClick={handleRemovePhoto}
-                  className="text-red-400 hover:text-red-300 text-sm"
-                >
-                  Remove Photo
-                </button>
-              )}
-
-              <p className="text-gray-400 text-sm sm:text-base">{user.email}</p>
-              <p className="text-gray-400 text-sm sm:text-base">{user.role}</p>
-
-              <button
-                className="mt-3 sm:mt-4 px-5 sm:px-6 py-2 bg-gradient-to-r from-gray-800 to-gray-800 hover:from-gray-700 hover:to-gray-700 transition-all duration-300 rounded-2xl font-semibold shadow-lg text-white text-sm sm:text-base"
-                onClick={() => {
-                  const missing =
-                    !user.subjects ||
-                    user.subjects.length === 0 ||
-                    !user.experience ||
-                    user.experience === 0 ||
-                    !user.languages ||
-                    user.languages.trim() === "" ||
-                    !user.qualification ||
-                    user.qualification.trim() === "" ||
-                    !user.document ||
-                    user.document.length === 0;
-
-                  if (missing) {
-                    alert(
-                      "Subjects, Experience, Languages, Qualification, and Documents are mandatory."
-                    );
-                  } else {
-                    navigate("/tutor-dashboard");
-                  }
-                }}
-                type="button"
-              >
-                Go back to Dashboard
-              </button>
-            </div>
-
-            {/* Right Section */}
-            <div className="md:w-2/3 p-6 sm:p-8 flex flex-col gap-5 sm:gap-6 overflow-y-auto scrollbar-thin scrollbar-thumb-violet-800 scrollbar-track-slate-900 max-h-[80vh] md:max-h-[90vh]">
-              {[
-                {
-                  label: "Name",
-                  name: "name",
-                  type: "text",
-                  placeholder: "Enter your full name",
-                },
-                {
-                  label: "Age",
-                  name: "age",
-                  type: "number",
-                  placeholder: "Enter your age",
-                  min: 18,
-                },
-                {
-                  label: "Skills (comma separated)",
-                  name: "skills",
-                  type: "text",
-                  placeholder: "e.g., Python, JavaScript, Problem Solving",
-                },
-                {
-                  label: "Languages (comma separated)",
-                  name: "languages",
-                  type: "text",
-                  required: true,
-                  placeholder: "e.g., English, Hindi, Spanish",
-                },
-
-                {
-                  label: "Experience (in years)",
-                  name: "experience",
-                  type: "number",
-                  required: true,
-                  placeholder: "Years of teaching experience",
-                  min: 0,
-                },
-                {
-                  label: "Hourly Rate",
-                  name: "hourlyRate",
-                  type: "number",
-                  placeholder: "Rate in your currency",
-                  min: 0,
-                },
-                {
-                  label: "Qualifications",
-                  name: "qualification",
-                  type: "text",
-                  required: true,
-                  placeholder: "e.g., B.Tech, M.Sc, PhD",
-                },
-              ].map((field: any) => (
-                <label key={field.name} className="flex flex-col text-gray-200">
-                  <span>
-                    {field.label}
-                    {field.required && (
-                      <span className="text-red-500 ml-1">*</span>
-                    )}
-                  </span>
-                  <input
-                    type={field.type}
-                    name={field.name}
-                    value={(user as any)[field.name] ?? ""}
-                    onChange={handleChange}
-                    placeholder={field.placeholder}
-                    min={field.min}
-                    className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition text-sm sm:text-base"
-                  />
-                </label>
-              ))}
-
-              <label className="flex flex-col text-gray-200">
-                Gender
-                <select
-                  name="gender"
-                  value={user.gender}
-                  onChange={handleChange}
-                  className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition text-sm sm:text-base"
-                >
-                  <option value="">Select Gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
-              </label>
-              <label className="flex flex-col text-gray-200">
-                <span>
-                  Subjects <span className="text-red-500">*</span>
-                </span>
-
-                <div>
-                  {/* Dropdown Box */}
-                  <div
-                    className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 hover:border-violet-700 cursor-pointer transition text-sm sm:text-base"
-                    onClick={() => setOpen(!open)}
-                  >
-                    {selectedSubjects.length === 0 ? (
-                      <span className="text-gray-400">
-                        Click to select subjects
-                      </span>
+          <div className="w-full max-w-6xl">
+            <form
+              onSubmit={handleSubmit}
+              className="bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden shadow-xl"
+            >
+              {/* Header with Avatar */}
+              <div className="bg-gradient-to-r from-emerald-900/30 via-green-900/20 to-slate-900/30 p-8 border-b border-white/10">
+                <div className="flex flex-col items-center gap-4">
+                  {/* Avatar */}
+                  <div className="relative group">
+                    {preview ? (
+                      <img
+                        src={preview}
+                        alt={user.name}
+                        className="w-32 h-32 rounded-full object-cover border-4 border-slate-900 shadow-xl"
+                      />
                     ) : (
-                      <span>{selectedSubjects.join(", ")}</span>
+                      <div className="w-32 h-32 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center border-4 border-slate-900 shadow-xl">
+                        <FaUserAlt className="text-5xl text-white" />
+                      </div>
                     )}
-                  </div>
 
-                  {/* Dropdown Content */}
-                  {open && (
-                    <div className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-violet-700 shadow-lg max-h-60 overflow-y-auto text-sm sm:text-base">
-                      {subjectsList.map((subject) => (
-                        <label
-                          key={subject}
-                          className="flex items-center gap-2 py-2 hover:bg-slate-800 rounded px-2 cursor-pointer transition"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedSubjects.includes(subject)}
-                            onChange={() => handleCheckboxChange(subject)}
-                            className="cursor-pointer w-4 h-4"
-                          />
-                          {subject}
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </label>
-
-              <label className="flex flex-col text-gray-200">
-                Bio
-                <textarea
-                  name="bio"
-                  value={user.bio}
-                  onChange={handleChange}
-                  placeholder="Tell something about yourself"
-                  className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition resize-none text-sm sm:text-base"
-                  rows={4}
-                />
-              </label>
-
-              <div className="mt-4 p-4 bg-slate-900/80 border border-white/20 rounded-2xl shadow-sm">
-                <label className="block text-gray-200 font-medium mb-2">
-                  Documents <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="file"
-                  accept=".pdf,.jpg,.png"
-                  multiple
-                  onChange={handleDocumentUpload}
-                  className="w-full text-sm text-gray-400 file:bg-violet-800 file:text-white file:px-3 file:py-1 file:rounded-lg file:border-none hover:file:bg-violet-700 transition-colors"
-                />
-
-                {documentPreview.length > 0 && (
-                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {documentPreview.map((preview, index) => (
-                      <div
-                        key={index}
-                        className="flex flex-col items-center bg-slate-800 p-2 rounded-xl border border-white/10 shadow-sm"
+                    {/* Avatar Overlay Buttons */}
+                    <div className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        id="avatarInput"
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          document.getElementById("avatarInput")?.click()
+                        }
+                        className="p-2 bg-emerald-600 hover:bg-emerald-500 rounded-full transition-all shadow-lg"
+                        title="Change photo"
                       >
-                        {preview.startsWith("data:image") ? (
-                          <img
-                            src={preview}
-                            className="w-28 h-28 object-cover rounded-md"
-                          />
-                        ) : (
-                          <iframe
-                            src={preview}
-                            className="w-28 h-28 border rounded-md"
-                          />
-                        )}
-                        <p className="text-xs text-gray-300 mt-1 truncate">
-                          Doc {index + 1}
-                        </p>
-                      </div>
-                    ))}
+                        <PhotoCameraIcon className="text-xl" />
+                      </button>
+                      {preview && (
+                        <button
+                          type="button"
+                          onClick={handleRemovePhoto}
+                          className="p-2 bg-red-600 hover:bg-red-500 rounded-full transition-all shadow-lg"
+                          title="Remove photo"
+                        >
+                          <DeleteIcon className="text-xl" />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                )}
+
+                  <div className="text-center">
+                    <h1 className="text-3xl font-bold text-white mb-2">
+                      Edit Tutor Profile
+                    </h1>
+                    <p className="text-gray-400">
+                      Update your professional information
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div className="mt-4 p-4 bg-slate-900/80 border border-white/20 rounded-2xl shadow-sm">
-                <label className="block text-gray-200 font-medium mb-2">
-                  Resume
-                </label>
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleResumeUpload}
-                  className="w-full text-sm text-gray-400 file:bg-violet-800 file:text-white file:px-3 file:py-1 file:rounded-lg file:border-none hover:file:bg-violet-700 transition-colors"
-                />
+              {/* Form Content */}
+              <div className="p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Name */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <PersonIcon className="text-emerald-400" />
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={user.name}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
+                      placeholder="Enter your name"
+                    />
+                  </div>
 
-                {resumePreview && (
-                  <div className="mt-3 flex flex-col items-center bg-slate-800 p-3 rounded-xl border border-white/10 shadow-sm">
-                    <p className="text-sm text-gray-300 mb-2">
-                      Resume Preview:
-                    </p>
-                    {selectedResume?.type.includes("pdf") ? (
-                      <iframe
-                        src={resumePreview}
-                        className="w-36 h-36 border rounded-md"
-                      />
-                    ) : (
-                      <div className="w-36 h-36 border rounded-md p-2 flex justify-center items-center bg-slate-800 text-xs text-gray-200">
-                        📄 {selectedResume?.name}
+                  {/* Email (Read-only) */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <EmailIcon className="text-emerald-400" />
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={user.email}
+                      disabled
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/60 border border-white/10 outline-none text-gray-400 cursor-not-allowed"
+                    />
+                  </div>
+
+                  {/* Gender */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <PersonIcon className="text-emerald-400" />
+                      Gender
+                    </label>
+                    <select
+                      name="gender"
+                      value={user.gender}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  {/* Age */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <CakeIcon className="text-emerald-400" />
+                      Age
+                    </label>
+                    <input
+                      type="number"
+                      name="age"
+                      value={user.age ?? ""}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
+                      placeholder="Enter your age"
+                      min="18"
+                    />
+                  </div>
+
+                  {/* Experience */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <WorkHistoryIcon className="text-emerald-400" />
+                      Experience (years) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      name="experience"
+                      value={user.experience ?? ""}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
+                      placeholder="Years of teaching experience"
+                      min="0"
+                    />
+                  </div>
+
+                  {/* Hourly Rate */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <AttachMoneyIcon className="text-emerald-400" />
+                      Hourly Rate (₹)
+                    </label>
+                    <input
+                      type="number"
+                      name="hourlyRate"
+                      value={user.hourlyRate ?? ""}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
+                      placeholder="Rate in rupees"
+                      min="0"
+                    />
+                  </div>
+
+                  {/* Role (Read-only) */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm md:col-span-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <InfoIcon className="text-emerald-400" />
+                      Role
+                    </label>
+                    <div className="w-full px-4 py-3 rounded-lg bg-slate-900/60 border border-white/10 text-gray-400 flex items-center gap-2">
+                      <span className="px-3 py-1 bg-emerald-600/20 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm font-semibold">
+                        {user.role || "Tutor"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Subjects */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all md:col-span-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <MenuBookIcon className="text-emerald-400" />
+                      Subjects <span className="text-red-500">*</span>
+                    </label>
+                    <div
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 hover:border-emerald-500 cursor-pointer transition text-white"
+                      onClick={() => setOpen(!open)}
+                    >
+                      {selectedSubjects.length === 0 ? (
+                        <span className="text-gray-400">
+                          Click to select subjects
+                        </span>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {selectedSubjects.map((subject, idx) => (
+                            <span
+                              key={idx}
+                              className="px-3 py-1 bg-emerald-600/20 border border-emerald-500/30 rounded-lg text-emerald-300 text-sm"
+                            >
+                              {subject}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {open && (
+                      <div className="mt-3 p-4 rounded-lg bg-slate-900/80 border border-emerald-500/50 max-h-60 overflow-y-auto">
+                        {subjectsList.map((subject) => (
+                          <label
+                            key={subject}
+                            className="flex items-center gap-3 py-2 hover:bg-slate-800 rounded px-2 cursor-pointer transition"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedSubjects.includes(subject)}
+                              onChange={() => handleCheckboxChange(subject)}
+                              className="cursor-pointer w-4 h-4 accent-emerald-500"
+                            />
+                            <span className="text-white">{subject}</span>
+                          </label>
+                        ))}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
 
-              {validationErrors.length > 0 && (
-                <div className="mt-4 p-4 bg-red-900/20 border border-red-500/50 rounded-xl">
-                  <h4 className="text-red-400 font-semibold mb-2 flex items-center gap-2">
-                    <svg
-                      className="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Please complete the following required fields:
-                  </h4>
-                  <ul className="list-disc list-inside space-y-1 text-red-300 text-sm">
-                    {validationErrors.map((error, index) => (
-                      <li key={index}>{error}</li>
-                    ))}
-                  </ul>
+                  {/* Skills */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all md:col-span-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <WorkIcon className="text-emerald-400" />
+                      Skills (comma separated)
+                    </label>
+                    <input
+                      type="text"
+                      name="skills"
+                      value={user.skills}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
+                      placeholder="e.g., Problem Solving, Communication, Python"
+                    />
+                  </div>
+
+                  {/* Languages */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all md:col-span-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <LanguageIcon className="text-emerald-400" />
+                      Languages (comma separated){" "}
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="languages"
+                      value={user.languages}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
+                      placeholder="e.g., English, Hindi, Spanish"
+                    />
+                  </div>
+
+                  {/* Qualifications */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all md:col-span-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <SchoolIcon className="text-emerald-400" />
+                      Qualifications (comma separated){" "}
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="qualification"
+                      value={user.qualification}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
+                      placeholder="e.g., B.Tech, M.Sc, PhD"
+                    />
+                  </div>
+
+                  {/* Bio */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all md:col-span-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <InfoIcon className="text-emerald-400" />
+                      Bio
+                    </label>
+                    <textarea
+                      name="bio"
+                      value={user.bio}
+                      onChange={handleChange}
+                      placeholder="Tell us about yourself..."
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition resize-none text-white placeholder:text-gray-500"
+                      rows={4}
+                    />
+                  </div>
+
+                  {/* Documents Upload */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all md:col-span-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <DescriptionIcon className="text-emerald-400" />
+                      Documents <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.png"
+                      multiple
+                      onChange={handleDocumentUpload}
+                      className="w-full text-sm text-gray-400 file:px-4 file:py-2 file:bg-emerald-600 file:text-white file:rounded-lg file:border-none file:cursor-pointer hover:file:bg-emerald-500 transition-colors"
+                    />
+
+                    {documentPreview.length > 0 && (
+                      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {documentPreview.map((preview, index) => (
+                          <div
+                            key={index}
+                            className="bg-slate-900/60 p-3 rounded-lg border border-white/10"
+                          >
+                            {preview.startsWith("data:image") ? (
+                              <img
+                                src={preview}
+                                alt={`Doc ${index + 1}`}
+                                className="w-full h-24 object-cover rounded"
+                              />
+                            ) : (
+                              <div className="w-full h-24 flex items-center justify-center bg-slate-800 rounded">
+                                <DescriptionIcon className="text-emerald-400 text-3xl" />
+                              </div>
+                            )}
+                            <p className="text-xs text-gray-400 mt-2 text-center truncate">
+                              Doc {index + 1}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Resume Upload */}
+                  <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm hover:border-emerald-500/30 transition-all md:col-span-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                      <DescriptionIcon className="text-emerald-400" />
+                      Resume
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleResumeUpload}
+                      className="w-full text-sm text-gray-400 file:px-4 file:py-2 file:bg-emerald-600 file:text-white file:rounded-lg file:border-none file:cursor-pointer hover:file:bg-emerald-500 transition-colors"
+                    />
+
+                    {resumePreview && (
+                      <div className="mt-4 bg-slate-900/60 p-4 rounded-lg border border-white/10 flex items-center gap-3">
+                        <DescriptionIcon className="text-emerald-400 text-2xl" />
+                        <div>
+                          <p className="text-white text-sm font-medium">
+                            {selectedResume?.name || "Resume"}
+                          </p>
+                          <p className="text-gray-400 text-xs">
+                            {selectedResume?.type}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
 
-              <button
-                type="submit"
-                disabled={saving}
-                className={`mt-4 sm:mt-6 w-full py-2 sm:py-3 rounded-2xl font-semibold text-base sm:text-lg shadow-lg transition-all duration-300 ${
-                  saving
-                    ? "bg-slate-700 text-gray-400 cursor-not-allowed"
-                    : "bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 text-white"
-                }`}
-              >
-                {saving ? "Updating..." : "Update Profile"}
-              </button>
+                {/* Validation Errors */}
+                {validationErrors.length > 0 && (
+                  <div className="mt-6 p-4 bg-red-900/20 border border-red-500/50 rounded-xl">
+                    <h4 className="text-red-400 font-semibold mb-2 flex items-center gap-2">
+                      <InfoIcon />
+                      Please complete the following required fields:
+                    </h4>
+                    <ul className="list-disc list-inside space-y-1 text-red-300 text-sm">
+                      {validationErrors.map((error, index) => (
+                        <li key={index}>{error}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
-              {message && (
-                <p
-                  className={`text-center mt-3 sm:mt-4 font-medium transition-all duration-300 ${
-                    message.includes("success")
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
-                >
-                  {message}
-                </p>
-              )}
-            </div>
-          </form>
+                {/* Success/Error Message */}
+                {message && (
+                  <div
+                    className={`mt-6 p-4 rounded-xl border flex items-center gap-3 ${
+                      message.includes("success")
+                        ? "bg-emerald-600/20 border-emerald-500/30 text-emerald-400"
+                        : "bg-red-600/20 border-red-500/30 text-red-400"
+                    }`}
+                  >
+                    <InfoIcon />
+                    <span className="font-medium">{message}</span>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/tutor-dashboard")}
+                    className="flex-1 px-6 py-4 bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 rounded-xl font-semibold transition-all shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <ArrowBackIcon />
+                    Back to Dashboard
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className={`flex-1 px-6 py-4 rounded-xl font-semibold transition-all shadow-lg flex items-center justify-center gap-2 ${
+                      saving
+                        ? "bg-slate-700 text-gray-400 cursor-not-allowed"
+                        : "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 hover:shadow-emerald-500/50"
+                    }`}
+                  >
+                    <SaveIcon />
+                    {saving ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
         )}
       </main>
     </div>

@@ -58,13 +58,14 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
       bg-slate-900/70 text-white py-2 sm:py-3 flex items-center justify-between transition-all duration-300
       mx-2 sm:mx-4 rounded-xl mt-2 sm:mt-4 px-3 sm:px-4`}
     >
-      <div
-        className="text-sm sm:text-base lg:text-lg font-semibold cursor-pointer transition-all duration-300 truncate max-w-[140px] sm:max-w-[200px] lg:max-w-none"
-        onClick={() => navigate("/dashboard")}
-      >
+      <div className="text-sm sm:text-base lg:text-lg font-semibold cursor-pointer transition-all duration-300 truncate max-w-[140px] sm:max-w-[200px] lg:max-w-none">
         {name
-          ? `Hello, ${name.charAt(0).toUpperCase() + name.slice(1)}`
-          : `Hello ${username}`}
+          ? `Hello, ${
+              name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
+            }`
+          : `Hello, ${
+              username.charAt(0).toUpperCase() + username.slice(1).toLowerCase()
+            }`}
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4 lg:gap-5 relative">
@@ -111,8 +112,13 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
             >
               <div className="px-3 sm:px-4 py-2 border-b border-gray-700 text-xs sm:text-sm truncate">
                 {name
-                  ? `Hello, ${name.charAt(0).toUpperCase() + name.slice(1)}`
-                  : `Hello, ${username}`}
+                  ? `Hello, ${
+                      name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
+                    }`
+                  : `Hello, ${
+                      username.charAt(0).toUpperCase() +
+                      username.slice(1).toLowerCase()
+                    }`}
               </div>
               {role === "tutor" ? (
                 <>

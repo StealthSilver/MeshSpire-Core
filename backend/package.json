@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx tsc -b",
+    "build": "tsc -b",
     "start": "node dist/server.js",
     "dev": "npm run build && npm run start"
   },
@@ -13,11 +13,23 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/helmet": "^0.0.48",
+    "@types/http-status-codes": "^1.2.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/mongoose": "^5.11.96",
     "@types/multer": "^2.0.0",
+    "@types/node": "^24.6.0",
     "@types/passport": "^1.0.17",
+    "@types/passport-google-oauth20": "^2.0.16",
+    "@types/socket.io": "^3.0.1",
+    "@types/uuid": "^10.0.0",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
@@ -30,21 +42,9 @@
     "passport-google-oauth20": "^2.0.0",
     "socket.io": "^4.8.1",
     "stripe": "^20.0.0",
+    "typescript": "^5.9.3",
     "uuid": "^13.0.0",
     "zod": "^4.1.11"
   },
-  "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/cookie-parser": "^1.4.9",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/helmet": "^0.0.48",
-    "@types/http-status-codes": "^1.2.0",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^24.6.0",
-    "@types/passport-google-oauth20": "^2.0.16",
-    "@types/socket.io": "^3.0.1",
-    "@types/uuid": "^10.0.0",
-    "typescript": "^5.9.3"
-  }
+  "devDependencies": {}
 }

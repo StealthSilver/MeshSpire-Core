@@ -25,12 +25,37 @@ export class PaymentController {
       // 🔹 Hardcode amount to 0 for testing
       const amount = 0;
 
-      // Ensure CLIENT_URL has proper scheme
+      // Ensure CLIENT_URL has proper scheme - PRODUCTION FIX
+      // Priority: CLIENT_URL -> FRONTEND_URL -> hardcoded production URL
       const clientUrl =
-        process.env.CLIENT_URL || "https://meshspire.vercel.app";
-      const baseUrl = clientUrl.startsWith("http")
-        ? clientUrl
-        : `https://${clientUrl}`;
+        process.env.CLIENT_URL ||
+        process.env.FRONTEND_URL ||
+        "https://meshspire-core.vercel.app";
+
+      // Clean and validate URL
+      let baseUrl = clientUrl.trim();
+      // Replace wrong URL if it exists
+      if (
+        baseUrl.includes("meshspire-core.vercel.app") &&
+        !baseUrl.includes("meshspire-core")
+      ) {
+        baseUrl = "https://meshspire-core.vercel.app";
+        console.warn(
+          "⚠️ Correcting CLIENT_URL from meshspire-core.vercel.app to meshspire-core.vercel.app"
+        );
+      }
+      // Add https if missing
+      if (!baseUrl.startsWith("http")) {
+        baseUrl = `https://${baseUrl}`;
+      }
+      // Remove trailing slash
+      baseUrl = baseUrl.replace(/\/$/, "");
+
+      console.log("💳 Creating Stripe session with URLs:", {
+        baseUrl,
+        successUrl: `${baseUrl}/payment-success`,
+        cancelUrl: `${baseUrl}/payment-failed`,
+      });
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
@@ -157,6 +182,69 @@ export class PaymentController {
           paymentId: payment._id.toString(),
           lessonId: payment.lessonId.toString(),
         });
+      }
+
+      // Ensure conversation exists between student and tutor after payment
+      if (payment.tutorId && payment.lessonId) {
+        try {
+          const { createConversation } = await import("./chat.controller");
+          const conversation = await createConversation(
+            payment.lessonId.toString(),
+            payment.tutorId.toString()
+          );
+          console.log("✅ Conversation ensured after payment:", {
+            conversationId: conversation?._id,
+            lessonId: payment.lessonId,
+          });
+
+          // Send automatic "Hi" messages from both student and tutor
+          if (conversation?._id) {
+            try {
+              const Message = (await import("../models/message.model")).default;
+
+              // Student sends "Hi" message
+              const studentMessage = new Message({
+                conversationId: conversation._id,
+                senderId: payment.userId,
+                receiverId: payment.tutorId,
+                content: "Hi! Looking forward to our lesson.",
+                messageType: "text",
+              });
+              await studentMessage.save();
+              console.log("✅ Auto-sent greeting from student");
+
+              // Tutor sends "Hi" message
+              const tutorMessage = new Message({
+                conversationId: conversation._id,
+                senderId: payment.tutorId,
+                receiverId: payment.userId,
+                content:
+                  "Hi! I'm excited to help you learn. Feel free to ask any questions!",
+                messageType: "text",
+              });
+              await tutorMessage.save();
+              console.log("✅ Auto-sent greeting from tutor");
+
+              // Update conversation with last message
+              const Conversation = (
+                await import("../models/conversation.model")
+              ).default;
+              await Conversation.findByIdAndUpdate(conversation._id, {
+                lastMessage:
+                  "Hi! I'm excited to help you learn. Feel free to ask any questions!",
+                lastMessageAt: new Date(),
+              });
+            } catch (msgError) {
+              console.error("⚠️ Error sending automatic greetings:", msgError);
+            }
+          }
+        } catch (convError) {
+          console.error(
+            "⚠️ Error ensuring conversation after payment:",
+            convError
+          );
+          // Don't fail payment if conversation creation fails
+        }
       }
 
       return res.status(StatusCodes.OK).json({

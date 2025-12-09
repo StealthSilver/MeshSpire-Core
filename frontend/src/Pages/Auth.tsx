@@ -302,16 +302,37 @@ export default function AuthPage() {
                     </button>
                   </div>
 
-                  <label className="flex items-center gap-2 text-xs sm:text-sm text-gray-200">
-                    <input
-                      type="checkbox"
-                      checked={form.isTutor}
-                      onChange={(e) =>
-                        setForm({ ...form, isTutor: e.target.checked })
-                      }
-                      className="h-4 w-4 rounded border-gray-400 text-green-600 focus:ring-green-500"
-                    />
-                    Sign up as Tutor
+                  <label className="flex items-center gap-3 text-xs sm:text-sm text-gray-200 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={form.isTutor}
+                        onChange={(e) =>
+                          setForm({ ...form, isTutor: e.target.checked })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-5 h-5 bg-white/10 backdrop-blur-sm border border-white/30 rounded-md peer-checked:bg-gradient-to-r peer-checked:from-green-600 peer-checked:to-green-700 peer-checked:border-green-500 transition-all duration-300 peer-focus:ring-2 peer-focus:ring-lime-400 peer-focus:ring-offset-2 peer-focus:ring-offset-transparent flex items-center justify-center group-hover:border-white/50">
+                        {form.isTutor && (
+                          <svg
+                            className="w-3 h-3 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={3}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                    <span className="group-hover:text-white transition-colors">
+                      Sign up as Tutor
+                    </span>
                   </label>
 
                   <button

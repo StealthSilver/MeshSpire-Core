@@ -1,7 +1,13 @@
 import axios from "axios";
 
 // Use environment variable or fallback to production for deployment
+<<<<<<< HEAD
 const baseURL = "http://localhost:8000/api/v0";
+=======
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://meshspire-core.onrender.com/api/v0";
+>>>>>>> ea1f1bce9a55eaa9e73c069c5961e9f8b7c436e9
 
 const API = axios.create({
   baseURL,
@@ -22,16 +28,14 @@ API.interceptors.request.use((config) => {
 API.interceptors.response.use(
   (response) => {
     console.log(
-      `✅ API Response: ${response.config.method?.toUpperCase()} ${
-        response.config.url
+      `✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url
       } - Status: ${response.status}`
     );
     return response;
   },
   (error) => {
     console.error(
-      `❌ API Error: ${error.config?.method?.toUpperCase()} ${
-        error.config?.url
+      `❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url
       }`,
       error.response?.data || error.message
     );
@@ -69,6 +73,25 @@ export const confirmLesson = async (lessonId: string) => {
 
 export const cancelLesson = async (lessonId: string) => {
   const response = await API.post(`/lesson/cancel/${lessonId}`);
+  return response.data;
+};
+export const UpdateLesson = async (lessonId: string, lessonData: {
+  topic: string;
+  subTopic?: string;
+  subject: string;
+  class: string;
+  date: string;
+  time: string;
+}) => {
+  const response = await API.put(`/lesson/update/${lessonId}` , lessonData);
+  return response.data;
+};
+export const getLessonById = async (lessonId: string) => {
+  const response = await API.get(`/lesson/${lessonId}`);
+  return response.data;
+};
+export const deleteLesson = async (lessonId: string) => {
+  const response = await API.delete(`/lesson/delete/${lessonId}`);
   return response.data;
 };
 

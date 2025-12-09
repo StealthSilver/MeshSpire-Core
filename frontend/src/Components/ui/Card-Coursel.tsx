@@ -110,20 +110,20 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
         </div>
 
         {/* Navigation Arrows */}
-        <div className="flex justify-center sm:justify-end gap-2 mr-0 sm:mr-10">
+        <div className="flex justify-center sm:justify-end gap-3 mr-0 sm:mr-10">
           <button
-            className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-gray-100 disabled:opacity-50"
+            className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-gradient-to-br from-slate-800 to-slate-700 border border-emerald-500/20 hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95"
             onClick={scrollLeft}
             disabled={!canScrollLeft}
           >
-            <IconArrowNarrowLeft className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
+            <IconArrowNarrowLeft className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-400 hover:text-emerald-300 transition-colors" />
           </button>
           <button
-            className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-gray-100 disabled:opacity-50"
+            className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-gradient-to-br from-slate-800 to-slate-700 border border-emerald-500/20 hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95"
             onClick={scrollRight}
             disabled={!canScrollRight}
           >
-            <IconArrowNarrowRight className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
+            <IconArrowNarrowRight className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-400 hover:text-emerald-300 transition-colors" />
           </button>
         </div>
       </div>
@@ -255,41 +255,42 @@ export const Card = ({
       {/* Card Preview */}
       <motion.div
         onClick={handleOpen}
-        className="relative flex flex-col w-[260px] sm:w-[380px] md:w-[480px] h-[300px] sm:h-[330px] md:h-[350px] p-4 sm:p-6 rounded-2xl
+        className="relative flex flex-col w-[280px] sm:w-[380px] md:w-[440px] h-[240px] sm:h-[260px] md:h-[280px] p-4 sm:p-5 rounded-xl
           backdrop-blur-lg bg-slate-900/60 border border-white/20 shadow-lg hover:shadow-xl
           transition-all duration-300 ease-in-out cursor-pointer flex-shrink-0"
       >
-        <div className="w-28 sm:w-32 md:w-40 h-28 sm:h-32 md:h-40 rounded-2xl overflow-hidden mb-3 sm:mb-4 mx-auto sm:mx-0">
-          <img
-            src={card.src}
-            alt={card.title}
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        <div className="flex flex-col text-center sm:text-left">
-          <p className="text-lg sm:text-xl md:text-2xl font-semibold text-white drop-shadow-sm">
-            {card.title}
-          </p>
-          <div className="flex justify-center sm:justify-between items-center text-sm sm:text-base text-gray-300 tracking-wide">
-            <span>{card.category}</span>
-            {renderStars(card.rating)}
+        <div className="flex items-start gap-4 mb-3">
+          <div className="w-16 sm:w-20 md:w-24 h-16 sm:h-20 md:h-24 rounded-xl overflow-hidden shadow-lg ring-2 ring-white/5 flex-shrink-0">
+            <img
+              src={card.src}
+              alt={card.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex flex-col flex-1 min-w-0">
+            <p className="text-base sm:text-lg font-bold text-white leading-tight truncate">
+              {card.title}
+            </p>
+            <p className="text-xs sm:text-sm text-gray-300 mt-1">
+              {card.category}
+            </p>
+            <div className="mt-2">{renderStars(card.rating)}</div>
           </div>
         </div>
 
-        <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row justify-center sm:justify-start gap-3 sm:gap-4">
+        <div className="mt-auto flex gap-2">
           <button
             onClick={handleNavigate}
-            className="px-6 sm:px-8 py-2 font-medium text-white rounded-xl
-              bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900
-              hover:bg-violet-700 transition-all duration-300 text-sm sm:text-base"
+            className="flex-1 px-4 py-2 font-medium text-white rounded-lg
+              bg-gradient-to-r from-emerald-600 to-green-600
+              hover:from-emerald-500 hover:to-green-500 transition-all duration-300 text-xs sm:text-sm"
           >
             Start Now
           </button>
           <button
             onClick={handleOpen}
-            className="px-6 sm:px-8 py-2 font-medium text-white rounded-xl
-              bg-gray-800 hover:bg-gray-900 transition-all duration-300 text-sm sm:text-base"
+            className="flex-1 px-4 py-2 font-medium text-white rounded-lg
+              bg-slate-700 hover:bg-slate-600 transition-all duration-300 text-xs sm:text-sm"
           >
             Get Info
           </button>

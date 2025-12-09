@@ -44,9 +44,20 @@ const TutorDashboard: React.FC = () => {
   const handleConfirmLesson = async (lessonId: string) => {
     try {
       setProcessingLessonId(lessonId);
-      await confirmLesson(lessonId);
-      // Refresh the lessons list
-      await fetchRelevantLessons();
+      const response = await confirmLesson(lessonId);
+      console.log("✅ Lesson confirmed, full response:", response);
+      console.log("✅ Confirmed tutors:", response.lesson?.confirmedTutors);
+
+      // Update the local state immediately with the confirmed lesson
+      setRelevantLessons((prev) =>
+        prev.map((lesson) =>
+          lesson._id === lessonId
+            ? { ...lesson, confirmedTutors: response.lesson.confirmedTutors }
+            : lesson
+        )
+      );
+
+      console.log("✅ Local state updated for lesson:", lessonId);
     } catch (error: any) {
       console.error("❌ Error confirming lesson:", error);
       alert(
@@ -57,14 +68,22 @@ const TutorDashboard: React.FC = () => {
       setProcessingLessonId(null);
     }
   };
-
   const handleCancelLesson = async (lessonId: string) => {
     try {
       setProcessingLessonId(lessonId);
-      await cancelLesson(lessonId);
-      // Remove the lesson from the list immediately
+      const response = await cancelLesson(lessonId);
+      console.log("✅ Lesson cancelled, response:", response);
+
+      // Update the local state to remove the tutor from confirmedTutors
       setRelevantLessons((prev) =>
-        prev.filter((lesson) => lesson._id !== lessonId)
+        prev.map((lesson) =>
+          lesson._id === lessonId
+            ? {
+                ...lesson,
+                confirmedTutors: response.lesson.confirmedTutors || [],
+              }
+            : lesson
+        )
       );
     } catch (error: any) {
       console.error("❌ Error cancelling lesson:", error);
@@ -121,7 +140,13 @@ const TutorDashboard: React.FC = () => {
                   subject={lesson.subject}
                   time={`${lesson.date} • ${lesson.time}`}
                   studentName={lesson.studentId?.name || "Unknown Student"}
-                  onViewDetails={() => setOpenDetails(lesson)}
+                  onViewDetails={() => {
+                    console.log(
+                      "Tutor view details clicked for lesson:",
+                      lesson
+                    );
+                    setOpenDetails(lesson);
+                  }}
                   showActions={true}
                   onConfirm={() => handleConfirmLesson(lesson._id)}
                   onCancel={() => handleCancelLesson(lesson._id)}
@@ -147,7 +172,7 @@ const TutorDashboard: React.FC = () => {
         {!loading && paidLessons.length > 0 && (
           <div className="mb-10">
             <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-center sm:text-left">
-              Confirmed Classes ✓
+              Confirmed Classes
             </h1>
             <LessonCarousel>
               {paidLessons.map((lesson, index) => (
@@ -157,7 +182,13 @@ const TutorDashboard: React.FC = () => {
                   subject={lesson.subject}
                   time={`${lesson.date} • ${lesson.time}`}
                   studentName={lesson.studentId?.name || "Unknown Student"}
-                  onViewDetails={() => setOpenDetails(lesson)}
+                  onViewDetails={() => {
+                    console.log(
+                      "Tutor view details clicked for paid lesson:",
+                      lesson
+                    );
+                    setOpenDetails(lesson);
+                  }}
                   showActions={false}
                   isPaid={true}
                   date={lesson.date}
@@ -181,8 +212,20 @@ const TutorDashboard: React.FC = () => {
       </main>
 
       {openDetails && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 px-4">
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-2xl w-full sm:w-[480px] space-y-5 shadow-2xl border border-violet-500/20">
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[9999] px-4"
+          onClick={() => {
+            console.log("Tutor modal overlay clicked, closing...");
+            setOpenDetails(null);
+          }}
+        >
+          <div
+            className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-2xl w-full sm:w-[480px] space-y-5 shadow-2xl border border-violet-500/20"
+            onClick={(e) => {
+              console.log("Tutor modal content clicked");
+              e.stopPropagation();
+            }}
+          >
             <div className="flex justify-between items-start">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
                 {openDetails.topic}
@@ -234,8 +277,8 @@ const TutorDashboard: React.FC = () => {
                   {openDetails.isPaid
                     ? "Paid & Scheduled"
                     : isLessonConfirmedByCurrentUser(openDetails)
-                    ? "Tutor Confirmed (awaiting payment)"
-                    : "Awaiting Tutor Confirmation"}
+                    ? "Confirmed (awaiting payment)"
+                    : "Not Confirmed yet "}
                 </span>
               </p>
             </div>

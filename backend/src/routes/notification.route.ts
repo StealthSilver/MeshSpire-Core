@@ -22,4 +22,7 @@ router.patch("/read-all", NotificationController.markAllAsRead);
 // Delete a notification
 router.delete("/:notificationId", NotificationController.deleteNotification);
 
+// Delete all notifications
+router.delete("/", NotificationController.deleteAllNotifications);
+
 export default router;
