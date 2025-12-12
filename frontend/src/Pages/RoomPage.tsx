@@ -49,6 +49,7 @@ const Room: React.FC = () => {
     (location.state && (location.state as any).autoSendVideo) || false;
   const [showAlert, setShowAlert] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isChatMounted, setIsChatMounted] = useState(false);
   const roomId = roomIdParam || sessionStorage.getItem("currentRoom");
   const [roomFullError, setRoomFullError] = useState(false);
   const [showEndCallConfirm, setShowEndCallConfirm] = useState(false);
@@ -782,7 +783,10 @@ const Room: React.FC = () => {
 
         {/* Chat */}
         <button
-          onClick={() => setIsChatOpen(!isChatOpen)}
+          onClick={() => {
+            if (!isChatMounted) setIsChatMounted(true);
+            setIsChatOpen(!isChatOpen);
+          }}
           className={`w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full backdrop-blur-xl ${
             isChatOpen
               ? "bg-gradient-to-r from-emerald-600 to-green-600 border border-emerald-500/20 shadow-lg shadow-emerald-500/30"
@@ -794,9 +798,11 @@ const Room: React.FC = () => {
       </div>
 
       {/* Chat Interface */}
-      {isChatOpen && roomId && (
+      {roomId && isChatMounted && (
         <div
-          className={`absolute z-50 animate-slideIn ${
+          className={`absolute z-50 transition-all duration-300 ease-in-out ${
+            isChatOpen ? "translate-x-0" : "translate-x-full"
+          } ${
             isFullScreen
               ? "bottom-4 right-4 w-1/4 h-1/4" // matches local video when fullscreen
               : "top-4 right-4 w-1/4 h-[calc(100vh-25vh-3rem)]" // starts from top with margin, ends before local video
