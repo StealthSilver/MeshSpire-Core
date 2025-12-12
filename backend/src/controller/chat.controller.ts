@@ -508,6 +508,135 @@ export const getUnreadCount = async (req: Request, res: Response) => {
   }
 };
 
+// Migration endpoint to consolidate duplicate conversations
+export const consolidateDuplicateConversations = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    console.log("🔧 Starting conversation consolidation...");
+
+    // Find all conversations with valid student and tutor
+    const allConversations = await Conversation.find({
+      studentId: { $exists: true, $ne: null },
+      tutorId: { $exists: true, $ne: null },
+    })
+      .populate("studentId", "name email")
+      .populate("tutorId", "name email")
+      .populate("lessonId", "topic isPaid")
+      .sort({ createdAt: 1 });
+
+    console.log(`📊 Found ${allConversations.length} total conversations`);
+
+    // Group by studentId-tutorId pair
+    const conversationGroups = new Map<string, any[]>();
+
+    allConversations.forEach((conv: any) => {
+      // Skip if student or tutor is missing
+      if (!conv.studentId?._id || !conv.tutorId?._id) {
+        console.log(`⚠️ Skipping conversation ${conv._id} - missing user data`);
+        return;
+      }
+
+      const key = `${conv.studentId._id}-${conv.tutorId._id}`;
+      if (!conversationGroups.has(key)) {
+        conversationGroups.set(key, []);
+      }
+      conversationGroups.get(key)!.push(conv);
+    });
+
+    console.log(
+      `📊 Found ${conversationGroups.size} unique student-tutor pairs`
+    );
+
+    let consolidatedCount = 0;
+    let deletedCount = 0;
+
+    // Process each group
+    for (const [key, conversations] of conversationGroups.entries()) {
+      if (conversations.length > 1) {
+        console.log(
+          `🔄 Consolidating ${conversations.length} conversations for pair: ${key}`
+        );
+
+        // Keep the oldest conversation (first one created)
+        const keepConversation = conversations[0];
+
+        // Get all messages from duplicate conversations
+        const Message = (await import("../models/message.model")).default;
+
+        for (let i = 1; i < conversations.length; i++) {
+          const duplicateConv = conversations[i];
+
+          // Move messages to the kept conversation
+          const messagesCount = await Message.updateMany(
+            { conversationId: duplicateConv._id },
+            { conversationId: keepConversation._id }
+          );
+
+          console.log(
+            `  ✅ Moved ${messagesCount.modifiedCount} messages from ${duplicateConv._id} to ${keepConversation._id}`
+          );
+
+          // Delete the duplicate conversation
+          await Conversation.findByIdAndDelete(duplicateConv._id);
+          deletedCount++;
+        }
+
+        consolidatedCount++;
+      }
+    }
+
+    console.log("✅ Consolidation complete:", {
+      consolidatedPairs: consolidatedCount,
+      conversationsDeleted: deletedCount,
+      remainingConversations: allConversations.length - deletedCount,
+    });
+
+    res.json({
+      success: true,
+      message: "Conversations consolidated successfully",
+      consolidatedPairs: consolidatedCount,
+      conversationsDeleted: deletedCount,
+      remainingConversations: allConversations.length - deletedCount,
+    });
+  } catch (error) {
+    console.error("❌ Error consolidating conversations:", error);
+    res.status(500).json({ message: "Error consolidating conversations" });
+  }
+};
+
+// Cleanup endpoint to remove invalid conversations
+export const cleanupInvalidConversations = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    console.log("🧹 Starting cleanup of invalid conversations...");
+
+    // Delete conversations with missing studentId or tutorId
+    const result = await Conversation.deleteMany({
+      $or: [
+        { studentId: { $exists: false } },
+        { studentId: null },
+        { tutorId: { $exists: false } },
+        { tutorId: null },
+      ],
+    });
+
+    console.log(`✅ Deleted ${result.deletedCount} invalid conversations`);
+
+    res.json({
+      success: true,
+      message: "Invalid conversations cleaned up",
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    console.error("❌ Error cleaning up conversations:", error);
+    res.status(500).json({ message: "Error cleaning up conversations" });
+  }
+};
+
 // Ensure a conversation exists for a paid lesson between student and a confirmed tutor
 export const ensureConversation = async (req: Request, res: Response) => {
   try {

@@ -8,6 +8,8 @@ import {
   getUnreadCount,
   getAllConversationsDebug,
   ensureConversation,
+  consolidateDuplicateConversations,
+  cleanupInvalidConversations,
 } from "../controller/chat.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
 
@@ -24,5 +26,15 @@ router.post("/messages", authMiddleware, sendMessage);
 router.post("/upload", authMiddleware, upload.single("file"), uploadFile);
 router.get("/unread-count", authMiddleware, getUnreadCount);
 router.post("/ensure-conversation", authMiddleware, ensureConversation);
+router.post(
+  "/consolidate-conversations",
+  authMiddleware,
+  consolidateDuplicateConversations
+);
+router.post(
+  "/cleanup-conversations",
+  authMiddleware,
+  cleanupInvalidConversations
+);
 
 export default router;

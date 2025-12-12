@@ -47,13 +47,11 @@ const ConversationSchema = new Schema<IConversation>(
   { timestamps: true }
 );
 
-// Index for quick lookups
-ConversationSchema.index(
-  { studentId: 1, tutorId: 1, lessonId: 1 },
-  { unique: true }
-);
+// Index for quick lookups - enforce unique conversation per student-tutor pair
+ConversationSchema.index({ studentId: 1, tutorId: 1 }, { unique: true });
 ConversationSchema.index({ studentId: 1 });
 ConversationSchema.index({ tutorId: 1 });
+ConversationSchema.index({ lessonId: 1 });
 
 export default mongoose.model<IConversation>(
   "Conversation",
