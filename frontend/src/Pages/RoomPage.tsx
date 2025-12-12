@@ -51,6 +51,7 @@ const Room: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const roomId = roomIdParam || sessionStorage.getItem("currentRoom");
   const [roomFullError, setRoomFullError] = useState(false);
+  const [showEndCallConfirm, setShowEndCallConfirm] = useState(false);
 
   // Timer states - counting UP from 0 to 15 minutes
   const [timeElapsed, setTimeElapsed] = useState(0); // starts at 0 seconds
@@ -149,7 +150,7 @@ const Room: React.FC = () => {
           if (timerIntervalRef.current) {
             clearInterval(timerIntervalRef.current);
           }
-          endCall();
+          performEndCall();
           return maxTime;
         }
 
@@ -510,7 +511,20 @@ const Room: React.FC = () => {
     setScreenSharing(false);
   };
 
-  const endCall = () => {
+  const handleEndCallClick = () => {
+    setShowEndCallConfirm(true);
+  };
+
+  const confirmEndCall = () => {
+    performEndCall();
+    setShowEndCallConfirm(false);
+  };
+
+  const cancelEndCall = () => {
+    setShowEndCallConfirm(false);
+  };
+
+  const performEndCall = () => {
     // Clear timer
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
@@ -576,6 +590,53 @@ const Room: React.FC = () => {
               >
                 Back to Dashboard
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* End Call Confirmation Modal */}
+      {showEndCallConfirm && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center">
+          <div className="bg-gradient-to-b from-slate-900 to-slate-800 border-2 border-yellow-500 rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-10 w-10 text-yellow-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-yellow-500">
+                End Meeting?
+              </h2>
+              <p className="text-gray-300">
+                Are you sure you want to end this meeting? This action cannot be
+                undone.
+              </p>
+              <div className="flex gap-3 w-full mt-2">
+                <button
+                  onClick={cancelEndCall}
+                  className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-semibold shadow-lg transition-all duration-300 border border-slate-600/20"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmEndCall}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 rounded-xl font-semibold shadow-lg transition-all duration-300 border border-red-500/20"
+                >
+                  End Meeting
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -713,7 +774,7 @@ const Room: React.FC = () => {
 
         {/* End call */}
         <button
-          onClick={endCall}
+          onClick={handleEndCallClick}
           className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-red-600/90 backdrop-blur-xl hover:bg-red-500 border border-red-500/20 text-white shadow-lg transition-all"
         >
           <CallEndIcon fontSize="small" className="sm:text-base" />
