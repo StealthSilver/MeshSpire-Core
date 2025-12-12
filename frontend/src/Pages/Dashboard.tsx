@@ -265,7 +265,7 @@ const Dashboard: React.FC = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-200">
-              My Lessons
+              My Classes
             </h1>
           </div>
           <button

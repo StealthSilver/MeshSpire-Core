@@ -403,9 +403,8 @@ export const createConversation = async (
       );
     }
 
-    // Check if conversation already exists
+    // Check if conversation already exists between this student and tutor (regardless of lesson)
     const existingConversation = await Conversation.findOne({
-      lessonId,
       studentId: lesson.studentId,
       tutorId: tutorUserId,
     })
@@ -414,12 +413,16 @@ export const createConversation = async (
       .populate("lessonId", "topic subject date time isPaid");
 
     if (existingConversation) {
-      console.log("✅ Conversation already exists:", {
-        id: existingConversation._id,
-        studentName: (existingConversation.studentId as any)?.name,
-        tutorName: (existingConversation.tutorId as any)?.name,
-        lessonPaid: (existingConversation.lessonId as any)?.isPaid,
-      });
+      console.log(
+        "✅ Conversation already exists between this student and tutor:",
+        {
+          id: existingConversation._id,
+          studentName: (existingConversation.studentId as any)?.name,
+          tutorName: (existingConversation.tutorId as any)?.name,
+          originalLesson: (existingConversation.lessonId as any)?.topic,
+          lessonPaid: (existingConversation.lessonId as any)?.isPaid,
+        }
+      );
       return existingConversation;
     }
 
