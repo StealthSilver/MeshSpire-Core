@@ -33,6 +33,17 @@ export function RoomController(io: Server, socket: Socket) {
     if (!roomToSockets.has(roomId)) roomToSockets.set(roomId, []);
     const sockets = roomToSockets.get(roomId)!;
 
+    // Check if room already has 2 participants
+    if (sockets.length >= 2 && !sockets.includes(socket.id)) {
+      console.log(
+        `❌ Room ${roomId} is full. Socket ${socket.id} cannot join.`
+      );
+      socket.emit("room-full", {
+        message: "This meeting is full. Only 2 participants are allowed.",
+      });
+      return;
+    }
+
     if (!sockets.includes(socket.id)) sockets.push(socket.id);
 
     socketToRoom.set(socket.id, roomId);
@@ -43,6 +54,14 @@ export function RoomController(io: Server, socket: Socket) {
     );
 
     socket.to(roomId).emit("new-participant", { socketId: socket.id });
+
+    // Check if room now has 2 participants and start timer
+    if (sockets.length === 2) {
+      console.log(
+        `🕐 Starting timer for room ${roomId} - 2 participants joined`
+      );
+      io.to(roomId).emit("start-timer");
+    }
   });
 
   // Test event for debugging

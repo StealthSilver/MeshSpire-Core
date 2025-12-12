@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import jwt, { Secret } from "jsonwebtoken";
+import Profile from "../models/profile.model";
 
 // ✅ 1️⃣ Extend the global Express.User (used by Passport)
 declare global {
@@ -20,7 +21,7 @@ export interface AuthRequest extends Request {
 }
 
 // ✅ 3️⃣ Auth middleware
-export function authMiddleware(
+export async function authMiddleware(
   req: AuthRequest,
   res: Response,
   next: NextFunction
@@ -53,8 +54,16 @@ export function authMiddleware(
       email?: string;
     };
 
-    // ✅ Attach user info
-    req.user = { id: payload.sub, _id: payload.sub, email: payload.email };
+    // ✅ Fetch user profile to get role
+    const profile = await Profile.findOne({ userId: payload.sub });
+
+    // ✅ Attach user info with role
+    req.user = {
+      id: payload.sub,
+      _id: payload.sub,
+      email: payload.email,
+      role: profile?.role || "student", // Default to student if no profile found
+    };
 
     next();
   } catch (err) {

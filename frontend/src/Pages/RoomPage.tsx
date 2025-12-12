@@ -50,13 +50,14 @@ const Room: React.FC = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const roomId = roomIdParam || sessionStorage.getItem("currentRoom");
+  const [roomFullError, setRoomFullError] = useState(false);
 
-  // Timer states
-  const [timeRemaining, setTimeRemaining] = useState(15 * 60); // 15 minutes in seconds
+  // Timer states - counting UP from 0 to 15 minutes
+  const [timeElapsed, setTimeElapsed] = useState(0); // starts at 0 seconds
+  const [timerRunning, setTimerRunning] = useState(false);
   const [showTimeWarning, setShowTimeWarning] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const fiveMinWarningShownRef = useRef(false);
   const oneMinWarningShownRef = useRef(false);
 
   const copyRoomId = () => {
@@ -92,6 +93,12 @@ const Room: React.FC = () => {
     if (!roomId) return;
     sessionStorage.setItem("currentRoom", roomId);
 
+    // Listen for room-full error
+    socket.once("room-full", (data: { message: string }) => {
+      console.log("❌ Room is full:", data.message);
+      setRoomFullError(true);
+    });
+
     // ALWAYS join the Socket.IO room first for chat to work
     console.log(
       "🚪 Joining Socket.IO room:",
@@ -112,34 +119,42 @@ const Room: React.FC = () => {
     joinRoom();
   }, [joinRoom]);
 
-  // Timer effect - starts when meeting begins
+  // Listen for start-timer event from server (when both participants join)
   useEffect(() => {
-    if (!localStream) return; // Only start timer when video call has started
+    const handleStartTimer = () => {
+      console.log("🕐 Timer start signal received from server");
+      setTimerRunning(true);
+    };
 
-    // Start the timer
+    socket.on("start-timer", handleStartTimer);
+
+    return () => {
+      socket.off("start-timer", handleStartTimer);
+    };
+  }, [socket]);
+
+  // Timer effect - counts UP from 0 to 15 minutes
+  useEffect(() => {
+    if (!timerRunning) return;
+
+    console.log("⏱️ Starting timer interval");
     timerIntervalRef.current = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 0) {
-          // Time's up - end the meeting
+      setTimeElapsed((prev) => {
+        const newTime = prev + 1;
+        const maxTime = 15 * 60; // 15 minutes in seconds
+
+        // Check if time is up (15:00 reached)
+        if (newTime >= maxTime) {
+          console.log("⏰ Timer reached 15:00 - ending meeting");
           if (timerIntervalRef.current) {
             clearInterval(timerIntervalRef.current);
           }
           endCall();
-          return 0;
+          return maxTime;
         }
 
-        const newTime = prev - 1;
-
-        // Show 5 minutes warning (at 5:00 remaining)
-        if (newTime === 5 * 60 && !fiveMinWarningShownRef.current) {
-          fiveMinWarningShownRef.current = true;
-          setWarningMessage("⚠️ Only 5 minutes left!");
-          setShowTimeWarning(true);
-          setTimeout(() => setShowTimeWarning(false), 5000);
-        }
-
-        // Show 1 minute warning (at 1:00 remaining)
-        if (newTime === 1 * 60 && !oneMinWarningShownRef.current) {
+        // Show 1 minute warning (at 14:00)
+        if (newTime === 14 * 60 && !oneMinWarningShownRef.current) {
           oneMinWarningShownRef.current = true;
           setWarningMessage("⚠️ Only 1 minute left!");
           setShowTimeWarning(true);
@@ -155,7 +170,7 @@ const Room: React.FC = () => {
         clearInterval(timerIntervalRef.current);
       }
     };
-  }, [localStream]);
+  }, [timerRunning]);
 
   // Format time as MM:SS
   const formatTime = (seconds: number): string => {
@@ -380,11 +395,44 @@ const Room: React.FC = () => {
     socket.on("answer", handleAnswer);
     socket.on("ice-candidate", handleIceCandidate);
 
+    // Handle partner leaving
+    const handlePartnerLeft = ({ socketId }: { socketId: string }) => {
+      console.log(`👋 Partner ${socketId} left the room`);
+
+      // Stop the timer when partner leaves
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+      setTimerRunning(false);
+
+      // Clean up peer connection
+      const pc = peerConnectionsRef.current[socketId];
+      if (pc) {
+        try {
+          pc.close();
+        } catch (e) {
+          console.warn("Error closing pc:", e);
+        }
+        delete peerConnectionsRef.current[socketId];
+      }
+
+      // Remove remote stream
+      setRemoteStreams((prev) => {
+        const updated = { ...prev };
+        delete updated[socketId];
+        return updated;
+      });
+    };
+
+    socket.on("partner-left", handlePartnerLeft);
+
     return () => {
       socket.off("new-participant", handleNewParticipant);
       socket.off("offer", handleOffer);
       socket.off("answer", handleAnswer);
       socket.off("ice-candidate", handleIceCandidate);
+      socket.off("partner-left", handlePartnerLeft);
     };
   }, [socket, createPeerConnection]);
 
@@ -497,6 +545,42 @@ const Room: React.FC = () => {
 
   return (
     <div className="relative min-h-screen bg-black text-white font-sans overflow-hidden max-h-screen">
+      {/* Room Full Error Modal */}
+      {roomFullError && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center">
+          <div className="bg-gradient-to-b from-slate-900 to-slate-800 border-2 border-red-500 rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-10 w-10 text-red-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-red-500">Meeting Full</h2>
+              <p className="text-gray-300">
+                This meeting is full. Only 2 participants are allowed at a time.
+              </p>
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="mt-4 w-full px-6 py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 rounded-xl font-semibold shadow-lg transition-all duration-300 border border-emerald-500/20"
+              >
+                Back to Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-4 m-2 text-gray-300 mb-6">
         <div className="flex ml-4 mt-4 text-white ">
           <span className="text-lg md:text-xl lg:text-2xl font-semibold">
@@ -525,17 +609,17 @@ const Room: React.FC = () => {
       {/* Timer Display - Bottom Left */}
       <div className="absolute bottom-4 left-4 bg-slate-900/80 backdrop-blur-xl text-white px-4 py-3 rounded-xl shadow-xl z-30 border border-white/10">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">Time:</span>
+          <span className="text-sm font-semibold">
+            {timerRunning ? "Time:" : "Waiting..."}
+          </span>
           <span
             className={`text-lg font-mono font-bold ${
-              timeRemaining <= 60
-                ? "text-red-500"
-                : timeRemaining <= 300
-                ? "text-yellow-400"
+              timeElapsed >= 14 * 60
+                ? "text-red-500 animate-pulse"
                 : "text-emerald-400"
             }`}
           >
-            {formatTime(timeRemaining)}
+            {formatTime(timeElapsed)}
           </span>
         </div>
       </div>

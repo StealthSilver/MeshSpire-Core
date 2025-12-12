@@ -422,6 +422,13 @@ export class LessonController {
     try {
       const lessonId = req.params.id;
       const userId = req.user?.id;
+      const userRole = req.user?.role;
+
+      console.log("🗑️ Delete lesson request:", {
+        lessonId,
+        userId,
+        userRole,
+      });
 
       if (!userId) {
         return res
@@ -429,28 +436,98 @@ export class LessonController {
           .json({ message: "Unauthorized" });
       }
 
-      const lesson = await Lesson.findById(lessonId);
+      const lesson = await Lesson.findById(lessonId).populate(
+        "confirmedTutors.tutorId",
+        "name email"
+      );
       if (!lesson) {
         return res
           .status(StatusCodes.NOT_FOUND)
           .json({ message: "Lesson not found" });
       }
 
-      // Check if user is the student who created the lesson
-      if (lesson.studentId?.toString() !== userId) {
+      console.log("📚 Lesson details:", {
+        studentId: lesson.studentId,
+        isPaid: lesson.isPaid,
+        confirmedTutors: JSON.stringify(lesson.confirmedTutors, null, 2),
+      });
+
+      // Check authorization based on role
+      let canDelete = false;
+
+      // Students can delete lessons they created
+      if (userRole === "student" && lesson.studentId?.toString() === userId) {
+        canDelete = true;
+        console.log("✅ Student can delete their own lesson");
+      }
+
+      // Tutors can delete expired lessons they've confirmed (and are paid)
+      if (userRole === "tutor") {
+        const isTutorConfirmed = lesson.confirmedTutors?.some((ct: any) => {
+          const tutorIdStr =
+            ct.tutorId?._id?.toString() || ct.tutorId?.toString();
+          console.log("🔍 Checking tutor:", {
+            tutorIdFromLesson: tutorIdStr,
+            currentUserId: userId,
+            matches: tutorIdStr === userId,
+            rawTutorId: ct.tutorId,
+          });
+          return tutorIdStr === userId;
+        });
+
+        console.log("🔍 Tutor confirmation check:", {
+          isTutorConfirmed,
+          isPaid: lesson.isPaid,
+          userId,
+        });
+
+        if (isTutorConfirmed && lesson.isPaid) {
+          // Check if lesson is expired
+          const [hours, minutes] = lesson.time.split(":");
+          const lessonDate = new Date(lesson.date);
+          lessonDate.setHours(+hours, +minutes, 0, 0);
+          const now = new Date();
+
+          console.log("⏰ Time check:", {
+            lessonDate: lessonDate.toISOString(),
+            now: now.toISOString(),
+            isExpired: now > lessonDate,
+          });
+
+          if (now > lessonDate) {
+            canDelete = true;
+            console.log("✅ Tutor can delete expired paid lesson");
+          } else {
+            return res.status(StatusCodes.FORBIDDEN).json({
+              message: "You can only delete expired lessons",
+            });
+          }
+        } else if (!isTutorConfirmed) {
+          return res
+            .status(StatusCodes.FORBIDDEN)
+            .json({ message: "You haven't confirmed this lesson" });
+        } else if (!lesson.isPaid) {
+          return res.status(StatusCodes.FORBIDDEN).json({
+            message: "You can only delete paid lessons that have expired",
+          });
+        }
+      }
+
+      if (!canDelete) {
         return res
           .status(StatusCodes.FORBIDDEN)
-          .json({ message: "You can only delete lessons you created" });
+          .json({ message: "You don't have permission to delete this lesson" });
       }
 
       // Delete the lesson
       await Lesson.findByIdAndDelete(lessonId);
+      console.log("✅ Lesson deleted successfully");
 
       res.status(StatusCodes.OK).json({
         message: "Lesson deleted successfully",
       });
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error deleting lesson:", err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         message: "Error deleting lesson",
         err,

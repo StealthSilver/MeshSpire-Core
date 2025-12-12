@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LessonModel from "../Components/LessonModel";
 import LessonCarousel from "../Components/LessonCarousel";
-import { getRelevantLessons, confirmLesson, cancelLesson } from "../api";
+import {
+  getRelevantLessons,
+  confirmLesson,
+  cancelLesson,
+  deleteLesson,
+} from "../api";
 import { useAuth } from "../Context/AuthContext";
 
 const TutorDashboard: React.FC = () => {
@@ -14,6 +19,11 @@ const TutorDashboard: React.FC = () => {
   const [processingLessonId, setProcessingLessonId] = useState<string | null>(
     null
   );
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    show: boolean;
+    lessonId: string | null;
+    lessonTitle: string;
+  }>({ show: false, lessonId: null, lessonTitle: "" });
 
   useEffect(() => {
     fetchRelevantLessons();
@@ -103,6 +113,46 @@ const TutorDashboard: React.FC = () => {
     );
   };
 
+  const isLessonExpired = (lesson: any): boolean => {
+    if (!lesson.date || !lesson.time) return false;
+
+    const [hours, minutes] = lesson.time.split(":");
+    const lessonDate = new Date(lesson.date);
+    lessonDate.setHours(+hours, +minutes, 0, 0);
+
+    const now = new Date();
+    return now > lessonDate;
+  };
+
+  const handleDeleteLesson = (lessonId: string, lessonTitle: string) => {
+    setDeleteConfirmation({
+      show: true,
+      lessonId,
+      lessonTitle,
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmation.lessonId) return;
+
+    try {
+      await deleteLesson(deleteConfirmation.lessonId);
+      await fetchRelevantLessons();
+      setDeleteConfirmation({ show: false, lessonId: null, lessonTitle: "" });
+      alert("Lesson deleted successfully");
+    } catch (error: any) {
+      console.error("Error deleting lesson:", error);
+      alert(
+        error.response?.data?.message ||
+          "Failed to delete lesson. Please try again."
+      );
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmation({ show: false, lessonId: null, lessonTitle: "" });
+  };
+
   const handleStartMeeting = (lesson: any) => {
     console.log("🚀 TutorDashboard: handleStartMeeting called", lesson);
     // Use lesson ID as room ID to ensure both student and tutor join the same room
@@ -126,6 +176,11 @@ const TutorDashboard: React.FC = () => {
   // Separate paid and unpaid lessons
   const unpaidLessons = relevantLessons.filter((lesson) => !lesson.isPaid);
   const paidLessons = relevantLessons.filter((lesson) => lesson.isPaid);
+
+  // Filter out expired lessons from unpaid (relevant) lessons
+  const activeUnpaidLessons = unpaidLessons.filter(
+    (lesson) => !isLessonExpired(lesson)
+  );
 
   return (
     <div className="bg-black text-white flex flex-col w-full max-w-full overflow-x-hidden min-h-screen">
@@ -152,9 +207,9 @@ const TutorDashboard: React.FC = () => {
               Loading your lessons...
             </p>
           </div>
-        ) : unpaidLessons.length > 0 ? (
+        ) : activeUnpaidLessons.length > 0 ? (
           <LessonCarousel>
-            {unpaidLessons.map((lesson, index) => (
+            {activeUnpaidLessons.map((lesson, index) => (
               <LessonModel
                 key={lesson._id || index}
                 topic={lesson.topic}
@@ -231,6 +286,11 @@ const TutorDashboard: React.FC = () => {
                   date={lesson.date}
                   lessonTime={lesson.time}
                   onStartMeeting={() => handleStartMeeting(lesson)}
+                  onDelete={
+                    isLessonExpired(lesson)
+                      ? () => handleDeleteLesson(lesson._id, lesson.topic)
+                      : undefined
+                  }
                 />
               ))}
             </LessonCarousel>
@@ -431,6 +491,68 @@ const TutorDashboard: React.FC = () => {
             >
               Close
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmation.show && (
+        <div
+          className="fixed inset-0 bg-black/90 backdrop-blur-md flex justify-center items-center z-[10000] px-4"
+          onClick={cancelDelete}
+        >
+          <div
+            className="bg-gradient-to-b from-slate-900/95 to-slate-900/90 backdrop-blur-xl text-white p-8 rounded-2xl w-full sm:w-[520px] space-y-6 shadow-2xl border border-red-500/30"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-red-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-200">
+                Delete Lesson?
+              </h2>
+            </div>
+
+            <p className="text-gray-300">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-white">
+                "{deleteConfirmation.lessonTitle}"
+              </span>
+              ? This action cannot be undone.
+            </p>
+
+            <div className="flex gap-4">
+              <button
+                onClick={cancelDelete}
+                className="flex-1 bg-gradient-to-r from-slate-700 to-slate-600 
+                         hover:from-slate-600 hover:to-slate-500 transition-all duration-300 
+                         px-4 py-3 rounded-xl font-semibold shadow-lg border border-slate-500/20"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 bg-gradient-to-r from-red-600 to-red-700 
+                         hover:from-red-500 hover:to-red-600 transition-all duration-300 
+                         px-4 py-3 rounded-xl font-semibold shadow-lg border border-red-500/20"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -151,7 +151,7 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
           <p className="text-xs sm:text-sm text-gray-300 mt-1">
             {studentName ? (
               role === "tutor" ? (
-                <>Tutor: {toSentenceCase(studentName)}</>
+                <>Student: {toSentenceCase(studentName)}</>
               ) : (
                 <>Tutor: {toSentenceCase(studentName)}</>
               )
