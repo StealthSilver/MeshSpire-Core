@@ -643,6 +643,15 @@ const Room: React.FC = () => {
         </div>
       )}
 
+      {/* Lesson Name - Top Center */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 max-w-[50%] sm:max-w-[60%]">
+        <div className="bg-slate-900/80 backdrop-blur-xl text-white px-4 py-2 md:px-6 md:py-3 rounded-xl shadow-xl border border-white/10">
+          <h2 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold text-center truncate">
+            {cardData.title}
+          </h2>
+        </div>
+      </div>
+
       {/* Room ID - Clickable to copy, responsive */}
       <div className="absolute top-4 left-4 z-30">
         <div
