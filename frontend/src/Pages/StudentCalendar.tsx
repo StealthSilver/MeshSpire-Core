@@ -261,7 +261,7 @@ const StudentCalendar: React.FC = () => {
                                        hover:from-green-500 hover:to-emerald-500 transition-all duration-300 
                                        px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-green-500/50"
                                 >
-                                  Pay Now
+                                  Book free class
                                 </button>
                               </div>
                             )}

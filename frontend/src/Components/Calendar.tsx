@@ -166,10 +166,10 @@ const Calendar: React.FC<CalendarProps> = ({
                         : "bg-gradient-to-r from-violet-900/40 to-purple-900/40 border border-violet-500/30"
                     }`}
                 >
-                  <div className="font-semibold truncate text-white">
+                  <div className="font-semibold truncate text-white text-center">
                     {lesson.topic}
                   </div>
-                  <div className="text-gray-300 truncate text-[8px] sm:text-[10px]">
+                  <div className="hidden sm:block text-gray-300 truncate text-[10px] text-center mt-0.5">
                     {lesson.time}
                   </div>
                 </div>
