@@ -407,7 +407,7 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
                           transition-all border border-emerald-500/20 
                           shadow-md hover:shadow-emerald-500/30 active:scale-95"
               >
-                Pay
+                Book free
               </button>
             )}
           </>

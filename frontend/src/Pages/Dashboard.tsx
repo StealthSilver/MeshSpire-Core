@@ -708,34 +708,40 @@ const Dashboard: React.FC = () => {
                               );
                               if (!openDetails.isPaid) {
                                 console.log(
-                                  "🔘 Showing Pay & Confirm and Teacher Details buttons"
+                                  "🔘 Showing Confirm Free Class and Teacher Details buttons"
                                 );
                                 return (
                                   <div className="flex flex-col sm:flex-row gap-3 pt-1">
                                     <button
                                       onClick={async () => {
-                                        console.log("💳 Initiating payment...");
+                                        console.log(
+                                          "✅ Confirming free class..."
+                                        );
                                         try {
                                           const url = await payForLesson({
                                             tutorId: tutorId,
                                             lessonId: openDetails._id,
                                           });
-                                          window.location.href = url; // redirect to Stripe
+                                          // For now, redirect to payment success or handle confirmation
+                                          window.location.href = url;
                                         } catch (error) {
                                           console.error(
-                                            "Payment Error:",
+                                            "Confirmation Error:",
                                             error
                                           );
                                           alert(
-                                            "Payment failed. Try again later."
+                                            "Failed to confirm class. Try again later."
                                           );
                                         }
                                       }}
                                       className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500
                                         transition-all px-4 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-emerald-500/50
-                                        active:scale-95 text-white border border-emerald-500/20"
+                                        active:scale-95 text-white border border-emerald-500/20 flex items-center justify-center gap-2"
                                     >
-                                      Pay & Confirm
+                                      <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
+                                        FREE
+                                      </span>
+                                      Confirm Class
                                     </button>
 
                                     <a
