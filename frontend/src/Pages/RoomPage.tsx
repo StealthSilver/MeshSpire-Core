@@ -643,44 +643,63 @@ const Room: React.FC = () => {
         </div>
       )}
 
-      <div className="flex items-center gap-4 m-2 text-gray-300 mb-6">
-        <div className="flex ml-4 mt-4 text-white ">
-          <span className="text-lg md:text-xl lg:text-2xl font-semibold">
-            {cardData.title}
-          </span>
-        </div>
+      {/* Room ID - Clickable to copy, responsive */}
+      <div className="absolute top-4 left-4 z-30">
         <div
-          className="text-base md:text-lg lg:text-xl font-semibold ml-4 mt-4 cursor-pointer hover:text-emerald-400 transition"
+          className="bg-slate-900/80 backdrop-blur-xl text-white px-4 py-2 md:px-6 md:py-3 rounded-xl shadow-xl border border-white/10 cursor-pointer hover:bg-emerald-600/20 hover:border-emerald-500/50 transition-all duration-300 group"
           onClick={copyRoomId}
         >
-          Room ID: {roomId}
+          <div className="flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 md:h-5 md:w-5 text-emerald-400 group-hover:text-emerald-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+              />
+            </svg>
+            <span className="text-sm md:text-base font-semibold group-hover:text-emerald-300 transition-colors">
+              Room ID
+            </span>
+          </div>
         </div>
       </div>
 
       {showAlert && (
-        <div className="absolute top-4 right-4 bg-gradient-to-r from-emerald-600 to-green-600 border border-emerald-500/20 text-white px-6 py-3 rounded-xl shadow-2xl transition-opacity duration-700 animate-pulse font-semibold">
+        <div className="absolute top-20 left-4 md:top-4 md:left-auto md:right-4 bg-gradient-to-r from-emerald-600 to-green-600 border border-emerald-500/20 text-white px-4 py-2 md:px-6 md:py-3 rounded-xl shadow-2xl transition-opacity duration-700 animate-pulse text-sm md:text-base font-semibold z-40">
           ✅ Room ID copied!
         </div>
       )}
       {showTimeWarning && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-600 border-2 border-yellow-400 text-white px-8 py-4 rounded-xl shadow-2xl transition-opacity duration-700 animate-pulse text-xl font-bold z-50">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-600 border-2 border-yellow-400 text-white px-4 py-3 md:px-8 md:py-4 rounded-xl shadow-2xl transition-opacity duration-700 animate-pulse text-base md:text-xl font-bold z-50 max-w-[90%] text-center">
           {warningMessage}
         </div>
       )}
 
-      {/* Timer Display - Bottom Left */}
-      <div className="absolute bottom-4 left-4 bg-slate-900/80 backdrop-blur-xl text-white px-4 py-3 rounded-xl shadow-xl z-30 border border-white/10">
+      {/* Timer Display - Top Right */}
+      <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-xl text-white px-3 py-2 md:px-4 md:py-3 rounded-xl shadow-xl z-30 border border-white/10">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">
-            {timerRunning ? "Time:" : "Waiting..."}
-          </span>
-          <span
-            className={`text-lg font-mono font-bold ${
-              timeElapsed >= 14 * 60
-                ? "text-red-500 animate-pulse"
-                : "text-emerald-400"
-            }`}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4 md:h-5 md:w-5 text-emerald-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span className="text-sm md:text-base font-semibold font-mono">
             {formatTime(timeElapsed)}
           </span>
         </div>
@@ -690,10 +709,10 @@ const Room: React.FC = () => {
       {Object.entries(remoteStreams).map(([id, stream]) => (
         <div
           key={id}
-          className={`absolute transition-all duration-300 border border-white/10 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-sm ${
+          className={`absolute transition-all duration-300 border border-white/10 shadow-2xl rounded-xl md:rounded-2xl overflow-hidden backdrop-blur-sm ${
             isFullScreen
-              ? "bottom-4 right-4 w-1/4 h-1/4"
-              : "top-18 left-4 w-5/7 h-5/7"
+              ? "bottom-20 md:bottom-4 right-4 w-[30%] md:w-1/4 h-[20%] md:h-1/4"
+              : "top-20 md:top-24 left-4 right-4 md:right-auto md:w-5/7 h-[calc(100vh-25rem)] md:h-5/7"
           }`}
         >
           <video
@@ -710,10 +729,10 @@ const Room: React.FC = () => {
 
       {/* Local video (overlay) */}
       <div
-        className={`absolute transition-all duration-300 border border-white/10 shadow-2xl rounded-2xl overflow-hidden group backdrop-blur-sm ${
+        className={`absolute transition-all duration-300 border border-white/10 shadow-2xl rounded-xl md:rounded-2xl overflow-hidden group backdrop-blur-sm ${
           isFullScreen
-            ? "top-18 left-4 w-5/7 h-5/7" // local becomes large
-            : "bottom-4 right-4 w-1/4 h-1/4" // local small
+            ? "top-20 md:top-24 left-4 right-4 md:right-auto md:w-5/7 h-[calc(100vh-25rem)] md:h-5/7"
+            : "bottom-20 md:bottom-4 right-4 w-[30%] md:w-1/4 h-[20%] md:h-1/4"
         }`}
       >
         <video
@@ -731,28 +750,28 @@ const Room: React.FC = () => {
         </button>
       </div>
 
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3 sm:gap-6 z-30 px-4">
+      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 sm:gap-4 md:gap-6 z-30 px-2 sm:px-4">
         {/* Video toggle */}
         <button
           onClick={toggleVideo}
-          className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-slate-800/80 backdrop-blur-xl hover:bg-slate-700/80 border border-white/10 text-white shadow-lg transition-all"
+          className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-slate-800/80 backdrop-blur-xl hover:bg-slate-700/80 border border-white/10 text-white shadow-lg transition-all"
         >
           {videoOn ? (
-            <VideocamIcon fontSize="small" className="sm:text-base" />
+            <VideocamIcon className="text-base sm:text-lg" />
           ) : (
-            <VideocamOffIcon fontSize="small" className="sm:text-base" />
+            <VideocamOffIcon className="text-base sm:text-lg" />
           )}
         </button>
 
         {/* Audio toggle */}
         <button
           onClick={toggleAudio}
-          className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-slate-800/80 backdrop-blur-xl hover:bg-slate-700/80 border border-white/10 text-white shadow-lg transition-all"
+          className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-slate-800/80 backdrop-blur-xl hover:bg-slate-700/80 border border-white/10 text-white shadow-lg transition-all"
         >
           {mute ? (
-            <MicOffIcon fontSize="small" className="sm:text-base" />
+            <MicOffIcon className="text-base sm:text-lg" />
           ) : (
-            <MicIcon fontSize="small" className="sm:text-base" />
+            <MicIcon className="text-base sm:text-lg" />
           )}
         </button>
 
@@ -760,25 +779,25 @@ const Room: React.FC = () => {
         {!screenSharing ? (
           <button
             onClick={startScreenShare}
-            className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-slate-800/80 backdrop-blur-xl hover:bg-slate-700/80 border border-white/10 text-white shadow-lg transition-all"
+            className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-slate-800/80 backdrop-blur-xl hover:bg-slate-700/80 border border-white/10 text-white shadow-lg transition-all"
           >
-            <ScreenShareIcon fontSize="small" className="sm:text-base" />
+            <ScreenShareIcon className="text-base sm:text-lg" />
           </button>
         ) : (
           <button
             onClick={stopScreenShare}
-            className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-red-600/90 backdrop-blur-xl hover:bg-red-500 border border-red-500/20 text-white shadow-lg transition-all"
+            className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-red-600/90 backdrop-blur-xl hover:bg-red-500 border border-red-500/20 text-white shadow-lg transition-all"
           >
-            <StopScreenShareIcon fontSize="small" className="sm:text-base" />
+            <StopScreenShareIcon className="text-base sm:text-lg" />
           </button>
         )}
 
         {/* End call */}
         <button
           onClick={handleEndCallClick}
-          className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-red-600/90 backdrop-blur-xl hover:bg-red-500 border border-red-500/20 text-white shadow-lg transition-all"
+          className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-red-600/90 backdrop-blur-xl hover:bg-red-500 border border-red-500/20 text-white shadow-lg transition-all"
         >
-          <CallEndIcon fontSize="small" className="sm:text-base" />
+          <CallEndIcon className="text-base sm:text-lg" />
         </button>
 
         {/* Chat */}
@@ -787,25 +806,25 @@ const Room: React.FC = () => {
             if (!isChatMounted) setIsChatMounted(true);
             setIsChatOpen(!isChatOpen);
           }}
-          className={`w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full backdrop-blur-xl ${
+          className={`w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full backdrop-blur-xl ${
             isChatOpen
               ? "bg-gradient-to-r from-emerald-600 to-green-600 border border-emerald-500/20 shadow-lg shadow-emerald-500/30"
               : "bg-slate-800/80 hover:bg-slate-700/80 border border-white/10"
           } text-white shadow-lg transition-all`}
         >
-          <ChatIcon fontSize="small" className="sm:text-base" />
+          <ChatIcon className="text-base sm:text-lg" />
         </button>
       </div>
 
-      {/* Chat Interface */}
+      {/* Chat Interface - Responsive */}
       {roomId && isChatMounted && (
         <div
           className={`absolute z-50 transition-all duration-300 ease-in-out ${
             isChatOpen ? "translate-x-0" : "translate-x-full"
           } ${
             isFullScreen
-              ? "bottom-4 right-4 w-1/4 h-1/4" // matches local video when fullscreen
-              : "top-4 right-4 w-1/4 h-[calc(100vh-25vh-3rem)]" // starts from top with margin, ends before local video
+              ? "bottom-20 md:bottom-4 right-2 md:right-4 w-[calc(100%-1rem)] sm:w-[45%] md:w-1/3 lg:w-1/4 h-[30vh] md:h-1/4"
+              : "top-20 md:top-24 right-2 md:right-4 w-[calc(100%-1rem)] sm:w-[45%] md:w-1/3 lg:w-1/4 h-[calc(100vh-28rem)] sm:h-[calc(100vh-25rem)] md:h-[calc(100vh-25vh-3rem)]"
           }`}
         >
           <MeetingChat
