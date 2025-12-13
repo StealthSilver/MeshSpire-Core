@@ -305,13 +305,15 @@ export const Card = ({
         {/* Buttons at the bottom */}
         <div className="mt-auto flex gap-2">
           <button
+            disabled
             onClick={(e) => {
               e.stopPropagation();
               handleNavigate();
             }}
             className="flex-1 px-4 py-2 font-medium text-white rounded-lg
               bg-gradient-to-r from-emerald-600 to-green-600
-              hover:from-emerald-500 hover:to-green-500 transition-all duration-300 text-xs sm:text-sm"
+              hover:from-emerald-500 hover:to-green-500 transition-all duration-300 text-xs sm:text-sm
+              disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-emerald-600 disabled:hover:to-green-600"
           >
             Start Now
           </button>
