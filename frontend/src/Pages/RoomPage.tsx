@@ -559,7 +559,7 @@ const Room: React.FC = () => {
   }, [socket, joinRoom]);
 
   return (
-    <div className="relative min-h-screen bg-black text-white font-sans overflow-hidden max-h-screen">
+    <div className="relative h-screen bg-black text-white font-sans overflow-hidden">
       {/* Room Full Error Modal */}
       {roomFullError && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center">
@@ -828,12 +828,12 @@ const Room: React.FC = () => {
       {/* Chat Interface - Responsive */}
       {roomId && isChatMounted && (
         <div
-          className={`absolute z-50 transition-all duration-300 ease-in-out ${
-            isChatOpen ? "translate-x-0" : "translate-x-full"
+          className={`fixed z-50 transition-all duration-300 ease-in-out ${
+            isChatOpen ? "right-2 md:right-4" : "-right-full"
           } ${
             isFullScreen
-              ? "bottom-20 md:bottom-4 right-2 md:right-4 w-[calc(100%-1rem)] sm:w-[45%] md:w-1/3 lg:w-1/4 h-[30vh] md:h-1/4"
-              : "top-20 md:top-24 right-2 md:right-4 w-[calc(100%-1rem)] sm:w-[45%] md:w-1/3 lg:w-1/4 h-[calc(100vh-28rem)] sm:h-[calc(100vh-25rem)] md:h-[calc(100vh-25vh-3rem)]"
+              ? "bottom-20 md:bottom-4 w-[90%] sm:w-[70%] md:w-[45%] lg:w-1/3 xl:w-1/4 h-[35vh] md:h-[30vh]"
+              : "top-20 md:top-24 w-[90%] sm:w-[70%] md:w-[45%] lg:w-1/3 xl:w-1/4 h-[calc(100vh-22rem)] sm:h-[calc(100vh-20rem)] md:h-[calc(100vh-18rem)]"
           }`}
         >
           <MeetingChat
