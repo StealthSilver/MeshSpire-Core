@@ -833,7 +833,7 @@ const Room: React.FC = () => {
           } ${
             isFullScreen
               ? "bottom-20 md:bottom-4 w-[90%] sm:w-[70%] md:w-[45%] lg:w-1/3 xl:w-1/4 h-[35vh] md:h-[30vh]"
-              : "top-20 md:top-24 w-[90%] sm:w-[70%] md:w-[45%] lg:w-1/3 xl:w-1/4 h-[calc(100vh-22rem)] sm:h-[calc(100vh-20rem)] md:h-[calc(100vh-18rem)]"
+              : "top-20 md:top-20 w-[90%] sm:w-[70%] md:w-[45%] lg:w-1/3 xl:w-1/4 h-[calc(100vh-22rem)] sm:h-[calc(100vh-20rem)] md:h-[calc(100vh-22rem)]"
           }`}
         >
           <MeetingChat
