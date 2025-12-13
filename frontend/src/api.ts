@@ -1,19 +1,9 @@
 import axios from "axios";
 
-<<<<<<< HEAD
-// Use environment variable or fallback to production for deployment
-const baseURL =
-  import.meta.env.VITE_API_BASE_URL ||
-  "https://meshspire-core.onrender.com/api/v0";
-
-const API = axios.create({
-  baseURL,
-=======
 const API = axios.create({
   baseURL:
     import.meta.env.VITE_API_BASE_URL||
     "https://meshspire-core-vjqd.onrender.com/api/v0",
->>>>>>> 59603e1 (show profile on navbar)
   headers: {
     "Content-Type": "application/json",
   },
