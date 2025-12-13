@@ -685,18 +685,17 @@ export const ensureConversation = async (req: Request, res: Response) => {
       return res.status(403).json({ message: "Lesson is not paid" });
     }
 
-    console.log("🔍 Checking student match:", {
+    // Check if the user is either the student or the confirmed tutor
+    const isStudent = lesson.studentId?.toString() === userId.toString();
+    const isTutor = tutorId.toString() === userId.toString();
+
+    console.log("🔍 Checking user authorization:", {
       lessonStudentId: lesson.studentId?.toString(),
       requestUserId: userId.toString(),
-      match: lesson.studentId?.toString() === userId.toString(),
+      requestTutorId: tutorId.toString(),
+      isStudent,
+      isTutor,
     });
-
-    if (lesson.studentId?.toString() !== userId.toString()) {
-      console.error("❌ User is not the student of this lesson");
-      return res
-        .status(403)
-        .json({ message: "Only the student can start this conversation" });
-    }
 
     // Validate tutor is confirmed for this lesson
     console.log("🔍 Checking confirmed tutors:", lesson.confirmedTutors);
@@ -714,6 +713,17 @@ export const ensureConversation = async (req: Request, res: Response) => {
       return res
         .status(403)
         .json({ message: "Tutor is not confirmed for this lesson" });
+    }
+
+    // User must be either the student or the confirmed tutor
+    if (!isStudent && !isTutor) {
+      console.error("❌ User is neither the student nor the confirmed tutor");
+      return res
+        .status(403)
+        .json({
+          message:
+            "Only the student or confirmed tutor can start this conversation",
+        });
     }
 
     // Create or return existing conversation

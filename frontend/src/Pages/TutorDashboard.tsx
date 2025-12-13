@@ -8,6 +8,7 @@ import {
   cancelLesson,
   deleteLesson,
 } from "../api";
+import { ensureConversation } from "../api/chat";
 import { useAuth } from "../Context/AuthContext";
 
 const TutorDashboard: React.FC = () => {
@@ -173,9 +174,76 @@ const TutorDashboard: React.FC = () => {
     });
   };
 
+  const handleStartChat = async (lesson: any) => {
+    try {
+      console.log("🚀 Starting chat for lesson:", lesson);
+
+      const studentId =
+        typeof lesson.studentId === "object"
+          ? lesson.studentId._id
+          : lesson.studentId;
+
+      console.log("📝 Extracted studentId:", studentId);
+
+      if (!studentId) {
+        alert("Student information is not available. Please try again.");
+        return;
+      }
+
+      console.log(
+        "📞 Creating conversation for lesson:",
+        lesson._id,
+        "with student:",
+        studentId
+      );
+
+      const conversation = await ensureConversation({
+        lessonId: lesson._id,
+        tutorId: userId,
+      });
+
+      console.log("✅ Conversation created/found:", conversation);
+
+      navigate("/tutor-dashboard/chat", {
+        state: { conversationId: conversation._id },
+      });
+    } catch (e: any) {
+      console.error("❌ Error starting chat:", e);
+      console.error("❌ Error response:", e.response);
+      console.error("❌ Error details:", e.response?.data || e.message);
+
+      const errorMessage =
+        e.response?.data?.message || e.message || "Unknown error";
+      console.error("❌ Specific error message:", errorMessage);
+
+      alert(
+        `Unable to start chat: ${errorMessage}\n\nPlease try again or contact support.`
+      );
+    }
+  };
+
   // Separate paid and unpaid lessons
   const unpaidLessons = relevantLessons.filter((lesson) => !lesson.isPaid);
-  const paidLessons = relevantLessons.filter((lesson) => lesson.isPaid);
+
+  // Filter paid lessons to only show those where the current tutor is confirmed
+  const paidLessons = relevantLessons.filter((lesson) => {
+    if (!lesson.isPaid) return false;
+
+    // Check if current tutor is in confirmedTutors
+    const isConfirmedTutor = lesson.confirmedTutors?.some(
+      (ct: any) => ct.tutorId?._id === userId || ct.tutorId === userId
+    );
+
+    console.log(`Filtering paid lesson ${lesson._id}:`, {
+      topic: lesson.topic,
+      isPaid: lesson.isPaid,
+      currentUserId: userId,
+      confirmedTutors: lesson.confirmedTutors,
+      isConfirmedTutor,
+    });
+
+    return isConfirmedTutor;
+  });
 
   // Filter out expired lessons from unpaid (relevant) lessons
   const activeUnpaidLessons = unpaidLessons.filter(
@@ -286,6 +354,7 @@ const TutorDashboard: React.FC = () => {
                   date={lesson.date}
                   lessonTime={lesson.time}
                   onStartMeeting={() => handleStartMeeting(lesson)}
+                  onStartChat={() => handleStartChat(lesson)}
                   onDelete={
                     isLessonExpired(lesson)
                       ? () => handleDeleteLesson(lesson._id, lesson.topic)
