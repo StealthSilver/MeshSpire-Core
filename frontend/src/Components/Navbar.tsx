@@ -4,7 +4,10 @@ import { useNavigate } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SearchIcon from "@mui/icons-material/Search";
 import API from "../api";
+<<<<<<< HEAD
 import NotificationDropdown from "./NotificationDropdown";
+=======
+>>>>>>> 59603e1 (show profile on navbar)
 
 interface NavbarProps {
   isSidebarExpanded: boolean;
@@ -16,12 +19,29 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [avatar, setAvatar] = useState("");
+<<<<<<< HEAD
   const [name, setName] = useState("");
 
+=======
+>>>>>>> 59603e1 (show profile on navbar)
   const handleLogout = () => {
     logout();
     navigate("/");
   };
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userRes = await API.get(`/profile/${userId}`);
+        setAvatar(userRes.data.avatar);
+
+      } catch (err) {
+        console.error("error while fetching avatar")
+
+      }
+    }
+    fetchUser();
+
+  }, [userId])
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -86,6 +106,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
         <NotificationDropdown isSidebarExpanded={isSidebarExpanded} />
 
         <div className="relative" ref={dropdownRef}>
+<<<<<<< HEAD
           {avatar ? (
             <img
               src={avatar || "/default-avatar.png"}
@@ -119,6 +140,47 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
                       username.charAt(0).toUpperCase() +
                       username.slice(1).toLowerCase()
                     }`}
+=======
+          {avatar ?
+            <img
+              src={avatar || "/default-avatar.png"} // fallback image
+              alt="User Avatar"
+              width={50}
+              height={50}
+              className="cursor-pointer rounded-full border border-gray-600 hover:scale-105 transition-transform duration-200"
+              onClick={() => setUserDropDown(!userDropDown)}
+            />
+
+            :
+            <AccountCircleIcon
+              fontSize="large"
+              className="text-gray-300 cursor-pointer hover:text-white transition"
+              onClick={() => setUserDropDown(!userDropDown)}
+            />
+          }
+
+
+          {userDropDown && (
+            <div
+              className={`absolute -right-4 top-10 mt-3 w-40 bg-slate-900/70 backdrop-blur-md text-white rounded-xl shadow-xl border border-[rgba(255,255,255,0.15)] 
+    transform transition-all duration-300 ease-out
+    ${userDropDown
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 -translate-y-3 pointer-events-none"
+                }`}
+            >
+              <div className="px-4 py-2 border-b border-gray-700">
+                {username
+                  ? `Hello, ${username.charAt(0).toUpperCase() + username.slice(1)
+                  }`
+                  : "Hello, Guest"}
+              </div>
+              <div
+                className="px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition"
+                onClick={() => navigate(`/profile/${userId}`)}
+              >
+                Profile
+>>>>>>> 59603e1 (show profile on navbar)
               </div>
               {role === "tutor" ? (
                 <>
