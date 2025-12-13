@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import computerImg from "../assets/computer.png";
-import englishImg from "../assets/emglish.png";
+import englishImg from "../assets/english.png";
 import mathsImg from "../assets/maths.png";
 import scienceImg from "../assets/science.png";
 import { useAuth } from "../Context/AuthContext";

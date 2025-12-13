@@ -29,20 +29,20 @@ const TutorCalendar: React.FC = () => {
 
   return (
     <div className="bg-black text-white flex flex-col w-full overflow-x-hidden min-h-screen">
-      <main className="px-4 sm:px-8 py-6 flex flex-col gap-6 transition-all duration-300 max-h-[calc(100vh-5rem)] overflow-y-auto">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-white tracking-wide">
+      <main className="px-2 sm:px-4 md:px-8 py-3 sm:py-6 flex flex-col gap-3 sm:gap-6 transition-all duration-300 h-[calc(100vh-5rem)] overflow-y-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+          <h2 className="text-xl sm:text-2xl font-bold text-white tracking-wide">
             My Teaching Calendar
           </h2>
-          <div className="text-sm text-gray-400 bg-slate-900/60 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10">
+          <div className="text-xs sm:text-sm text-gray-400 bg-slate-900/60 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-white/10">
             Total Lessons: {lessons.length}
           </div>
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-12">
+          <div className="flex justify-center items-center py-8 sm:py-12">
             <div className="relative">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
+              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-t-2 border-b-2 border-emerald-500"></div>
               <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-xl"></div>
             </div>
           </div>
@@ -53,11 +53,11 @@ const TutorCalendar: React.FC = () => {
             userRole="tutor"
           />
         ) : (
-          <div className="bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-8 text-center shadow-xl">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/20 flex items-center justify-center mx-auto mb-4">
+          <div className="bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-8 text-center shadow-xl">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/20 flex items-center justify-center mx-auto mb-3 sm:mb-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-10 w-10 text-emerald-400"
+                className="h-8 w-8 sm:h-10 sm:w-10 text-emerald-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -70,10 +70,10 @@ const TutorCalendar: React.FC = () => {
                 />
               </svg>
             </div>
-            <p className="text-gray-300 text-lg font-medium mb-2">
+            <p className="text-gray-300 text-base sm:text-lg font-medium mb-2">
               No relevant lessons found
             </p>
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 text-xs sm:text-sm">
               Students haven't created any lessons matching your subjects yet.
             </p>
           </div>
@@ -82,27 +82,27 @@ const TutorCalendar: React.FC = () => {
 
       {/* Lesson Details Modal */}
       {openDetails && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 px-4">
-          <div className="bg-gradient-to-b from-slate-900/95 to-slate-900/90 backdrop-blur-xl text-white p-8 rounded-2xl w-full sm:w-[480px] space-y-5 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-200">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 px-2 sm:px-4">
+          <div className="bg-gradient-to-b from-slate-900/95 to-slate-900/90 backdrop-blur-xl text-white p-4 sm:p-8 rounded-xl sm:rounded-2xl w-full sm:w-[480px] space-y-3 sm:space-y-5 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start gap-2">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-200">
                 {openDetails.topic}
               </h2>
               {openDetails.subject && (
-                <span className="text-xs font-semibold text-white border border-violet-400/40 px-3 py-1 rounded-full bg-violet-500/10">
+                <span className="text-[10px] sm:text-xs font-semibold text-white border border-violet-400/40 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-violet-500/10 whitespace-nowrap">
                   {openDetails.subject}
                 </span>
               )}
             </div>
 
             {openDetails.subTopic && (
-              <p className="text-gray-300 text-base">
+              <p className="text-gray-300 text-sm sm:text-base">
                 <span className="font-semibold text-gray-200">Sub Topic:</span>{" "}
                 {openDetails.subTopic}
               </p>
             )}
 
-            <div className="space-y-3 bg-slate-800/40 backdrop-blur-sm p-5 rounded-xl border border-white/10">
+            <div className="space-y-2 sm:space-y-3 bg-slate-800/40 backdrop-blur-sm p-3 sm:p-5 rounded-lg sm:rounded-xl border border-white/10">
               <p className="text-gray-300 text-sm">
                 <span className="font-semibold text-gray-200">Student:</span>{" "}
                 {openDetails.studentId?.name || "Unknown"}
