@@ -175,6 +175,12 @@ const TutorDashboard: React.FC = () => {
   };
 
   const handleStartChat = async (lesson: any) => {
+    const currentUserId = userId;
+    if (!currentUserId) {
+      alert("You must be logged in to start a chat.");
+      return;
+    }
+
     try {
       console.log("🚀 Starting chat for lesson:", lesson);
 
@@ -199,7 +205,7 @@ const TutorDashboard: React.FC = () => {
 
       const conversation = await ensureConversation({
         lessonId: lesson._id,
-        tutorId: userId,
+        tutorId: currentUserId,
       });
 
       console.log("✅ Conversation created/found:", conversation);
