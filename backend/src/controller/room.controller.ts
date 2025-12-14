@@ -145,6 +145,13 @@ export function RoomController(io: Server, socket: Socket) {
     }
   );
 
+  socket.on("request-renegotiation", (data: { target: string }) => {
+    console.log(
+      `🔄 Renegotiation requested between ${socket.id} and ${data.target}`
+    );
+    io.to(data.target).emit("renegotiation-needed", { socketId: socket.id });
+  });
+
   socket.on("leave-room", () => {
     const roomId = socketToRoom.get(socket.id);
     if (!roomId) return;

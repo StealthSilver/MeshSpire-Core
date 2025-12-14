@@ -78,15 +78,28 @@ const Room: React.FC = () => {
 
   const getUserMediaStream = useCallback(async () => {
     try {
+      console.log("🎥 Requesting user media...");
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
+        video: {
+          width: { ideal: 1280, max: 1920 },
+          height: { ideal: 720, max: 1080 },
+          frameRate: { ideal: 30, max: 30 },
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+      console.log("✅ User media stream obtained:", {
+        videoTracks: stream.getVideoTracks().length,
+        audioTracks: stream.getAudioTracks().length,
       });
       setLocalStream(stream);
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
       return stream;
     } catch (err) {
-      console.error("Unable to access camera/microphone:", err);
+      console.error("❌ Unable to access camera/microphone:", err);
       return null;
     }
   }, []);
@@ -185,20 +198,29 @@ const Room: React.FC = () => {
 
   const addLocalTracksToPC = useCallback((pc: RTCPeerConnection) => {
     const stream = localStreamRef.current;
-    if (!stream || !pc) return;
+    if (!stream || !pc) {
+      console.warn("⚠️ Cannot add tracks: stream or pc is null");
+      return;
+    }
+
     const existingSenderTrackIds = new Set(
       pc
         .getSenders()
         .map((s) => s.track?.id)
         .filter(Boolean)
     );
+
+    console.log(`📤 Adding local tracks to peer connection`);
     stream.getTracks().forEach((track) => {
       if (!existingSenderTrackIds.has(track.id)) {
         try {
           pc.addTrack(track, stream);
+          console.log(`✅ Added ${track.kind} track to peer connection`);
         } catch (err) {
-          console.warn("Warning: addTrack failed (maybe already added):", err);
+          console.warn("⚠️ addTrack failed (maybe already added):", err);
         }
+      } else {
+        console.log(`ℹ️ ${track.kind} track already added, skipping`);
       }
     });
   }, []);
@@ -209,30 +231,76 @@ const Room: React.FC = () => {
         return peerConnectionsRef.current[remoteSocketId];
 
       const pc = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun1.l.google.com:19302" },
+          { urls: "stun:stun2.l.google.com:19302" },
+          {
+            urls: "turn:openrelay.metered.ca:80",
+            username: "openrelayproject",
+            credential: "openrelayproject",
+          },
+          {
+            urls: "turn:openrelay.metered.ca:443",
+            username: "openrelayproject",
+            credential: "openrelayproject",
+          },
+          {
+            urls: "turn:openrelay.metered.ca:443?transport=tcp",
+            username: "openrelayproject",
+            credential: "openrelayproject",
+          },
+        ],
+        iceCandidatePoolSize: 10,
+        bundlePolicy: "max-bundle",
+        rtcpMuxPolicy: "require",
       });
 
       addLocalTracksToPC(pc);
 
       pc.ontrack = (event) => {
+        console.log(
+          `📥 Received ${event.track.kind} track from ${remoteSocketId}`,
+          {
+            trackId: event.track.id,
+            streams: event.streams?.length || 0,
+            readyState: event.track.readyState,
+          }
+        );
+
         setRemoteStreams((prev) => {
           const prevStream = prev[remoteSocketId];
+
           if (event.streams && event.streams[0]) {
+            console.log(`✅ Using provided stream for ${remoteSocketId}`);
             return { ...prev, [remoteSocketId]: event.streams[0] };
           } else {
+            // No stream provided, manually construct one
             if (prevStream) {
               try {
-                prevStream.addTrack(event.track);
+                // Check if track already exists
+                const existingTrack = prevStream
+                  .getTracks()
+                  .find((t) => t.id === event.track.id);
+                if (!existingTrack) {
+                  prevStream.addTrack(event.track);
+                  console.log(
+                    `✅ Added ${event.track.kind} track to existing stream for ${remoteSocketId}`
+                  );
+                }
               } catch (e) {
-                console.warn("Could not add track to existing stream:", e);
+                console.warn("⚠️ Could not add track to existing stream:", e);
               }
               return { ...prev };
             } else {
               const newStream = new MediaStream();
               try {
                 newStream.addTrack(event.track);
+                console.log(
+                  `✅ Created new stream with ${event.track.kind} track for ${remoteSocketId}`
+                );
               } catch (e) {
-                console.warn("Could not add track to new stream:", e);
+                console.warn("⚠️ Could not add track to new stream:", e);
               }
               return { ...prev, [remoteSocketId]: newStream };
             }
@@ -242,26 +310,70 @@ const Room: React.FC = () => {
 
       pc.onicecandidate = (e) => {
         if (e.candidate) {
+          console.log(
+            `📤 Sending ICE candidate to ${remoteSocketId}:`,
+            e.candidate.type,
+            e.candidate.protocol
+          );
           socket.emit("ice-candidate", {
             target: remoteSocketId,
             candidate: e.candidate,
           });
+        } else {
+          console.log(
+            `✅ ICE candidate gathering complete for ${remoteSocketId}`
+          );
         }
+      };
+
+      pc.oniceconnectionstatechange = () => {
+        console.log(
+          `🧊 ICE connection state for ${remoteSocketId}:`,
+          pc.iceConnectionState
+        );
+
+        if (pc.iceConnectionState === "failed") {
+          console.warn(`❌ ICE connection failed, attempting restart...`);
+          // Attempt ICE restart
+          pc.restartIce();
+        }
+      };
+
+      pc.onicegatheringstatechange = () => {
+        console.log(
+          `🔍 ICE gathering state for ${remoteSocketId}:`,
+          pc.iceGatheringState
+        );
       };
 
       pc.onconnectionstatechange = () => {
         console.log(
-          `Peer ${remoteSocketId} connectionState:`,
+          `🔌 Connection state for ${remoteSocketId}:`,
           pc.connectionState
         );
 
-        if (
-          pc.connectionState === "failed" ||
-          pc.connectionState === "disconnected"
-        ) {
-          console.warn(
-            `Connection with ${remoteSocketId} is ${pc.connectionState}`
+        if (pc.connectionState === "failed") {
+          console.error(
+            `❌ Connection failed with ${remoteSocketId}, attempting recovery...`
           );
+          // Attempt to recreate the connection
+          setTimeout(() => {
+            if (
+              pc.connectionState === "failed" ||
+              pc.connectionState === "disconnected"
+            ) {
+              console.log(
+                `🔄 Recreating peer connection with ${remoteSocketId}`
+              );
+              delete peerConnectionsRef.current[remoteSocketId];
+              // Trigger new negotiation
+              socket.emit("request-renegotiation", { target: remoteSocketId });
+            }
+          }, 2000);
+        } else if (pc.connectionState === "connected") {
+          console.log(`✅ Successfully connected to ${remoteSocketId}`);
+        } else if (pc.connectionState === "disconnected") {
+          console.warn(`⚠️ Disconnected from ${remoteSocketId}`);
         }
       };
 
@@ -276,15 +388,25 @@ const Room: React.FC = () => {
 
     const handleNewParticipant = async ({ socketId }: { socketId: string }) => {
       try {
-        if (peerConnectionsRef.current[socketId]) return;
+        console.log(`🆕 New participant detected: ${socketId}`);
+        if (peerConnectionsRef.current[socketId]) {
+          console.log(`⚠️ Peer connection already exists for ${socketId}`);
+          return;
+        }
 
         const pc = createPeerConnection(socketId);
 
-        const offer = await pc.createOffer();
+        console.log(`📝 Creating offer for ${socketId}...`);
+        const offer = await pc.createOffer({
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: true,
+        });
+        console.log(`📝 Offer created, setting local description...`);
         await pc.setLocalDescription(offer);
+        console.log(`📤 Sending offer to ${socketId}`);
         socket.emit("offer", { target: socketId, offer: pc.localDescription });
       } catch (err) {
-        console.error("handleNewParticipant error:", err);
+        console.error("❌ handleNewParticipant error:", err);
       }
     };
 
@@ -296,29 +418,41 @@ const Room: React.FC = () => {
       offer: RTCSessionDescriptionInit;
     }) => {
       try {
+        console.log(`📥 Received offer from ${from}`);
         let pc = peerConnectionsRef.current[from];
         if (!pc) {
+          console.log(`📝 Creating new peer connection for ${from}`);
           pc = createPeerConnection(from);
         }
 
+        console.log(`📝 Setting remote description from ${from}...`);
         await pc.setRemoteDescription(new RTCSessionDescription(offer));
+        console.log(`✅ Remote description set successfully`);
 
+        // Process pending ICE candidates
         if (pendingCandidates.current[from]) {
+          console.log(
+            `📥 Processing ${pendingCandidates.current[from].length} pending candidates for ${from}`
+          );
           for (const c of pendingCandidates.current[from]) {
             try {
               await pc.addIceCandidate(new RTCIceCandidate(c));
+              console.log(`✅ Added pending candidate`);
             } catch (e) {
-              console.warn("flushing queued candidate failed:", e);
+              console.warn("⚠️ flushing queued candidate failed:", e);
             }
           }
           delete pendingCandidates.current[from];
         }
 
+        console.log(`📝 Creating answer for ${from}...`);
         const answer = await pc.createAnswer();
+        console.log(`📝 Setting local description...`);
         await pc.setLocalDescription(answer);
+        console.log(`📤 Sending answer to ${from}`);
         socket.emit("answer", { target: from, answer: pc.localDescription });
       } catch (err) {
-        console.error("handleOffer error:", err);
+        console.error("❌ handleOffer error:", err);
       }
     };
 
@@ -330,26 +464,34 @@ const Room: React.FC = () => {
       answer: RTCSessionDescriptionInit;
     }) => {
       try {
+        console.log(`📥 Received answer from ${from}`);
         const pc = peerConnectionsRef.current[from];
         if (!pc) {
-          console.warn("Received answer for unknown pc:", from);
+          console.warn("⚠️ Received answer for unknown pc:", from);
           return;
         }
 
+        console.log(`📝 Setting remote description from answer...`);
         await pc.setRemoteDescription(new RTCSessionDescription(answer));
+        console.log(`✅ Remote description set from answer`);
 
+        // Process pending ICE candidates
         if (pendingCandidates.current[from]) {
+          console.log(
+            `📥 Processing ${pendingCandidates.current[from].length} pending candidates for ${from}`
+          );
           for (const c of pendingCandidates.current[from]) {
             try {
               await pc.addIceCandidate(new RTCIceCandidate(c));
+              console.log(`✅ Added pending candidate`);
             } catch (e) {
-              console.warn("addIceCandidate (after answer) failed:", e);
+              console.warn("⚠️ addIceCandidate (after answer) failed:", e);
             }
           }
           delete pendingCandidates.current[from];
         }
       } catch (err) {
-        console.error("handleAnswer error:", err);
+        console.error("❌ handleAnswer error:", err);
       }
     };
 
@@ -361,9 +503,23 @@ const Room: React.FC = () => {
       candidate: RTCIceCandidateInit;
     }) => {
       try {
-        if (!candidate) return;
+        if (!candidate) {
+          console.log(
+            `📥 Received empty candidate from ${from} (end of candidates)`
+          );
+          return;
+        }
+
+        console.log(
+          `📥 Received ICE candidate from ${from}`,
+          candidate.candidate || "unknown"
+        );
+
         const pc = peerConnectionsRef.current[from];
         if (!pc) {
+          console.log(
+            `⚠️ No peer connection yet for ${from}, queueing candidate`
+          );
           if (!pendingCandidates.current[from])
             pendingCandidates.current[from] = [];
           pendingCandidates.current[from].push(candidate);
@@ -372,6 +528,9 @@ const Room: React.FC = () => {
 
         const remoteDesc = pc.remoteDescription;
         if (!remoteDesc || !remoteDesc.type) {
+          console.log(
+            `⚠️ Remote description not set yet for ${from}, queueing candidate`
+          );
           if (!pendingCandidates.current[from])
             pendingCandidates.current[from] = [];
           pendingCandidates.current[from].push(candidate);
@@ -380,15 +539,15 @@ const Room: React.FC = () => {
 
         try {
           await pc.addIceCandidate(new RTCIceCandidate(candidate));
+          console.log(`✅ Successfully added ICE candidate from ${from}`);
         } catch (e) {
-          console.warn("addIceCandidate failed (attempt):", e);
-
+          console.warn(`⚠️ addIceCandidate failed for ${from}, queueing:`, e);
           if (!pendingCandidates.current[from])
             pendingCandidates.current[from] = [];
           pendingCandidates.current[from].push(candidate);
         }
       } catch (err) {
-        console.error("handleIceCandidate error:", err);
+        console.error("❌ handleIceCandidate error:", err);
       }
     };
 
@@ -396,6 +555,30 @@ const Room: React.FC = () => {
     socket.on("offer", handleOffer);
     socket.on("answer", handleAnswer);
     socket.on("ice-candidate", handleIceCandidate);
+
+    // Handle renegotiation requests
+    const handleRenegotiationNeeded = async ({
+      socketId,
+    }: {
+      socketId: string;
+    }) => {
+      console.log(`🔄 Renegotiation needed with ${socketId}`);
+
+      // Clean up existing connection
+      const existingPc = peerConnectionsRef.current[socketId];
+      if (existingPc) {
+        existingPc.close();
+        delete peerConnectionsRef.current[socketId];
+      }
+
+      // Clear pending candidates
+      delete pendingCandidates.current[socketId];
+
+      // Create new connection and send offer
+      await handleNewParticipant({ socketId });
+    };
+
+    socket.on("renegotiation-needed", handleRenegotiationNeeded);
 
     // Handle partner leaving
     const handlePartnerLeft = ({ socketId }: { socketId: string }) => {
@@ -434,6 +617,7 @@ const Room: React.FC = () => {
       socket.off("offer", handleOffer);
       socket.off("answer", handleAnswer);
       socket.off("ice-candidate", handleIceCandidate);
+      socket.off("renegotiation-needed", handleRenegotiationNeeded);
       socket.off("partner-left", handlePartnerLeft);
     };
   }, [socket, createPeerConnection]);
