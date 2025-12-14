@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import ThemeHeadIcons from "@/components/ui/ThemeHeadIcon";
 import ClientWrapper from "@/components/ui/ClientWrapper";
 import { DM_Sans, Geist } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -74,6 +75,7 @@ export default function RootLayout({
         >
           <ClientWrapper>{children}</ClientWrapper>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
