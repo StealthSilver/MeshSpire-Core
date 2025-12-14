@@ -21,9 +21,11 @@ export default function ThemeToggle() {
     return (
       <button
         aria-label="Toggle theme"
-        className="rounded-full border px-3 py-1.5 opacity-70 cursor-wait"
+        className="rounded-full border px-2 py-2 opacity-70 cursor-wait bg-[var(--background)] border-[var(--foreground)]"
         disabled
-      />
+      >
+        <Moon size={16} className="text-[var(--color-font)]" />
+      </button>
     );
   }
 

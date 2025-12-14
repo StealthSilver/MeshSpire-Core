@@ -40,7 +40,7 @@ export default function Navbar() {
             key={mounted ? theme : "default"}
             src={
               !mounted
-                ? "/logo_light.svg"
+                ? "/logo_dark.svg"
                 : theme === "dark"
                 ? "/logo_dark.svg"
                 : "/logo_light.svg"
