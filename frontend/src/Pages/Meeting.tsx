@@ -108,8 +108,8 @@ const Meeting: React.FC = () => {
   };
 
   return (
-    <div className="bg-black text-white w-full overflow-x-hidden flex flex-col min-h-screen">
-      <main className="flex-1 py-8 px-4 sm:px-8 transition-all duration-300 flex items-center justify-center">
+    <div className="bg-black text-white w-full overflow-x-hidden flex flex-col h-screen">
+      <main className="flex-1 py-4 px-4 sm:py-8 sm:px-8 transition-all duration-300 flex items-center justify-center overflow-y-auto">
         <div className="flex flex-col xl:flex-row items-center justify-center gap-8 lg:gap-12 max-w-7xl w-full">
           {/* LEFT CONTENT */}
           <div className="flex flex-col space-y-6 w-full xl:max-w-lg text-center xl:text-left">
