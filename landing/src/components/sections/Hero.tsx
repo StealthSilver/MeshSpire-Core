@@ -94,10 +94,10 @@ const Hero = () => {
           loop
           muted
           playsInline
+          preload="metadata"
+          loading="lazy"
           className="w-full h-auto object-cover border-[8px] border-[var(--foreground)]/20 rounded-2xl transition-colors duration-700"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--background)]/60 pointer-events-none rounded-2xl" />
-        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-[var(--background)]/40 pointer-events-none rounded-2xl" />
       </div>
     </section>
   );
