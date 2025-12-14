@@ -12,7 +12,7 @@ const Hero = () => {
 
   if (!mounted) return null;
 
-  const isDark = theme === "dark";
+  const isDark = theme === "dark" || theme === "system" || !theme;
 
   return (
     <section
@@ -22,7 +22,8 @@ const Hero = () => {
         flex flex-col items-center justify-center
         overflow-hidden
         text-[var(--color-font)]
-        bg-[var(--background)]
+        bg-gradient-to-b from-purple-100 to-[var(--background)]
+        dark:bg-gradient-to-b dark:from-slate-900 dark:to-[var(--background)]
         transition-colors duration-700
       "
     >
