@@ -87,13 +87,18 @@ const Hero = () => {
         </div>
       </div>
 
-      <img
-        src={isDark ? "/Dashboard-Dark.png" : "/Dashboard-Light.png"}
-        alt="Dashboard"
-        width={1280}
-        height={750}
-        className="max-w-5xl w-[90%] h-[60%] object-contain sticky top-0 right-0 border-[8px] mt-10 md:mt-[136px] border-[var(--foreground)]/20 rounded-2xl z-10 transition-colors duration-700"
-      />
+      <div className="relative max-w-5xl w-[90%] mt-10 md:mt-[136px] z-10">
+        <video
+          src="/hero_video.mov"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-auto object-cover border-[8px] border-[var(--foreground)]/20 rounded-2xl transition-colors duration-700"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--background)]/60 pointer-events-none rounded-2xl" />
+        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-[var(--background)]/40 pointer-events-none rounded-2xl" />
+      </div>
     </section>
   );
 };
