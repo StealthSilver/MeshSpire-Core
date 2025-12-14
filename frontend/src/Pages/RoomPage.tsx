@@ -743,7 +743,7 @@ const Room: React.FC = () => {
   }, [socket, joinRoom]);
 
   return (
-    <div className="relative h-screen bg-black text-white font-sans overflow-hidden">
+    <div className="relative h-[100dvh] md:h-screen bg-black text-white font-sans overflow-hidden">
       {/* Room Full Error Modal */}
       {roomFullError && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center">
@@ -905,7 +905,7 @@ const Room: React.FC = () => {
           className={`absolute transition-all duration-300 border border-white/10 shadow-2xl rounded-xl md:rounded-2xl overflow-hidden backdrop-blur-sm ${
             isFullScreen
               ? "bottom-20 md:bottom-4 right-4 w-[30%] md:w-1/4 h-[20%] md:h-1/4"
-              : "top-20 md:top-24 left-4 right-4 md:right-auto md:w-5/7 h-[calc(100vh-25rem)] md:h-5/7"
+              : "top-16 md:top-24 left-4 right-4 md:right-auto md:w-5/7 h-[calc(100dvh-18rem)] md:h-[calc(100vh-22rem)] lg:h-5/7"
           }`}
         >
           <video
@@ -924,8 +924,8 @@ const Room: React.FC = () => {
       <div
         className={`absolute transition-all duration-300 border border-white/10 shadow-2xl rounded-xl md:rounded-2xl overflow-hidden group backdrop-blur-sm ${
           isFullScreen
-            ? "top-20 md:top-24 left-4 right-4 md:right-auto md:w-5/7 h-[calc(100vh-25rem)] md:h-5/7"
-            : "bottom-20 md:bottom-4 right-4 w-[30%] md:w-1/4 h-[20%] md:h-1/4"
+            ? "top-16 md:top-24 left-4 right-4 md:right-auto md:w-5/7 h-[calc(100dvh-18rem)] md:h-[calc(100vh-22rem)] lg:h-5/7"
+            : "bottom-16 md:bottom-4 right-4 w-[30%] md:w-1/4 h-[20%] md:h-1/4"
         }`}
       >
         <video
@@ -943,7 +943,7 @@ const Room: React.FC = () => {
         </button>
       </div>
 
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 sm:gap-4 md:gap-6 z-30 px-2 sm:px-4">
+      <div className="absolute bottom-2 md:bottom-4 left-0 right-0 flex justify-center gap-2 sm:gap-4 md:gap-6 z-30 px-2 sm:px-4">
         {/* Video toggle */}
         <button
           onClick={toggleVideo}
@@ -1016,8 +1016,8 @@ const Room: React.FC = () => {
             isChatOpen ? "right-2 md:right-4" : "-right-full"
           } ${
             isFullScreen
-              ? "bottom-20 md:bottom-4 w-[90%] sm:w-[70%] md:w-[45%] lg:w-1/3 xl:w-1/4 h-[35vh] md:h-[30vh]"
-              : "top-20 md:top-20 w-[90%] sm:w-[70%] md:w-[45%] lg:w-1/3 xl:w-1/4 h-[calc(100vh-22rem)] sm:h-[calc(100vh-20rem)] md:h-[calc(100vh-22rem)]"
+              ? "bottom-14 md:bottom-4 w-[90%] sm:w-[70%] md:w-[45%] lg:w-1/3 xl:w-1/4 h-[30vh] md:h-[30vh]"
+              : "top-16 md:top-20 w-[90%] sm:w-[70%] md:w-[45%] lg:w-1/3 xl:w-1/4 h-[calc(100dvh-14rem)] sm:h-[calc(100vh-18rem)] md:h-[calc(100vh-22rem)]"
           }`}
         >
           <MeetingChat
