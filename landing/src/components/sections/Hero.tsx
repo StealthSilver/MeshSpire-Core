@@ -95,7 +95,6 @@ const Hero = () => {
           muted
           playsInline
           preload="metadata"
-          loading="lazy"
           className="w-full h-auto object-cover border-[8px] border-[var(--foreground)]/20 rounded-2xl transition-colors duration-700"
         />
       </div>
