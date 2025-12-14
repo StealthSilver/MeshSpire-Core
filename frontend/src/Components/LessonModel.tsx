@@ -32,6 +32,7 @@ interface LessonModelProps {
 const subjectImages: Record<string, string> = {
   Computer: computerImg,
   ComputerScience: computerImg,
+  "Computer Science": computerImg,
   English: englishImg,
   Mathematics: mathsImg,
   Science: scienceImg,

@@ -139,9 +139,15 @@ export class LessonController {
       }
 
       // Normalize subjects to lowercase and trim for case-insensitive matching
-      const normalizedSubjects = tutorProfile.subjects.map((s) =>
-        String(s).toLowerCase().trim()
-      );
+      // Also handle "Computer" matching "Computer Science" by treating them as equivalent
+      const normalizedSubjects = tutorProfile.subjects.map((s) => {
+        const normalized = String(s).toLowerCase().trim();
+        // Normalize "computer" to also match "computer science"
+        if (normalized === "computer" || normalized === "computer science") {
+          return "computer";
+        }
+        return normalized;
+      });
 
       console.log("✅ Normalized tutor subjects:", normalizedSubjects);
 
@@ -161,7 +167,13 @@ export class LessonController {
       });
 
       const lessons = allLessons.filter((lesson) => {
-        const lessonSubject = String(lesson.subject).toLowerCase().trim();
+        const lessonSubjectRaw = String(lesson.subject).toLowerCase().trim();
+        // Normalize "computer science" to "computer" for matching
+        const lessonSubject =
+          lessonSubjectRaw === "computer" ||
+          lessonSubjectRaw === "computer science"
+            ? "computer"
+            : lessonSubjectRaw;
         const matches = normalizedSubjects.includes(lessonSubject);
 
         if (matches) {
