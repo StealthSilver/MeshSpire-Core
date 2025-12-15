@@ -37,7 +37,6 @@ const Room: React.FC = () => {
   const [videoOn, setVideoOn] = useState(true);
   const [mute, setMute] = useState(false);
   const [screenSharing, setScreenSharing] = useState(false);
-  const [isScreenShareSupported, setIsScreenShareSupported] = useState(false);
   const screenTrackRef = useRef<MediaStreamTrack | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,6 +53,8 @@ const Room: React.FC = () => {
   const roomId = roomIdParam || sessionStorage.getItem("currentRoom");
   const [roomFullError, setRoomFullError] = useState(false);
   const [showEndCallConfirm, setShowEndCallConfirm] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
+  const [permissionError, setPermissionError] = useState("");
 
   // Timer states - counting UP from 0 to 15 minutes
   const [timeElapsed, setTimeElapsed] = useState(0); // starts at 0 seconds
@@ -77,18 +78,6 @@ const Room: React.FC = () => {
     localStreamRef.current = localStream;
   }, [localStream]);
 
-  // Check if screen sharing is supported
-  useEffect(() => {
-    const checkScreenShareSupport = () => {
-      const isSupported = !!(
-        navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia
-      );
-      setIsScreenShareSupported(isSupported);
-      console.log("📺 Screen sharing supported:", isSupported);
-    };
-    checkScreenShareSupport();
-  }, []);
-
   const getUserMediaStream = useCallback(async () => {
     try {
       console.log("🎥 Requesting user media...");
@@ -109,10 +98,45 @@ const Room: React.FC = () => {
         audioTracks: stream.getAudioTracks().length,
       });
       setLocalStream(stream);
+      setPermissionDenied(false);
+      setPermissionError("");
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
       return stream;
-    } catch (err) {
+    } catch (err: any) {
       console.error("❌ Unable to access camera/microphone:", err);
+
+      // Set permission error state
+      setPermissionDenied(true);
+
+      if (
+        err.name === "NotAllowedError" ||
+        err.name === "PermissionDeniedError"
+      ) {
+        setPermissionError(
+          "Camera and microphone access denied. Please allow permissions in your browser settings."
+        );
+      } else if (
+        err.name === "NotFoundError" ||
+        err.name === "DevicesNotFoundError"
+      ) {
+        setPermissionError(
+          "No camera or microphone found. Please connect a device and try again."
+        );
+      } else if (
+        err.name === "NotReadableError" ||
+        err.name === "TrackStartError"
+      ) {
+        setPermissionError(
+          "Camera or microphone is already in use by another application."
+        );
+      } else {
+        setPermissionError(
+          `Unable to access camera/microphone: ${
+            err.message || "Unknown error"
+          }`
+        );
+      }
+
       return null;
     }
   }, []);
@@ -845,6 +869,67 @@ const Room: React.FC = () => {
         </div>
       )}
 
+      {/* Permission Denied Warning Modal */}
+      {permissionDenied && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-gradient-to-b from-slate-900 to-slate-800 border-2 border-orange-500 rounded-2xl p-6 md:p-8 max-w-md w-full shadow-2xl animate-pulse">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-10 w-10 text-orange-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-xl md:text-2xl font-bold text-orange-500">
+                Camera & Microphone Access Required
+              </h2>
+              <p className="text-gray-300 text-sm md:text-base">
+                {permissionError}
+              </p>
+              <div className="bg-slate-800/50 rounded-lg p-4 text-left text-sm text-gray-400 w-full">
+                <p className="font-semibold text-white mb-2">
+                  To enable access:
+                </p>
+                <ol className="list-decimal list-inside space-y-1">
+                  <li>
+                    Click the camera/lock icon in your browser's address bar
+                  </li>
+                  <li>Select "Allow" for camera and microphone</li>
+                  <li>Click "Retry" below to reconnect</li>
+                </ol>
+              </div>
+              <div className="flex gap-3 w-full mt-2">
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="flex-1 px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-semibold shadow-lg transition-all duration-300 border border-slate-600/20"
+                >
+                  Exit Meeting
+                </button>
+                <button
+                  onClick={() => {
+                    setPermissionDenied(false);
+                    getUserMediaStream();
+                  }}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 rounded-xl font-semibold shadow-lg transition-all duration-300 border border-orange-500/20"
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* End Call Confirmation Modal */}
       {showEndCallConfirm && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center">
@@ -1033,23 +1118,22 @@ const Room: React.FC = () => {
           )}
         </button>
 
-        {/* Screen share - only show on desktop/supported browsers */}
-        {isScreenShareSupported &&
-          (!screenSharing ? (
-            <button
-              onClick={startScreenShare}
-              className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-slate-800/80 backdrop-blur-xl hover:bg-slate-700/80 border border-white/10 text-white shadow-lg transition-all"
-            >
-              <ScreenShareIcon className="text-base sm:text-lg" />
-            </button>
-          ) : (
-            <button
-              onClick={stopScreenShare}
-              className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-red-600/90 backdrop-blur-xl hover:bg-red-500 border border-red-500/20 text-white shadow-lg transition-all"
-            >
-              <StopScreenShareIcon className="text-base sm:text-lg" />
-            </button>
-          ))}
+        {/* Screen share */}
+        {!screenSharing ? (
+          <button
+            onClick={startScreenShare}
+            className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-slate-800/80 backdrop-blur-xl hover:bg-slate-700/80 border border-white/10 text-white shadow-lg transition-all"
+          >
+            <ScreenShareIcon className="text-base sm:text-lg" />
+          </button>
+        ) : (
+          <button
+            onClick={stopScreenShare}
+            className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-red-600/90 backdrop-blur-xl hover:bg-red-500 border border-red-500/20 text-white shadow-lg transition-all"
+          >
+            <StopScreenShareIcon className="text-base sm:text-lg" />
+          </button>
+        )}
 
         {/* End call */}
         <button
