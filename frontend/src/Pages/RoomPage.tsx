@@ -145,22 +145,41 @@ const Room: React.FC = () => {
     if (!roomId) return;
     sessionStorage.setItem("currentRoom", roomId);
 
-    // Listen for room-full error
+    // Flag to prevent media setup if room is full
+    let roomIsFull = false;
+
+    // Listen for room-full error BEFORE attempting to join
     socket.once("room-full", (data: { message: string }) => {
       console.log("❌ Room is full:", data.message);
+      roomIsFull = true;
       setRoomFullError(true);
+
+      // Clean up session storage since we won't be joining
+      sessionStorage.removeItem("currentRoom");
+
+      // Don't proceed with any media or connection setup
+      return;
     });
 
-    // ALWAYS join the Socket.IO room first for chat to work
+    // Attempt to join the Socket.IO room
     console.log(
-      "🚪 Joining Socket.IO room:",
+      "🚪 Attempting to join Socket.IO room:",
       roomId,
       "with socket:",
       socket.id
     );
     socket.emit("join-room", { roomId });
 
-    // Then try to get media stream
+    // Wait a brief moment to see if room-full is emitted
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    // If room is full, stop here
+    if (roomIsFull) {
+      console.log("⛔ Stopping join process - room is full");
+      return;
+    }
+
+    // Then try to get media stream (only if not rejected)
     const stream = await getUserMediaStream();
     if (!stream) {
       console.warn("⚠️ Media stream failed, but already joined room for chat");

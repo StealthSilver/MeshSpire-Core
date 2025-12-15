@@ -38,12 +38,16 @@ export function RoomController(io: Server, socket: Socket) {
       console.log(
         `❌ Room ${roomId} is full. Socket ${socket.id} cannot join.`
       );
+      // Only emit to the attempting socket, not to the room
       socket.emit("room-full", {
         message: "This meeting is full. Only 2 participants are allowed.",
       });
+      // Do NOT join the room, do NOT add to tracking
+      // Early return to prevent any further processing
       return;
     }
 
+    // Only add socket if not already in the room
     if (!sockets.includes(socket.id)) sockets.push(socket.id);
 
     socketToRoom.set(socket.id, roomId);
@@ -53,6 +57,7 @@ export function RoomController(io: Server, socket: Socket) {
       `✅ Socket ${socket.id} joined room ${roomId}. Total in room: ${sockets.length}`
     );
 
+    // Notify only other participants in the room (not the joining user)
     socket.to(roomId).emit("new-participant", { socketId: socket.id });
 
     // Check if room now has 2 participants and start timer
