@@ -96,7 +96,7 @@ export default function Navbar() {
           <ThemeToggle />
 
           <a
-            href="#footer"
+            href="https://meshspire-core.vercel.app/"
             className="font-[var(--font-secondary)]
   bg-[var(--color-primary)] text-[var(--background)] dark:text-[var(--foreground)] border border-transparent rounded-full px-6 py-1.5
   transition duration-300 hover:bg-[var(--background)] hover:text-[var(--color-font)] hover:border-[var(--foreground)]

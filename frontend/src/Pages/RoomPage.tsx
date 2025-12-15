@@ -37,6 +37,7 @@ const Room: React.FC = () => {
   const [videoOn, setVideoOn] = useState(true);
   const [mute, setMute] = useState(false);
   const [screenSharing, setScreenSharing] = useState(false);
+  const [isScreenShareSupported, setIsScreenShareSupported] = useState(false);
   const screenTrackRef = useRef<MediaStreamTrack | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -75,6 +76,16 @@ const Room: React.FC = () => {
   useEffect(() => {
     localStreamRef.current = localStream;
   }, [localStream]);
+
+  // Check if screen sharing is supported
+  useEffect(() => {
+    const checkScreenShareSupport = () => {
+      const isSupported = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+      setIsScreenShareSupported(isSupported);
+      console.log("📺 Screen sharing supported:", isSupported);
+    };
+    checkScreenShareSupport();
+  }, []);
 
   const getUserMediaStream = useCallback(async () => {
     try {
@@ -662,33 +673,73 @@ const Room: React.FC = () => {
 
   const startScreenShare = async () => {
     if (!localStream) return;
+    
+    // Check if screen sharing is supported
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+      alert("Screen sharing is not supported on this device/browser. Please use a desktop browser like Chrome, Firefox, or Edge.");
+      return;
+    }
+    
     try {
       const screenStream = await navigator.mediaDevices.getDisplayMedia({
-        video: true,
+        video: {
+          cursor: "always",
+          displaySurface: "monitor",
+        },
+        audio: false,
       });
       const screenTrack = screenStream.getVideoTracks()[0];
       screenTrackRef.current = screenTrack;
 
+      console.log("📺 Screen sharing started");
+      
       Object.values(peerConnectionsRef.current).forEach((pc) => {
         const sender = pc.getSenders().find((s) => s.track?.kind === "video");
-        if (sender) sender.replaceTrack(screenTrack);
+        if (sender) {
+          sender.replaceTrack(screenTrack).then(() => {
+            console.log("✅ Screen track replaced in peer connection");
+          }).catch((err) => {
+            console.error("❌ Failed to replace track:", err);
+          });
+        }
       });
 
       if (localVideoRef.current) localVideoRef.current.srcObject = screenStream;
       setScreenSharing(true);
 
       screenTrack.onended = () => stopScreenShare();
-    } catch (err) {
-      console.error("Screen share failed:", err);
+    } catch (err: any) {
+      console.error("❌ Screen share failed:", err);
+      
+      // Provide user-friendly error messages
+      if (err.name === "NotAllowedError") {
+        alert("Screen sharing permission was denied. Please allow screen sharing and try again.");
+      } else if (err.name === "NotSupportedError") {
+        alert("Screen sharing is not supported on this device. Please use a desktop browser.");
+      } else if (err.name === "NotFoundError") {
+        alert("No screen source available to share.");
+      } else {
+        alert(`Screen sharing failed: ${err.message || "Unknown error"}`);
+      }
     }
   };
 
   const stopScreenShare = () => {
     if (!localStream || !screenTrackRef.current) return;
+    
+    console.log("🛑 Stopping screen share");
+    
     const videoTrack = localStream.getVideoTracks()[0];
     Object.values(peerConnectionsRef.current).forEach((pc) => {
       const sender = pc.getSenders().find((s) => s.track?.kind === "video");
-      if (sender && videoTrack) sender.replaceTrack(videoTrack);
+      if (sender && videoTrack) {
+        sender.replaceTrack(videoTrack).then(() => {
+          console.log("✅ Restored camera track in peer connection");
+        }).catch((err) => {
+          console.error("❌ Failed to restore camera track:", err);
+        });
+      }
+    });
     });
     if (localVideoRef.current) localVideoRef.current.srcObject = localStream;
     screenTrackRef.current.stop();
@@ -968,21 +1019,23 @@ const Room: React.FC = () => {
           )}
         </button>
 
-        {/* Screen share */}
-        {!screenSharing ? (
-          <button
-            onClick={startScreenShare}
-            className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-slate-800/80 backdrop-blur-xl hover:bg-slate-700/80 border border-white/10 text-white shadow-lg transition-all"
-          >
-            <ScreenShareIcon className="text-base sm:text-lg" />
-          </button>
-        ) : (
-          <button
-            onClick={stopScreenShare}
-            className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-red-600/90 backdrop-blur-xl hover:bg-red-500 border border-red-500/20 text-white shadow-lg transition-all"
-          >
-            <StopScreenShareIcon className="text-base sm:text-lg" />
-          </button>
+        {/* Screen share - only show on desktop/supported browsers */}
+        {isScreenShareSupported && (
+          !screenSharing ? (
+            <button
+              onClick={startScreenShare}
+              className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-slate-800/80 backdrop-blur-xl hover:bg-slate-700/80 border border-white/10 text-white shadow-lg transition-all"
+            >
+              <ScreenShareIcon className="text-base sm:text-lg" />
+            </button>
+          ) : (
+            <button
+              onClick={stopScreenShare}
+              className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-red-600/90 backdrop-blur-xl hover:bg-red-500 border border-red-500/20 text-white shadow-lg transition-all"
+            >
+              <StopScreenShareIcon className="text-base sm:text-lg" />
+            </button>
+          )
         )}
 
         {/* End call */}
