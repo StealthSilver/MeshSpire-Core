@@ -258,7 +258,8 @@ export const Home: React.FC = () => {
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = "#3b82f6";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(59, 130, 246, 0.1)";
+                  e.target.style.boxShadow =
+                    "0 0 0 3px rgba(59, 130, 246, 0.1)";
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = "#334155";
@@ -298,7 +299,15 @@ export const Home: React.FC = () => {
             </button>
 
             <div style={{ textAlign: "center", margin: "20px 0" }}>
-              <span style={{ color: "#64748b", fontSize: "13px", fontWeight: "500" }}>OR</span>
+              <span
+                style={{
+                  color: "#64748b",
+                  fontSize: "13px",
+                  fontWeight: "500",
+                }}
+              >
+                OR
+              </span>
             </div>
 
             <button
@@ -310,14 +319,11 @@ export const Home: React.FC = () => {
                 borderRadius: "8px",
                 border: "1px solid",
                 background: "transparent",
-                color:
-                  roomId.trim() && userName.trim() ? "#3b82f6" : "#64748b",
+                color: roomId.trim() && userName.trim() ? "#3b82f6" : "#64748b",
                 fontSize: "15px",
                 fontWeight: "600",
                 cursor:
-                  roomId.trim() && userName.trim()
-                    ? "pointer"
-                    : "not-allowed",
+                  roomId.trim() && userName.trim() ? "pointer" : "not-allowed",
                 transition: "all 0.2s",
                 borderColor:
                   roomId.trim() && userName.trim() ? "#3b82f6" : "#334155",
@@ -333,9 +339,6 @@ export const Home: React.FC = () => {
               }}
             >
               JOIN EXISTING ROOM
-            </button>
-            >
-              Create New Room
             </button>
           </div>
 
