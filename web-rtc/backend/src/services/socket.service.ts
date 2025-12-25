@@ -8,13 +8,19 @@ export const setupSocketHandlers = (io: Server) => {
 
     // Join room
     socket.on("join-room", ({ roomId, userName }: JoinRoomData) => {
-      console.log(`${userName} (${socket.id}) joining room: ${roomId}`);
+      console.log(`\n=== JOIN ROOM ===`);
+      console.log(`User: ${userName} (${socket.id})`);
+      console.log(`Room: ${roomId}`);
+
+      // Get existing peers in the room BEFORE adding new peer
+      const existingPeers = roomManager.getPeersInRoom(roomId);
+      console.log(`Existing peers in room: ${existingPeers.length}`);
+      existingPeers.forEach((p) =>
+        console.log(`  - ${p.userName} (${p.socketId})`)
+      );
 
       // Join the socket.io room
       socket.join(roomId);
-
-      // Get existing peers in the room
-      const existingPeers = roomManager.getPeersInRoom(roomId);
 
       // Add the new peer to the room
       const newPeer: Peer = {
@@ -25,12 +31,18 @@ export const setupSocketHandlers = (io: Server) => {
         isVideoMuted: false,
       };
       roomManager.addPeerToRoom(roomId, newPeer);
+      console.log(`Added ${userName} to room`);
 
       // Send existing peers to the new user
       socket.emit("existing-peers", existingPeers);
+      console.log(`Sent ${existingPeers.length} existing peers to ${userName}`);
 
       // Notify other users about the new peer
       socket.to(roomId).emit("user-joined", newPeer);
+      console.log(`Notified others about ${userName} joining`);
+
+      const totalInRoom = roomManager.getPeersInRoom(roomId).length;
+      console.log(`Total peers now in room: ${totalInRoom}\n`);
     });
 
     // WebRTC signaling
@@ -54,24 +66,33 @@ export const setupSocketHandlers = (io: Server) => {
 
     // Handle disconnect
     socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.id}`);
+      console.log(`\n=== USER DISCONNECTED: ${socket.id} ===`);
 
       // Find and remove the peer from all rooms
       const allRooms = roomManager.getAllRooms();
       allRooms.forEach((room) => {
         if (room.peers.has(socket.id)) {
+          console.log(`Removing from room: ${room.id}`);
           roomManager.removePeerFromRoom(room.id, socket.id);
           socket.to(room.id).emit("user-left", { peerId: socket.id });
+          console.log(`Notified room ${room.id} about disconnect`);
         }
       });
+      console.log(`Disconnect cleanup complete\n`);
     });
 
     // Leave room explicitly
     socket.on("leave-room", ({ roomId }: { roomId: string }) => {
-      console.log(`${socket.id} leaving room: ${roomId}`);
+      console.log(`\n=== LEAVE ROOM ===`);
+      console.log(`User: ${socket.id}`);
+      console.log(`Room: ${roomId}`);
+
       socket.leave(roomId);
       roomManager.removePeerFromRoom(roomId, socket.id);
       socket.to(roomId).emit("user-left", { peerId: socket.id });
+
+      const remaining = roomManager.getPeersInRoom(roomId).length;
+      console.log(`Peers remaining in room: ${remaining}\n`);
     });
   });
 };

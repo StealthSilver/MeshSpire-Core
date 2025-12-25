@@ -7,7 +7,10 @@ interface MediaControlsProps {
   onLeave: () => void;
 }
 
-export const MediaControls: React.FC<MediaControlsProps> = ({ roomId, onLeave }) => {
+export const MediaControls: React.FC<MediaControlsProps> = ({
+  roomId,
+  onLeave,
+}) => {
   const { toggleAudio, toggleVideo, isAudioMuted, isVideoMuted } = usePeer();
   const { socket } = useSocket();
 
@@ -109,24 +112,6 @@ export const MediaControls: React.FC<MediaControlsProps> = ({ roomId, onLeave })
         title="Leave Room"
       >
         📞
-      </button>
-    </div>
-  );
-};
-      </button>
-      <button
-        onClick={handleToggleVideo}
-        style={{
-          padding: "12px 24px",
-          borderRadius: "8px",
-          border: "none",
-          backgroundColor: isVideoMuted ? "#ef4444" : "#10b981",
-          color: "white",
-          cursor: "pointer",
-          fontSize: "16px",
-        }}
-      >
-        {isVideoMuted ? "📹 Start Video" : "🎥 Stop Video"}
       </button>
     </div>
   );

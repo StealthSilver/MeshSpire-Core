@@ -20,12 +20,15 @@ export const Room: React.FC = () => {
       return;
     }
 
+    console.log("Room component mounted, joining room:", roomId);
     joinRoom();
 
     return () => {
+      console.log("Room component unmounting, leaving room");
       leaveRoom();
     };
-  }, [roomId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId]); // Only re-run if roomId changes
 
   const handleLeaveRoom = () => {
     leaveRoom();
@@ -40,7 +43,8 @@ export const Room: React.FC = () => {
     }
   };
 
-  const totalParticipants = peers.length + 1;
+  // Only count peers that are actually in the room (from server)
+  const totalParticipants = peers.length + 1; // peers from server + you
 
   return (
     <div
@@ -147,7 +151,8 @@ export const Room: React.FC = () => {
           >
             <span style={{ fontSize: "20px" }}>👥</span>
             <span style={{ color: "#10b981", fontWeight: "600" }}>
-              {totalParticipants} {totalParticipants === 1 ? "Person" : "People"}
+              {totalParticipants}{" "}
+              {totalParticipants === 1 ? "Person" : "People"}
             </span>
           </div>
         </div>
@@ -187,14 +192,14 @@ export const Room: React.FC = () => {
             isLocal={true}
           />
 
-          {/* Remote Videos */}
-          {Array.from(remotePeers.entries()).map(([peerId, peerConnection]) => {
-            const peer = peers.find((p) => p.socketId === peerId);
+          {/* Remote Videos - Only show peers that exist in the server's peer list */}
+          {peers.map((peer) => {
+            const peerConnection = remotePeers.get(peer.socketId);
             return (
               <VideoPlayer
-                key={peerId}
-                stream={peerConnection.stream || null}
-                userName={peer?.userName || "Unknown"}
+                key={peer.socketId}
+                stream={peerConnection?.stream || null}
+                userName={peer.userName}
               />
             );
           })}
@@ -203,48 +208,6 @@ export const Room: React.FC = () => {
 
       {/* Controls */}
       <MediaControls roomId={roomId || ""} onLeave={handleLeaveRoom} />
-    </div>
-  );
-};
-        style={{
-          flex: 1,
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: "16px",
-          padding: "16px",
-          overflow: "auto",
-        }}
-      >
-        {/* Local Video */}
-        <div style={{ position: "relative", aspectRatio: "16/9" }}>
-          <VideoPlayer
-            stream={localStream}
-            muted={true}
-            userName={`${userName} (You)`}
-          />
-        </div>
-
-        {/* Remote Videos */}
-        {Array.from(remotePeers.entries()).map(([peerId, peerConnection]) => {
-          const peer = peers.find((p) => p.socketId === peerId);
-          return (
-            <div
-              key={peerId}
-              style={{ position: "relative", aspectRatio: "16/9" }}
-            >
-              <VideoPlayer
-                stream={peerConnection.stream || null}
-                userName={peer?.userName || "Unknown"}
-              />
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Controls */}
-      <div style={{ backgroundColor: "#111827" }}>
-        <MediaControls />
-      </div>
     </div>
   );
 };

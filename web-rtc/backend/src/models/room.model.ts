@@ -31,7 +31,20 @@ class RoomManager {
 
   addPeerToRoom(roomId: string, peer: Peer): void {
     const room = this.getRoomOrCreate(roomId);
+
+    // Check if peer already exists
+    if (room.peers.has(peer.socketId)) {
+      console.log(
+        `⚠️ Peer ${peer.socketId} already in room ${roomId}, updating...`
+      );
+      room.peers.set(peer.socketId, peer);
+      return;
+    }
+
     room.peers.set(peer.socketId, peer);
+    console.log(
+      `✅ Added peer ${peer.socketId} to room ${roomId}. Total: ${room.peers.size}`
+    );
   }
 
   removePeerFromRoom(roomId: string, socketId: string): void {

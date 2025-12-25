@@ -47,7 +47,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           display: hasVideo ? "block" : "none",
         }}
       />
-      
+
       {!hasVideo && (
         <div
           style={{
@@ -100,11 +100,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         >
           {isLocal && <span style={{ fontSize: "10px" }}>●</span>}
           {userName}
-        </div>
-      )}
-    </div>
-  );
-};
         </div>
       )}
     </div>

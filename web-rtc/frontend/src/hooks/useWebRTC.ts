@@ -17,6 +17,7 @@ export const useWebRTC = (roomId: string, userName: string) => {
   const [peers, setPeers] = useState<Peer[]>([]);
   const [isJoined, setIsJoined] = useState(false);
   const peersRef = useRef<Map<string, RTCPeerConnection>>(new Map());
+  const hasJoinedRef = useRef(false);
 
   const joinRoom = async () => {
     if (!socket || !isConnected) {
@@ -24,30 +25,50 @@ export const useWebRTC = (roomId: string, userName: string) => {
       return;
     }
 
+    // Prevent duplicate joins
+    if (hasJoinedRef.current) {
+      console.log("Already joined room, skipping");
+      return;
+    }
+
     try {
+      console.log("Joining room:", roomId, "as", userName);
+      hasJoinedRef.current = true;
       await startLocalStream();
       socket.emit("join-room", { roomId, userName });
       setIsJoined(true);
     } catch (error) {
       console.error("Error joining room:", error);
+      hasJoinedRef.current = false;
     }
   };
 
   const leaveRoom = () => {
+    if (!hasJoinedRef.current) {
+      console.log("Not in room, skipping leave");
+      return;
+    }
+
     console.log("Leaving room...");
+    hasJoinedRef.current = false;
+
+    // Clean up in the correct order
     if (socket) {
       socket.emit("leave-room", { roomId });
     }
 
-    // Close all peer connections
+    // Close all peer connections first
     closeAllConnections();
+
+    // Clear local peer references
+    peersRef.current.clear();
 
     // Stop local stream
     stopLocalStream();
 
+    // Reset state
     setIsJoined(false);
     setPeers([]);
-    peersRef.current.clear();
   };
 
   const createOffer = async (peerId: string) => {
@@ -76,32 +97,48 @@ export const useWebRTC = (roomId: string, userName: string) => {
   useEffect(() => {
     if (!socket || !isJoined) return;
 
+    console.log("Setting up socket listeners for room:", roomId);
+
     // Handle existing peers when joining
-    socket.on("existing-peers", (existingPeers: Peer[]) => {
-      console.log("Existing peers:", existingPeers);
+    const handleExistingPeers = (existingPeers: Peer[]) => {
+      console.log("Received existing peers:", existingPeers);
       setPeers(existingPeers);
 
-      // Create offers for all existing peers
-      setTimeout(() => {
-        existingPeers.forEach((peer) => {
-          createOffer(peer.socketId);
-        });
-      }, 500);
-    });
+      // Create peer connections and offers for all existing peers
+      if (existingPeers.length > 0) {
+        setTimeout(() => {
+          existingPeers.forEach((peer) => {
+            console.log("Creating offer for existing peer:", peer.userName);
+            createOffer(peer.socketId);
+          });
+        }, 500);
+      }
+    };
 
     // Handle new peer joining
-    socket.on("user-joined", (newPeer: Peer) => {
-      console.log("User joined:", newPeer);
-      setPeers((prev) => [...prev, newPeer]);
-    });
+    const handleUserJoined = (newPeer: Peer) => {
+      console.log("New user joined:", newPeer.userName, newPeer.socketId);
+
+      // Add to peers list if not already there
+      setPeers((prev) => {
+        const exists = prev.some((p) => p.socketId === newPeer.socketId);
+        if (exists) {
+          console.log("Peer already in list, ignoring");
+          return prev;
+        }
+        return [...prev, newPeer];
+      });
+    };
 
     // Handle signaling
-    socket.on("signal", async (data: any) => {
+    const handleSignal = async (data: any) => {
       const { type, data: signalData, from } = data;
       console.log(`Received ${type} from:`, from);
 
       let peerConnection = peersRef.current.get(from);
+
       if (!peerConnection) {
+        console.log("Creating new peer connection for:", from);
         peerConnection = createPeerConnection(from);
         peersRef.current.set(from, peerConnection);
       }
@@ -125,48 +162,60 @@ export const useWebRTC = (roomId: string, userName: string) => {
           await peerConnection.setRemoteDescription(
             new RTCSessionDescription(signalData)
           );
+          console.log("Set remote description from answer");
         } else if (type === "ice-candidate") {
           await peerConnection.addIceCandidate(new RTCIceCandidate(signalData));
+          console.log("Added ICE candidate from:", from);
         }
       } catch (error) {
         console.error("Error handling signal:", error);
       }
-    });
+    };
 
     // Handle peer leaving
-    socket.on("user-left", ({ peerId }: { peerId: string }) => {
+    const handleUserLeft = ({ peerId }: { peerId: string }) => {
       console.log("User left:", peerId);
+
+      // Remove from peers list
       setPeers((prev) => prev.filter((p) => p.socketId !== peerId));
 
+      // Close and remove peer connection
       const peerConnection = peersRef.current.get(peerId);
       if (peerConnection) {
         peerConnection.close();
         peersRef.current.delete(peerId);
+        console.log("Closed peer connection for:", peerId);
       }
+
+      // Close in peer context
       closePeerConnection(peerId);
-    });
+    };
 
     // Handle media state changes
-    socket.on("peer-media-state-changed", ({ peerId, mediaState }: any) => {
+    const handleMediaStateChanged = ({ peerId, mediaState }: any) => {
+      console.log("Media state changed for:", peerId, mediaState);
       setPeers((prev) =>
         prev.map((p) => (p.socketId === peerId ? { ...p, ...mediaState } : p))
       );
-    });
-
-    return () => {
-      socket.off("existing-peers");
-      socket.off("user-joined");
-      socket.off("user-left");
-      socket.off("peer-media-state-changed");
-      socket.off("signal");
     };
-  }, [
-    socket,
-    isJoined,
-    createOffer,
-    createPeerConnection,
-    closePeerConnection,
-  ]);
+
+    // Register all event listeners
+    socket.on("existing-peers", handleExistingPeers);
+    socket.on("user-joined", handleUserJoined);
+    socket.on("signal", handleSignal);
+    socket.on("user-left", handleUserLeft);
+    socket.on("peer-media-state-changed", handleMediaStateChanged);
+
+    // Cleanup function
+    return () => {
+      console.log("Cleaning up socket listeners");
+      socket.off("existing-peers", handleExistingPeers);
+      socket.off("user-joined", handleUserJoined);
+      socket.off("signal", handleSignal);
+      socket.off("user-left", handleUserLeft);
+      socket.off("peer-media-state-changed", handleMediaStateChanged);
+    };
+  }, [socket, isJoined, roomId]);
 
   return {
     joinRoom,

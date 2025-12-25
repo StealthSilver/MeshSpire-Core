@@ -198,51 +198,6 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
     [localStream, socket, closePeerConnection]
   );
 
-  const createPeerConnection = (peerId: string): RTCPeerConnection => {
-    const peerConnection = new RTCPeerConnection(ICE_SERVERS);
-
-    // Add local stream tracks to peer connection
-    if (localStream) {
-      localStream.getTracks().forEach((track) => {
-        peerConnection.addTrack(track, localStream);
-      });
-    }
-
-    // Handle incoming tracks
-    peerConnection.ontrack = (event) => {
-      console.log("Received remote track from:", peerId);
-      const remoteStream = event.streams[0];
-
-      setRemotePeers((prev) => {
-        const newPeers = new Map(prev);
-        const existingPeer = newPeers.get(peerId);
-        if (existingPeer) {
-          existingPeer.stream = remoteStream;
-        }
-        return newPeers;
-      });
-
-      peersRef.current.set(peerId, {
-        peer: peerConnection,
-        stream: remoteStream,
-      });
-    };
-
-    // Handle ICE candidates
-    peerConnection.onicecandidate = (event) => {
-      if (event.candidate && socket) {
-        socket.emit("signal", {
-          type: "ice-candidate",
-          data: event.candidate,
-          from: socket.id,
-          to: peerId,
-        });
-      }
-    };
-
-    return peerConnection;
-  };
-
   useEffect(() => {
     if (!socket) return;
 
