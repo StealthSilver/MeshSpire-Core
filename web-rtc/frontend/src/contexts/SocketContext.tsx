@@ -3,7 +3,7 @@ import React, {
   useContext,
   useEffect,
   useState,
-  ReactNode,
+  type ReactNode,
 } from "react";
 import { io, Socket } from "socket.io-client";
 

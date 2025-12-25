@@ -4,10 +4,10 @@ import React, {
   useRef,
   useState,
   useEffect,
-  ReactNode,
+  useCallback,
+  type ReactNode,
 } from "react";
 import { useSocket } from "./SocketContext";
-import { Peer } from "../types";
 
 interface PeerConnection {
   peer: RTCPeerConnection;
@@ -23,6 +23,9 @@ interface PeerContextType {
   toggleVideo: () => void;
   isAudioMuted: boolean;
   isVideoMuted: boolean;
+  createPeerConnection: (peerId: string) => RTCPeerConnection;
+  closePeerConnection: (peerId: string) => void;
+  closeAllConnections: () => void;
 }
 
 const PeerContext = createContext<PeerContextType | null>(null);
@@ -71,10 +74,41 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
 
   const stopLocalStream = () => {
     if (localStream) {
-      localStream.getTracks().forEach((track) => track.stop());
+      localStream.getTracks().forEach((track) => {
+        track.stop();
+        console.log(`Stopped ${track.kind} track`);
+      });
       setLocalStream(null);
+      setIsAudioMuted(false);
+      setIsVideoMuted(false);
     }
   };
+
+  const closeAllConnections = useCallback(() => {
+    console.log("Closing all peer connections");
+    peersRef.current.forEach((peerConn, peerId) => {
+      if (peerConn.peer) {
+        peerConn.peer.close();
+      }
+      console.log(`Closed connection with ${peerId}`);
+    });
+    peersRef.current.clear();
+    setRemotePeers(new Map());
+  }, []);
+
+  const closePeerConnection = useCallback((peerId: string) => {
+    const peerConn = peersRef.current.get(peerId);
+    if (peerConn?.peer) {
+      peerConn.peer.close();
+      console.log(`Closed connection with ${peerId}`);
+    }
+    peersRef.current.delete(peerId);
+    setRemotePeers((prev) => {
+      const newPeers = new Map(prev);
+      newPeers.delete(peerId);
+      return newPeers;
+    });
+  }, []);
 
   const toggleAudio = () => {
     if (localStream) {
@@ -95,6 +129,74 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
       }
     }
   };
+
+  const createPeerConnection = useCallback(
+    (peerId: string): RTCPeerConnection => {
+      console.log("Creating peer connection for:", peerId);
+      const peerConnection = new RTCPeerConnection(ICE_SERVERS);
+
+      // Add local stream tracks to peer connection
+      if (localStream) {
+        localStream.getTracks().forEach((track) => {
+          peerConnection.addTrack(track, localStream);
+          console.log(`Added ${track.kind} track to peer connection`);
+        });
+      }
+
+      // Handle incoming tracks
+      peerConnection.ontrack = (event) => {
+        console.log("Received remote track from:", peerId);
+        const remoteStream = event.streams[0];
+
+        setRemotePeers((prev) => {
+          const newPeers = new Map(prev);
+          newPeers.set(peerId, {
+            peer: peerConnection,
+            stream: remoteStream,
+          });
+          return newPeers;
+        });
+
+        peersRef.current.set(peerId, {
+          peer: peerConnection,
+          stream: remoteStream,
+        });
+      };
+
+      // Handle ICE candidates
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate && socket) {
+          socket.emit("signal", {
+            type: "ice-candidate",
+            data: event.candidate,
+            from: socket.id,
+            to: peerId,
+          });
+        }
+      };
+
+      // Handle connection state changes
+      peerConnection.onconnectionstatechange = () => {
+        console.log(
+          `Connection state with ${peerId}:`,
+          peerConnection.connectionState
+        );
+        if (
+          peerConnection.connectionState === "disconnected" ||
+          peerConnection.connectionState === "failed"
+        ) {
+          closePeerConnection(peerId);
+        }
+      };
+
+      // Store the peer connection
+      peersRef.current.set(peerId, { peer: peerConnection });
+      setRemotePeers(new Map(peersRef.current));
+
+      return peerConnection;
+    },
+    [localStream, socket, closePeerConnection]
+  );
 
   const createPeerConnection = (peerId: string): RTCPeerConnection => {
     const peerConnection = new RTCPeerConnection(ICE_SERVERS);
@@ -197,6 +299,9 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
         toggleVideo,
         isAudioMuted,
         isVideoMuted,
+        createPeerConnection,
+        closePeerConnection,
+        closeAllConnections,
       }}
     >
       {children}
