@@ -52,16 +52,15 @@ export const Room: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         height: "100vh",
-        background: "linear-gradient(135deg, #1f2937 0%, #111827 100%)",
+        background: "#0f172a",
       }}
     >
       {/* Header */}
       <div
         style={{
           padding: "20px 32px",
-          background: "rgba(17, 24, 39, 0.95)",
-          backdropFilter: "blur(10px)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+          background: "#1e293b",
+          borderBottom: "1px solid #334155",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -70,28 +69,24 @@ export const Room: React.FC = () => {
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <div
             style={{
-              width: "48px",
-              height: "48px",
-              borderRadius: "12px",
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "24px",
+              width: "10px",
+              height: "10px",
+              borderRadius: "50%",
+              background: "#10b981",
+              boxShadow: "0 0 10px rgba(16, 185, 129, 0.5)",
             }}
-          >
-            📹
-          </div>
+          />
           <div>
             <h2
               style={{
                 margin: 0,
-                fontSize: "20px",
-                fontWeight: "bold",
-                color: "white",
+                fontSize: "16px",
+                fontWeight: "600",
+                color: "#f1f5f9",
+                letterSpacing: "-0.01em",
               }}
             >
-              {userName}'s Room
+              {userName}
             </h2>
             <div
               style={{
@@ -103,29 +98,33 @@ export const Room: React.FC = () => {
             >
               <span
                 style={{
-                  fontSize: "14px",
-                  color: "#9ca3af",
+                  fontSize: "13px",
+                  color: "#64748b",
                   fontFamily: "monospace",
+                  fontWeight: "500",
                 }}
               >
-                ID: {roomId}
+                {roomId}
               </span>
               <button
                 onClick={copyRoomId}
                 style={{
-                  padding: "4px 12px",
-                  borderRadius: "6px",
-                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  padding: "4px 10px",
+                  borderRadius: "4px",
+                  border: "1px solid",
+                  borderColor: copied ? "#10b981" : "#334155",
                   background: copied
-                    ? "rgba(16, 185, 129, 0.2)"
-                    : "rgba(255, 255, 255, 0.1)",
-                  color: copied ? "#10b981" : "#9ca3af",
-                  fontSize: "12px",
+                    ? "rgba(16, 185, 129, 0.1)"
+                    : "transparent",
+                  color: copied ? "#10b981" : "#64748b",
+                  fontSize: "11px",
                   cursor: "pointer",
                   transition: "all 0.2s",
+                  fontWeight: "500",
+                  letterSpacing: "0.3px",
                 }}
               >
-                {copied ? "✓ Copied" : "Copy ID"}
+                {copied ? "COPIED" : "COPY"}
               </button>
             </div>
           </div>
@@ -143,16 +142,21 @@ export const Room: React.FC = () => {
               display: "flex",
               alignItems: "center",
               gap: "8px",
-              padding: "8px 16px",
-              borderRadius: "8px",
-              background: "rgba(16, 185, 129, 0.2)",
-              border: "1px solid rgba(16, 185, 129, 0.3)",
+              padding: "6px 14px",
+              borderRadius: "6px",
+              background: "rgba(59, 130, 246, 0.1)",
+              border: "1px solid rgba(59, 130, 246, 0.3)",
             }}
           >
-            <span style={{ fontSize: "20px" }}>👥</span>
-            <span style={{ color: "#10b981", fontWeight: "600" }}>
-              {totalParticipants}{" "}
-              {totalParticipants === 1 ? "Person" : "People"}
+            <span
+              style={{ color: "#3b82f6", fontWeight: "600", fontSize: "14px" }}
+            >
+              {totalParticipants}
+            </span>
+            <span
+              style={{ color: "#64748b", fontSize: "13px", fontWeight: "500" }}
+            >
+              {totalParticipants === 1 ? "PARTICIPANT" : "PARTICIPANTS"}
             </span>
           </div>
         </div>

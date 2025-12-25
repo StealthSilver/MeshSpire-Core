@@ -59,20 +59,21 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            background: "#1e293b",
           }}
         >
           <div
             style={{
-              width: "100px",
-              height: "100px",
+              width: "80px",
+              height: "80px",
               borderRadius: "50%",
-              backgroundColor: "rgba(255, 255, 255, 0.2)",
+              backgroundColor: "#3b82f6",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "48px",
+              fontSize: "32px",
               color: "white",
+              fontWeight: "600",
             }}
           >
             {userName?.charAt(0).toUpperCase() || "?"}
@@ -84,18 +85,18 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         <div
           style={{
             position: "absolute",
-            bottom: "16px",
-            left: "16px",
-            padding: "8px 16px",
-            background: "rgba(0, 0, 0, 0.7)",
-            backdropFilter: "blur(10px)",
-            color: "white",
-            borderRadius: "8px",
-            fontSize: "14px",
-            fontWeight: "600",
+            bottom: "12px",
+            left: "12px",
+            padding: "6px 12px",
+            background: "rgba(15, 23, 42, 0.9)",
+            border: "1px solid rgba(51, 65, 85, 0.5)",
+            color: "#f1f5f9",
+            borderRadius: "6px",
+            fontSize: "13px",
+            fontWeight: "500",
             display: "flex",
             alignItems: "center",
-            gap: "8px",
+            gap: "6px",
           }}
         >
           {isLocal && <span style={{ fontSize: "10px" }}>●</span>}
