@@ -48,7 +48,17 @@ export const setupSocketHandlers = (io: Server) => {
     // WebRTC signaling
     socket.on("signal", (data: SignalData) => {
       console.log(`Signal from ${data.from} to ${data.to}: ${data.type}`);
+      // Send signal to specific peer
       io.to(data.to).emit("signal", data);
+
+      // Log for debugging
+      if (data.type === "offer") {
+        console.log(`  → Offer forwarded to ${data.to}`);
+      } else if (data.type === "answer") {
+        console.log(`  → Answer forwarded to ${data.to}`);
+      } else if (data.type === "ice-candidate") {
+        console.log(`  → ICE candidate forwarded to ${data.to}`);
+      }
     });
 
     // Media state changes (mute/unmute)

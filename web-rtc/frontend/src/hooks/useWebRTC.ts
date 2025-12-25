@@ -141,10 +141,31 @@ export const useWebRTC = (roomId: string, userName: string) => {
         console.log("Creating new peer connection for:", from);
         peerConnection = createPeerConnection(from);
         peersRef.current.set(from, peerConnection);
+
+        // Add the peer to the peers list if not already there
+        setPeers((prev) => {
+          const exists = prev.some((p) => p.socketId === from);
+          if (!exists) {
+            console.log("Adding peer from signal:", from);
+            // We don't have full peer info, so create a minimal peer object
+            return [
+              ...prev,
+              {
+                socketId: from,
+                userName: "User",
+                id: from,
+                isAudioMuted: false,
+                isVideoMuted: false,
+              },
+            ];
+          }
+          return prev;
+        });
       }
 
       try {
         if (type === "offer") {
+          console.log("Processing offer from:", from);
           await peerConnection.setRemoteDescription(
             new RTCSessionDescription(signalData)
           );
@@ -159,13 +180,33 @@ export const useWebRTC = (roomId: string, userName: string) => {
           });
           console.log("Answer sent to:", from);
         } else if (type === "answer") {
-          await peerConnection.setRemoteDescription(
-            new RTCSessionDescription(signalData)
-          );
-          console.log("Set remote description from answer");
+          console.log("Processing answer from:", from);
+          if (peerConnection.signalingState !== "stable") {
+            await peerConnection.setRemoteDescription(
+              new RTCSessionDescription(signalData)
+            );
+            console.log("Set remote description from answer");
+          } else {
+            console.log("Ignoring answer, connection already stable");
+          }
         } else if (type === "ice-candidate") {
-          await peerConnection.addIceCandidate(new RTCIceCandidate(signalData));
-          console.log("Added ICE candidate from:", from);
+          if (peerConnection.remoteDescription) {
+            await peerConnection.addIceCandidate(
+              new RTCIceCandidate(signalData)
+            );
+            console.log("Added ICE candidate from:", from);
+          } else {
+            console.log("Queuing ICE candidate, no remote description yet");
+            // Queue the candidate to be added after remote description is set
+            setTimeout(async () => {
+              if (peerConnection.remoteDescription) {
+                await peerConnection.addIceCandidate(
+                  new RTCIceCandidate(signalData)
+                );
+                console.log("Added queued ICE candidate from:", from);
+              }
+            }, 100);
+          }
         }
       } catch (error) {
         console.error("Error handling signal:", error);
