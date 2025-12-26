@@ -9,6 +9,13 @@ export interface IUser extends Document {
   role: "student" | "tutor";
   subject?: string;
   class?: string;
+  emailVerified: boolean;
+
+  emailVerificationToken?: string;
+  emailVerificationTokenExpiry?: Date;
+
+  resetPasswordToken?: string;
+  resetPasswordTokenExpiry?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,7 +39,31 @@ const UserSchema = new Schema<IUser>(
       required: true,
     },
     subject: { type: String },
-    class: { type: String }, 
+    class: { type: String },
+    // 🔐 EMAIL VERIFICATION
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    emailVerificationToken: {
+      type: String,
+    },
+
+    emailVerificationTokenExpiry: {
+      type: Date,
+    },
+
+    // 🔁 FORGOT PASSWORD
+    resetPasswordToken: {
+      type: String,
+    },
+
+    resetPasswordTokenExpiry: {
+      type: Date,
+    },
+
+
   },
   { timestamps: true }
 );
