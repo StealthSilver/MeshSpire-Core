@@ -11,24 +11,20 @@ export const Room: React.FC = () => {
   const userName = searchParams.get("name") || "Anonymous";
   const [copied, setCopied] = useState(false);
 
-  const { joinRoom, leaveRoom, isJoined, peers, localStream, remotePeers } =
-    useWebRTC(roomId || "", userName);
+  const { joinRoom, leaveRoom, peers, localStream, remotePeers } = useWebRTC(
+    roomId || "",
+    userName
+  );
 
   useEffect(() => {
     if (!roomId) {
       navigate("/");
       return;
     }
-
-    console.log("Room component mounted, joining room:", roomId);
     joinRoom();
-
-    return () => {
-      console.log("Room component unmounting, leaving room");
-      leaveRoom();
-    };
+    return () => leaveRoom();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId]); // Only re-run if roomId changes
+  }, [roomId]);
 
   const handleLeaveRoom = () => {
     leaveRoom();
@@ -36,72 +32,51 @@ export const Room: React.FC = () => {
   };
 
   const copyRoomId = () => {
-    if (roomId) {
-      navigator.clipboard.writeText(roomId);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+    if (!roomId) return;
+    navigator.clipboard.writeText(roomId);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  // Only count peers that are actually in the room (from server)
-  const totalParticipants = peers.length + 1; // peers from server + you
+  const totalParticipants = peers.length + 1;
 
   return (
     <div
       style={{
+        height: "100vh",
         display: "flex",
         flexDirection: "column",
-        height: "100vh",
-        background: "#0f172a",
+        background: "#020617", // neutral, professional
       }}
     >
       {/* Header */}
-      <div
+      <header
         style={{
-          padding: "20px 32px",
-          background: "#1e293b",
-          borderBottom: "1px solid #334155",
+          padding: "16px 32px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          background: "#020617",
+          borderBottom: "1px solid #1e293b",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+        <div style={{ display: "flex", gap: "18px", alignItems: "center" }}>
           <div
             style={{
               width: "10px",
               height: "10px",
               borderRadius: "50%",
-              background: "#10b981",
-              boxShadow: "0 0 10px rgba(16, 185, 129, 0.5)",
+              background: "#22c55e",
             }}
           />
           <div>
-            <h2
-              style={{
-                margin: 0,
-                fontSize: "16px",
-                fontWeight: "600",
-                color: "#f1f5f9",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              {userName}
-            </h2>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                marginTop: "4px",
-              }}
-            >
+            <div style={{ fontWeight: 600, color: "#f8fafc" }}>{userName}</div>
+            <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
               <span
                 style={{
-                  fontSize: "13px",
-                  color: "#64748b",
                   fontFamily: "monospace",
-                  fontWeight: "500",
+                  fontSize: "12px",
+                  color: "#94a3b8",
                 }}
               >
                 {roomId}
@@ -109,19 +84,13 @@ export const Room: React.FC = () => {
               <button
                 onClick={copyRoomId}
                 style={{
-                  padding: "4px 10px",
-                  borderRadius: "4px",
-                  border: "1px solid",
-                  borderColor: copied ? "#10b981" : "#334155",
-                  background: copied
-                    ? "rgba(16, 185, 129, 0.1)"
-                    : "transparent",
-                  color: copied ? "#10b981" : "#64748b",
                   fontSize: "11px",
+                  padding: "4px 10px",
+                  borderRadius: "6px",
+                  border: "1px solid #334155",
+                  background: "transparent",
+                  color: copied ? "#22c55e" : "#94a3b8",
                   cursor: "pointer",
-                  transition: "all 0.2s",
-                  fontWeight: "500",
-                  letterSpacing: "0.3px",
                 }}
               >
                 {copied ? "COPIED" : "COPY"}
@@ -132,85 +101,60 @@ export const Room: React.FC = () => {
 
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "24px",
+            fontSize: "13px",
+            color: "#cbd5f5",
+            fontWeight: 500,
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "6px 14px",
-              borderRadius: "6px",
-              background: "rgba(59, 130, 246, 0.1)",
-              border: "1px solid rgba(59, 130, 246, 0.3)",
-            }}
-          >
-            <span
-              style={{ color: "#3b82f6", fontWeight: "600", fontSize: "14px" }}
-            >
-              {totalParticipants}
-            </span>
-            <span
-              style={{ color: "#64748b", fontSize: "13px", fontWeight: "500" }}
-            >
-              {totalParticipants === 1 ? "PARTICIPANT" : "PARTICIPANTS"}
-            </span>
-          </div>
+          {totalParticipants}{" "}
+          {totalParticipants === 1 ? "Participant" : "Participants"}
         </div>
-      </div>
+      </header>
 
       {/* Video Grid */}
-      <div
+      <main
         style={{
           flex: 1,
-          padding: "24px",
-          overflow: "auto",
+          padding: "28px",
           display: "flex",
-          alignItems: "center",
           justifyContent: "center",
+          alignItems: "center",
         }}
       >
         <div
           style={{
+            width: "100%",
             display: "grid",
+            gap: "24px",
             gridTemplateColumns:
               totalParticipants === 1
                 ? "1fr"
                 : totalParticipants === 2
                 ? "repeat(2, 1fr)"
-                : "repeat(auto-fit, minmax(400px, 1fr))",
-            gap: "24px",
-            width: "100%",
-            maxWidth: totalParticipants === 1 ? "800px" : "100%",
-            height: totalParticipants === 1 ? "600px" : "auto",
+                : "repeat(auto-fit, minmax(360px, 1fr))",
+            maxWidth: totalParticipants === 1 ? "900px" : "100%",
           }}
         >
-          {/* Local Video */}
           <VideoPlayer
             stream={localStream}
-            muted={true}
+            muted
             userName={`${userName} (You)`}
-            isLocal={true}
+            isLocal
           />
 
-          {/* Remote Videos - Only show peers that exist in the server's peer list */}
           {peers.map((peer) => {
-            const peerConnection = remotePeers.get(peer.socketId);
+            const connection = remotePeers.get(peer.socketId);
             return (
               <VideoPlayer
                 key={peer.socketId}
-                stream={peerConnection?.stream || null}
+                stream={connection?.stream || null}
                 userName={peer.userName}
               />
             );
           })}
         </div>
-      </div>
+      </main>
 
-      {/* Controls */}
       <MediaControls roomId={roomId || ""} onLeave={handleLeaveRoom} />
     </div>
   );

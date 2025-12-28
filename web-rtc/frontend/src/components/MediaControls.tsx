@@ -61,8 +61,8 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
         padding: "20px",
         justifyContent: "center",
         alignItems: "center",
-        background: "#1e293b",
-        borderTop: "1px solid #334155",
+        background: "#020617",
+        borderTop: "1px solid #1e293b",
       }}
     >
       <button
