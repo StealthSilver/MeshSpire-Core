@@ -32,117 +32,103 @@ export const Home: React.FC = () => {
   return (
     <div
       style={{
-        display: "flex",
         minHeight: "100vh",
-        background: "#0f172a",
-        padding: "20px",
+        display: "flex",
+        background:
+          "radial-gradient(circle at top left, #1e3a8a 0%, #020617 45%)",
+        color: "#f8fafc",
+        padding: "24px",
       }}
     >
-      {/* Left side - Hero */}
+      {/* Left – Marketing / Hero */}
       <div
         style={{
           flex: 1,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          padding: "60px",
-          color: "white",
+          padding: "80px",
         }}
       >
-        <div
+        <span
           style={{
-            display: "inline-block",
-            padding: "8px 16px",
-            background: "rgba(59, 130, 246, 0.1)",
-            border: "1px solid rgba(59, 130, 246, 0.3)",
-            borderRadius: "6px",
-            fontSize: "13px",
-            fontWeight: "500",
-            color: "#3b82f6",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "8px 14px",
+            borderRadius: "999px",
+            fontSize: "12px",
+            fontWeight: 600,
+            letterSpacing: "0.4px",
+            color: "#93c5fd",
+            background: "rgba(59,130,246,0.12)",
+            border: "1px solid rgba(59,130,246,0.25)",
+            width: "fit-content",
             marginBottom: "32px",
-            letterSpacing: "0.5px",
           }}
         >
-          WebRTC Video Conferencing
-        </div>
+          WebRTC Powered Meetings
+        </span>
+
         <h1
           style={{
-            fontSize: "56px",
-            fontWeight: "700",
-            marginBottom: "24px",
-            lineHeight: "1.1",
-            letterSpacing: "-0.02em",
+            fontSize: "60px",
+            lineHeight: "1.05",
+            fontWeight: 800,
+            marginBottom: "28px",
+            letterSpacing: "-0.03em",
           }}
         >
-          Professional Video
+          Next-Gen Video
           <br />
-          <span style={{ color: "#3b82f6" }}>Meetings Made Simple</span>
+          <span
+            style={{
+              background: "linear-gradient(90deg, #3b82f6, #60a5fa)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            Conferencing
+          </span>
         </h1>
+
         <p
           style={{
             fontSize: "18px",
-            marginBottom: "40px",
+            maxWidth: "620px",
             color: "#94a3b8",
-            maxWidth: "600px",
-            lineHeight: "1.6",
+            lineHeight: "1.7",
+            marginBottom: "48px",
           }}
         >
-          Secure peer-to-peer video conferencing with crystal-clear quality.
-          Create or join rooms instantly with no downloads required.
+          Host secure, real-time video meetings with zero setup. Create or join
+          rooms instantly with enterprise-grade performance and privacy.
         </p>
-        <div style={{ display: "flex", gap: "48px", marginTop: "20px" }}>
-          <div>
-            <div
-              style={{
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#3b82f6",
-                marginBottom: "8px",
-                letterSpacing: "0.5px",
-              }}
-            >
-              HD QUALITY
+
+        <div style={{ display: "flex", gap: "48px" }}>
+          {[
+            ["Ultra HD", "Crystal-clear video"],
+            ["Instant Join", "No installs required"],
+            ["Secure", "End-to-end encrypted"],
+          ].map(([title, desc]) => (
+            <div key={title}>
+              <div
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  color: "#60a5fa",
+                  marginBottom: "6px",
+                }}
+              >
+                {title}
+              </div>
+              <div style={{ fontSize: "13px", color: "#64748b" }}>{desc}</div>
             </div>
-            <div style={{ fontSize: "13px", color: "#64748b" }}>
-              High Definition Video
-            </div>
-          </div>
-          <div>
-            <div
-              style={{
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#3b82f6",
-                marginBottom: "8px",
-                letterSpacing: "0.5px",
-              }}
-            >
-              PEER-TO-PEER
-            </div>
-            <div style={{ fontSize: "13px", color: "#64748b" }}>
-              Direct Connection
-            </div>
-          </div>
-          <div>
-            <div
-              style={{
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#3b82f6",
-                marginBottom: "8px",
-                letterSpacing: "0.5px",
-              }}
-            >
-              UNLIMITED
-            </div>
-            <div style={{ fontSize: "13px", color: "#64748b" }}>
-              Multiple Participants
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Right side - Form */}
+      {/* Right – Card */}
       <div
         style={{
           flex: 1,
@@ -153,207 +139,139 @@ export const Home: React.FC = () => {
       >
         <div
           style={{
-            backgroundColor: "#1e293b",
-            borderRadius: "16px",
-            padding: "48px",
-            border: "1px solid #334155",
-            maxWidth: "480px",
             width: "100%",
+            maxWidth: "460px",
+            padding: "48px",
+            borderRadius: "20px",
+            background:
+              "linear-gradient(180deg, rgba(30,41,59,0.85), rgba(15,23,42,0.85))",
+            backdropFilter: "blur(14px)",
+            border: "1px solid rgba(148,163,184,0.15)",
+            boxShadow: "0 30px 80px rgba(0,0,0,0.4)",
           }}
         >
-          <div style={{ marginBottom: "40px" }}>
-            <h2
-              style={{
-                fontSize: "28px",
-                fontWeight: "600",
-                color: "#f1f5f9",
-                marginBottom: "8px",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Get Started
-            </h2>
-            <p style={{ fontSize: "15px", color: "#94a3b8" }}>
-              Enter your details to join or create a room
-            </p>
-          </div>
+          <h2
+            style={{
+              fontSize: "30px",
+              fontWeight: 700,
+              marginBottom: "6px",
+            }}
+          >
+            Get Started
+          </h2>
+          <p
+            style={{
+              fontSize: "15px",
+              color: "#94a3b8",
+              marginBottom: "36px",
+            }}
+          >
+            Join an existing meeting or create a new one
+          </p>
 
           <div
-            style={{ display: "flex", flexDirection: "column", gap: "24px" }}
+            style={{ display: "flex", flexDirection: "column", gap: "22px" }}
           >
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "13px",
-                  fontWeight: "500",
-                  color: "#cbd5e1",
-                  marginBottom: "8px",
-                  letterSpacing: "0.3px",
-                }}
-              >
-                YOUR NAME
-              </label>
-              <input
-                type="text"
-                placeholder="Enter your name"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                onKeyPress={handleKeyPress}
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  borderRadius: "8px",
-                  border: "1px solid #334155",
-                  fontSize: "15px",
-                  outline: "none",
-                  transition: "all 0.2s",
-                  boxSizing: "border-box",
-                  background: "#0f172a",
-                  color: "#f1f5f9",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "#3b82f6";
-                  e.target.style.boxShadow =
-                    "0 0 0 3px rgba(59, 130, 246, 0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "#334155";
-                  e.target.style.boxShadow = "none";
-                }}
-              />
-            </div>
+            {/* Name */}
+            <input
+              placeholder="Your name"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              onKeyPress={handleKeyPress}
+              style={inputStyle}
+            />
 
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "13px",
-                  fontWeight: "500",
-                  color: "#cbd5e1",
-                  marginBottom: "8px",
-                  letterSpacing: "0.3px",
-                }}
-              >
-                ROOM ID (OPTIONAL)
-              </label>
-              <input
-                type="text"
-                placeholder="Enter room ID to join existing room"
-                value={roomId}
-                onChange={(e) => setRoomId(e.target.value.toUpperCase())}
-                onKeyPress={handleKeyPress}
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  borderRadius: "8px",
-                  border: "1px solid #334155",
-                  fontSize: "15px",
-                  outline: "none",
-                  transition: "all 0.2s",
-                  boxSizing: "border-box",
-                  background: "#0f172a",
-                  color: "#f1f5f9",
-                  fontFamily: "monospace",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "#3b82f6";
-                  e.target.style.boxShadow =
-                    "0 0 0 3px rgba(59, 130, 246, 0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "#334155";
-                  e.target.style.boxShadow = "none";
-                }}
-              />
-            </div>
+            {/* Room */}
+            <input
+              placeholder="Room ID (optional)"
+              value={roomId}
+              onChange={(e) => setRoomId(e.target.value.toUpperCase())}
+              onKeyPress={handleKeyPress}
+              style={{ ...inputStyle, fontFamily: "monospace" }}
+            />
 
             <button
               onClick={createRoom}
               disabled={!userName.trim()}
               style={{
-                width: "100%",
-                padding: "14px",
-                borderRadius: "8px",
-                border: "none",
-                background: userName.trim() ? "#3b82f6" : "#334155",
-                color: userName.trim() ? "#ffffff" : "#64748b",
-                fontSize: "15px",
-                fontWeight: "600",
+                ...primaryButton,
+                opacity: userName.trim() ? 1 : 0.5,
                 cursor: userName.trim() ? "pointer" : "not-allowed",
-                transition: "all 0.2s",
-                letterSpacing: "0.3px",
-              }}
-              onMouseEnter={(e) => {
-                if (userName.trim()) {
-                  e.currentTarget.style.background = "#2563eb";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (userName.trim()) {
-                  e.currentTarget.style.background = "#3b82f6";
-                }
               }}
             >
-              CREATE NEW ROOM
+              Create New Room
             </button>
 
-            <div style={{ textAlign: "center", margin: "20px 0" }}>
-              <span
-                style={{
-                  color: "#64748b",
-                  fontSize: "13px",
-                  fontWeight: "500",
-                }}
-              >
-                OR
-              </span>
+            <div
+              style={{
+                textAlign: "center",
+                fontSize: "12px",
+                color: "#64748b",
+                letterSpacing: "1px",
+              }}
+            >
+              OR
             </div>
 
             <button
               onClick={joinRoom}
               disabled={!roomId.trim() || !userName.trim()}
               style={{
-                width: "100%",
-                padding: "14px",
-                borderRadius: "8px",
-                border: "1px solid",
-                background: "transparent",
-                color: roomId.trim() && userName.trim() ? "#3b82f6" : "#64748b",
-                fontSize: "15px",
-                fontWeight: "600",
+                ...secondaryButton,
+                opacity: roomId.trim() && userName.trim() ? 1 : 0.4,
                 cursor:
                   roomId.trim() && userName.trim() ? "pointer" : "not-allowed",
-                transition: "all 0.2s",
-                borderColor:
-                  roomId.trim() && userName.trim() ? "#3b82f6" : "#334155",
-                letterSpacing: "0.3px",
-              }}
-              onMouseEnter={(e) => {
-                if (roomId.trim() && userName.trim()) {
-                  e.currentTarget.style.background = "rgba(59, 130, 246, 0.1)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "transparent";
               }}
             >
-              JOIN EXISTING ROOM
+              Join Existing Room
             </button>
           </div>
 
           <p
             style={{
-              marginTop: "24px",
-              textAlign: "center",
-              fontSize: "13px",
+              marginTop: "28px",
+              fontSize: "12px",
               color: "#9ca3af",
+              textAlign: "center",
             }}
           >
-            🔒 End-to-end encrypted • No data stored
+            Encrypted • No tracking • No data stored
           </p>
         </div>
       </div>
     </div>
   );
+};
+
+/* ---------- Styles ---------- */
+
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "14px 16px",
+  borderRadius: "10px",
+  border: "1px solid rgba(148,163,184,0.2)",
+  background: "rgba(2,6,23,0.6)",
+  color: "#f8fafc",
+  fontSize: "15px",
+  outline: "none",
+};
+
+const primaryButton: React.CSSProperties = {
+  padding: "14px",
+  borderRadius: "10px",
+  border: "none",
+  fontWeight: 600,
+  fontSize: "15px",
+  background: "linear-gradient(90deg, #3b82f6, #2563eb)",
+  color: "#fff",
+};
+
+const secondaryButton: React.CSSProperties = {
+  padding: "14px",
+  borderRadius: "10px",
+  border: "1px solid #3b82f6",
+  fontWeight: 600,
+  fontSize: "15px",
+  background: "transparent",
+  color: "#3b82f6",
 };
