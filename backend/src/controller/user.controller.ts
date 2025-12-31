@@ -6,6 +6,23 @@ import { z } from "zod";
 import User, { IUser } from "../models/user.model";
 import Profile from "../models/profile.model";
 
+// Helper function to generate consistent avatar URL based on gender and userId
+const generateAvatarUrl = (
+  gender: string | undefined,
+  userId: string
+): string => {
+  const baseUrl = "https://avatar.iran.liara.run/public";
+  const seed = userId; // Use userId as seed for consistency
+
+  if (gender && gender.toLowerCase() === "female") {
+    return `${baseUrl}?username=${seed}&sex=female`;
+  } else if (gender && gender.toLowerCase() === "male") {
+    return `${baseUrl}?username=${seed}&sex=male`;
+  }
+  // Default random avatar if gender is not specified
+  return `${baseUrl}?username=${seed}`;
+};
+
 // Validation schemas
 const signupSchema = z.object({
   name: z.string().min(3, "Name is required"),
@@ -77,15 +94,32 @@ export class UserController {
         role,
       });
 
-      await Profile.create({
-        userId: user._id,
-        name: user.name,
-        gender: "other",
-        role: role,
-        skills: [],
-        bio: "",
-        languages: [],
-      });
+      if (!user || !user._id) {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: "Failed to create user" });
+      }
+
+      const userId = (user._id as any).toString();
+
+      try {
+        // Generate avatar URL for the new user
+        const avatarUrl = generateAvatarUrl("other", userId);
+
+        const profile = await Profile.create({
+          userId: user._id,
+          name: user.name,
+          gender: "other",
+          role: role,
+          skills: [],
+          bio: "",
+          languages: [],
+          avatar: avatarUrl,
+        });
+      } catch (profileErr) {
+        console.error("❌ Error creating profile:", profileErr);
+        // Don't fail signup if profile creation fails
+      }
 
       // @ts-ignore
       const { access, refresh } = generateTokens(user._id.toString());

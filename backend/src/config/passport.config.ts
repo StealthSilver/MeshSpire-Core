@@ -1,6 +1,24 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from "../models/user.model";
+import Profile from "../models/profile.model";
+
+// Helper function to generate consistent avatar URL based on gender and userId
+const generateAvatarUrl = (
+  gender: string | undefined,
+  userId: string
+): string => {
+  const baseUrl = "https://avatar.iran.liara.run/public";
+  const seed = userId; // Use userId as seed for consistency
+
+  if (gender && gender.toLowerCase() === "female") {
+    return `${baseUrl}?username=${seed}&sex=female`;
+  } else if (gender && gender.toLowerCase() === "male") {
+    return `${baseUrl}?username=${seed}&sex=male`;
+  }
+  // Default random avatar if gender is not specified
+  return `${baseUrl}?username=${seed}`;
+};
 
 passport.use(
   new GoogleStrategy(
@@ -26,6 +44,20 @@ passport.use(
             email,
             googleId: profile.id, // ✅ link Google account
             avatarUrl: profile.photos?.[0]?.value || "",
+          });
+
+          // Create profile with avatar for new Google user
+          const userId = (user._id as any).toString();
+          const avatarUrl = generateAvatarUrl("other", userId);
+          await Profile.create({
+            userId: user._id,
+            name: user.name,
+            gender: "other",
+            role: "student",
+            skills: [],
+            bio: "",
+            languages: [],
+            avatar: avatarUrl,
           });
         } else if (!user.googleId) {
           // 🟡 If existing local account signs in with Google, link Google ID
