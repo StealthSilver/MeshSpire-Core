@@ -6,6 +6,23 @@ import User from "../models/user.model";
 import { AuthRequest } from "../middleware/auth.middleware";
 import { handleUpload } from "./avatarUpload";
 
+// Helper function to generate consistent avatar URL based on gender and userId
+const generateAvatarUrl = (
+  gender: string | undefined,
+  userId: string
+): string => {
+  const baseUrl = "https://avatar.iran.liara.run/public";
+  const seed = userId; // Use userId as seed for consistency
+
+  if (gender && gender.toLowerCase() === "female") {
+    return `${baseUrl}?username=${seed}&sex=female`;
+  } else if (gender && gender.toLowerCase() === "male") {
+    return `${baseUrl}?username=${seed}&sex=male`;
+  }
+  // Default random avatar if gender is not specified
+  return `${baseUrl}?username=${seed}`;
+};
+
 // Validation schema
 const profileSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
@@ -36,8 +53,10 @@ export class ProfileController {
 
       // Convert numeric fields manually because req.body gives strings
       if (req.body.age) req.body.age = Number(req.body.age);
-      if (req.body.experience) req.body.experience = Number(req.body.experience);
-      if (req.body.hourlyRate) req.body.hourlyRate = Number(req.body.hourlyRate);
+      if (req.body.experience)
+        req.body.experience = Number(req.body.experience);
+      if (req.body.hourlyRate)
+        req.body.hourlyRate = Number(req.body.hourlyRate);
 
       // Now validate
       const parsed = profileSchema.safeParse(req.body);
@@ -56,10 +75,15 @@ export class ProfileController {
       }
 
       const avatar = handleUpload(req.file);
+
+      // Generate default avatar based on gender if no file upload
+      let avatarUrl =
+        avatar || generateAvatarUrl(parsed.data.gender, req.user.id);
+
       const newProfile = await Profile.create({
         ...parsed.data,
         userId: req.user.id,
-        ...(avatar && { avatar }),
+        avatar: avatarUrl,
       });
 
       res.status(StatusCodes.CREATED).json({ profile: newProfile });
@@ -153,40 +177,49 @@ export class ProfileController {
         updatedDocuments = [...updatedDocuments, ...document]; // append new documents
       }
 
+      // Handle avatar: regenerate if gender changes, keep existing if no file upload and gender unchanged
+      let avatarToUpdate: string | undefined;
+      if (avatar !== undefined) {
+        // User uploaded a new avatar file
+        avatarToUpdate = avatar;
+      } else if (gender && existingProfile?.gender !== gender) {
+        // Gender changed, regenerate avatar based on new gender
+        avatarToUpdate = generateAvatarUrl(gender, userId);
+      }
+      // If gender didn't change and no new file, avatar stays the same (undefined in the update)
+
       const updatedProfile = await Profile.findOneAndUpdate(
         { userId },
         {
           $set: {
             ...(name && { name }),
-            ...(avatar !== undefined && { avatar }),
+            ...(avatarToUpdate !== undefined && { avatar: avatarToUpdate }),
             ...(gender && { gender }),
             ...(age !== undefined && { age }),
             ...(bio && { bio }),
             ...(skills
               ? {
-                skills: Array.isArray(skills)
-                  ? skills
-                  : skills.split(",").map((s: string) => s.trim()),
-              }
+                  skills: Array.isArray(skills)
+                    ? skills
+                    : skills.split(",").map((s: string) => s.trim()),
+                }
               : {}),
             ...(role && { role }),
             ...(languages
               ? {
-                languages: Array.isArray(languages)
-                  ? languages
-                  : languages.split(",").map((l: string) => l.trim()),
-              }
+                  languages: Array.isArray(languages)
+                    ? languages
+                    : languages.split(",").map((l: string) => l.trim()),
+                }
               : {}),
 
             // tutor-only fields:
             ...(experience && { experience: Number(experience) }),
             ...(hourlyRate && { hourlyRate: Number(hourlyRate) }),
             ...(qualification && { qualification }),
-            subjects:
-              subjects
-                ? subjects.split(",").map((s: string) => s.trim())
-                : existingProfile?.subjects || [],
-
+            subjects: subjects
+              ? subjects.split(",").map((s: string) => s.trim())
+              : existingProfile?.subjects || [],
 
             ...(document.length > 0 && { document: updatedDocuments }),
             ...(resume && { resume }),
