@@ -17,6 +17,23 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
+  const [gender, setGender] = useState("");
+
+  // Helper function to generate avatar URL based on gender
+  const getAvatarUrl = (genderValue: string | undefined) => {
+    const baseUrl = "https://avatar.iran.liara.run/public";
+    if (genderValue && genderValue.toLowerCase() === "female") {
+      return `${baseUrl}?username=${Math.random()
+        .toString(36)
+        .substring(7)}&sex=female`;
+    } else if (genderValue && genderValue.toLowerCase() === "male") {
+      return `${baseUrl}?username=${Math.random()
+        .toString(36)
+        .substring(7)}&sex=male`;
+    }
+    // Default random avatar if gender is not specified
+    return `${baseUrl}?username=${Math.random().toString(36).substring(7)}`;
+  };
 
   const handleLogout = () => {
     logout();
@@ -29,6 +46,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
         const userRes = await API.get(`/profile/${userId}`);
         setAvatar(userRes.data.avatar);
         setName(userRes.data.name);
+        setGender(userRes.data.gender);
       } catch (err) {
         console.error("error while fetching avatar");
       }
@@ -94,9 +112,15 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
               onClick={() => setUserDropDown(!userDropDown)}
             />
           ) : (
-            <AccountCircleIcon
-              className="text-gray-300 cursor-pointer hover:text-white transition text-xl sm:text-2xl lg:text-3xl"
+            <img
+              src={getAvatarUrl(gender)}
+              alt="User Avatar"
+              className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 cursor-pointer rounded-full border border-gray-600 hover:scale-105 transition-transform duration-200 object-cover"
               onClick={() => setUserDropDown(!userDropDown)}
+              onError={(e) => {
+                // Fallback to icon if API fails
+                e.currentTarget.style.display = "none";
+              }}
             />
           )}
 

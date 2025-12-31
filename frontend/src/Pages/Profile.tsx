@@ -35,9 +35,26 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   // Helper function to convert text to sentence case
+  // Helper function to convert text to sentence case
   const toSentenceCase = (text: string) => {
     if (!text) return text;
     return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  };
+
+  // Helper function to generate avatar URL based on gender
+  const getAvatarUrl = (gender: string | undefined) => {
+    const baseUrl = "https://avatar.iran.liara.run/public";
+    if (gender && gender.toLowerCase() === "female") {
+      return `${baseUrl}?username=${Math.random()
+        .toString(36)
+        .substring(7)}&sex=female`;
+    } else if (gender && gender.toLowerCase() === "male") {
+      return `${baseUrl}?username=${Math.random()
+        .toString(36)
+        .substring(7)}&sex=male`;
+    }
+    // Default random avatar if gender is not specified
+    return `${baseUrl}?username=${Math.random().toString(36).substring(7)}`;
   };
 
   useEffect(() => {
@@ -145,9 +162,15 @@ const Profile: React.FC = () => {
                         className="w-32 h-32 rounded-full object-cover border-4 border-slate-900 shadow-xl"
                       />
                     ) : (
-                      <div className="w-32 h-32 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center border-4 border-slate-900 shadow-xl">
-                        <FaUserAlt className="text-5xl text-white" />
-                      </div>
+                      <img
+                        src={getAvatarUrl(user.gender)}
+                        alt={user.name}
+                        className="w-32 h-32 rounded-full object-cover border-4 border-slate-900 shadow-xl bg-gradient-to-br from-emerald-500 to-green-600"
+                        onError={(e) => {
+                          // Fallback to default avatar if API fails
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
                     )}
                   </div>
 
