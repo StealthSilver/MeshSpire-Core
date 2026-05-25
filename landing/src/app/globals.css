@@ -35,8 +35,8 @@
   --hover-light: oklch(92.9% 0.013 255.508);
 
   /* Font families */
-  --font-primary: var(--font-geist, "Geist", sans-serif);
-  --font-secondary: var(--font-dm-sans, "DM Sans", sans-serif);
+  --font-primary: "Satoshi", sans-serif;
+  --font-secondary: var(--font-inter, "Inter", sans-serif);
 }
 
 /* Dark mode overrides */
@@ -51,4 +51,17 @@
   :root {
     --glow-color: rgba(186, 127, 252, 0.3);
   }
+}
+
+body {
+  font-family: var(--font-secondary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-primary);
 }

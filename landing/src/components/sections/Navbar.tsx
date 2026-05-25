@@ -40,10 +40,10 @@ export default function Navbar() {
             key={mounted ? theme : "default"}
             src={
               !mounted
-                ? "/logo_dark.svg"
+                ? "/logos/ms_dark.svg"
                 : theme === "dark"
-                ? "/logo_dark.svg"
-                : "/logo_light.svg"
+                ? "/logos/ms_dark.svg"
+                : "/logos/ms_light.svg"
             }
             alt="Meshspire logo"
             className="w-28 h-auto sm:w-32 md:w-36"
@@ -98,8 +98,8 @@ export default function Navbar() {
           <a
             href="https://meshspire-core.vercel.app/"
             className="font-[var(--font-secondary)]
-  bg-[var(--color-primary)] text-[var(--background)] dark:text-[var(--foreground)] border border-transparent rounded-full px-6 py-1.5
-  transition duration-300 hover:bg-[var(--background)] hover:text-[var(--color-font)] hover:border-[var(--foreground)]
+  bg-[#FFA629] text-[#0F172A] border border-transparent rounded-full px-6 py-1.5
+  transition duration-300 hover:bg-[#e8951f] hover:text-[#0F172A]
 "
           >
             Get Started

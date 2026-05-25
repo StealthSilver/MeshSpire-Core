@@ -4,25 +4,19 @@ import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import ThemeHeadIcons from "@/components/ui/ThemeHeadIcon";
 import ClientWrapper from "@/components/ui/ClientWrapper";
-import { DM_Sans, Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 
-const dmSans = DM_Sans({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-dm-sans",
-});
-
-const geist = Geist({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-geist",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: `Meshspire | Learn & Teach Anytime, Anywhere`,
+    default: `Meshspire | Making Learning Easier Than Ever`,
     template: `%s | ${SITE.name}`,
   },
   description: SITE.description,
@@ -47,8 +41,8 @@ export const metadata: Metadata = {
     images: [SITE.ogImage],
   },
   icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
+    icon: "/logos/logo_l.svg",
+    apple: "/logos/logo_l.svg",
   },
 };
 
@@ -61,9 +55,13 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${dmSans.variable} ${geist.variable}`}
+      className={inter.variable}
     >
       <head>
+        <link
+          href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap"
+          rel="stylesheet"
+        />
         <ThemeHeadIcons />
       </head>
       <body>

@@ -1,19 +1,6 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 
 const Hero = () => {
-  const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
-
-  if (!mounted) return null;
-
-  const isDark = theme === "dark" || theme === "system" || !theme;
-
   return (
     <section
       id="home"
@@ -22,25 +9,11 @@ const Hero = () => {
         flex flex-col items-center justify-center
         overflow-hidden
         text-[var(--color-font)]
-        bg-gradient-to-b from-purple-100 to-[var(--background)]
-        dark:bg-gradient-to-b dark:from-slate-900 dark:to-[var(--background)]
+        bg-[var(--background)]
         transition-colors duration-700
       "
     >
       <div className="mt-10 relative z-10 max-w-7xl mx-auto flex flex-col items-center justify-center pt-6 px-4">
-        <button
-          className="
-            bg-[var(--background)] text-[var(--color-font)] border border-[var(--foreground)]/30
-            hover:bg-[var(--foreground)]/10
-            font-small font-[var(--font-secondary)]
-            px-6 md:px-10 py-1 text-sm md:text-base 
-            transition-all duration-500 ease-in-out rounded-full mb-6 md:mb-0
-          "
-          style={{ borderWidth: "0.5px" }}
-        >
-          Launching Dec 2025
-        </button>
-
         <div className="relative inline-block pt-4 md:pt-20 text-center">
           <h1 className="md:text-6xl text-4xl font-[var(--font-primary)] relative z-10">
             Find Your Perfect Tutor
@@ -87,17 +60,6 @@ const Hero = () => {
         </div>
       </div>
 
-      <div className="relative max-w-5xl w-[90%] mt-10 md:mt-[136px] z-10">
-        <video
-          src="/hero_video.mov"
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="metadata"
-          className="w-full h-auto object-cover border-[8px] border-[var(--foreground)]/20 rounded-2xl transition-colors duration-700"
-        />
-      </div>
     </section>
   );
 };
