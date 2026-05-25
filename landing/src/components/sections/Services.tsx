@@ -108,13 +108,13 @@ const Content = () => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-14 w-full max-w-7xl font-[var(--font-primary)] ">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-14 w-full max-w-7xl">
         <div ref={timelineRef} className="hidden md:flex w-full md:w-1/2 mt-10">
           <Timeline data={timelineData()} hoverEffect />
         </div>
 
         <div
-          className="hidden md:flex w-full md:w-1/2 justify-center items-start relative font-[var(--font-primary)] "
+          className="hidden md:flex w-full md:w-1/2 justify-center items-start relative"
           style={{
             height: timelineHeight ? `${timelineHeight - 250}px` : "400px",
           }}

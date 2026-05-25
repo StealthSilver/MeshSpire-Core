@@ -15,15 +15,15 @@ const Footer = () => {
         <div className="mt-10">
           <Link href="/">
             <img
-              src="/logo_dark.svg"
-              alt="Dashboard dark"
+              src="/logos/ms_dark.svg"
+              alt="Meshspire logo"
               width={250}
               height={100}
               className="hidden dark:block"
             />
             <img
-              src="/logo_light.svg"
-              alt="Dashboard light"
+              src="/logos/ms_light.svg"
+              alt="Meshspire logo"
               width={250}
               height={100}
               className="block dark:hidden"

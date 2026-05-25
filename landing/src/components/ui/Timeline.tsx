@@ -46,7 +46,7 @@ export const Timeline = ({
 
   return (
     <div
-      className="w-full font-[var(--font-primary)] md:px-10 relative"
+      className="w-full md:px-10 relative"
       ref={containerRef}
     >
       <div ref={ref} className="relative max-w-7xl mx-auto pb-20">

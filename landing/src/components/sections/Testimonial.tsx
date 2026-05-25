@@ -81,14 +81,14 @@ export default function TestimonialsSection() {
           direction="left"
           speed="fast"
           pauseOnHover={false}
-          className="max-w-[600px] md:max-w-[1300px] font-[var(--font-primary)] "
+          className="max-w-[600px] md:max-w-[1300px]"
         />
         <InfiniteMovingCards
           items={testimonials}
           direction="right"
           speed="fast"
           pauseOnHover={false}
-          className="max-w-[600px] md:max-w-[1300px] font-[var(--font-primary)] "
+          className="max-w-[600px] md:max-w-[1300px]"
         />
       </div>
     </section>

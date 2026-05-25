@@ -92,7 +92,7 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-6 font-mono">
+        <div className="hidden md:flex items-center gap-6">
           <ThemeToggle />
 
           <a
