@@ -10,19 +10,12 @@ export default function Home() {
   return (
     <main className="bg-[var(--background)] text-[var(--color-font)] transition-colors duration-700">
       <Navbar />
-      <div className="relative">
-        <div
-          className="fixed inset-0 z-0 [background-size:20px_20px] [background-image:radial-gradient(#d4d4d4_1px,transparent_1px)] dark:[background-image:radial-gradient(#404040_1px,transparent_1px)] dark:opacity-40"
-        />
-        <div className="relative z-10">
-          <Hero />
-          <Services />
-          <Features />
-          <Testimonial />
-          <Cta />
-          <Footer />
-        </div>
-      </div>
+      <Hero />
+      <Services />
+      <Features />
+      <Testimonial />
+      <Cta />
+      <Footer />
     </main>
   );
 }

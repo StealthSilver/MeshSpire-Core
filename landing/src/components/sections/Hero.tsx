@@ -12,6 +12,9 @@ const Hero = () => {
         transition-colors duration-700
       "
     >
+      <div
+        className="absolute inset-0 z-0 [background-size:56px_56px] [background-image:radial-gradient(#d4d4d4_1.4px,transparent_1.4px)] dark:[background-image:radial-gradient(#404040_1.4px,transparent_1.4px)] dark:opacity-40"
+      />
       <div className="mt-10 relative z-10 max-w-7xl mx-auto flex flex-col items-center justify-center pt-6 px-4">
         <div className="relative inline-block pt-4 md:pt-20 text-center">
           <h1 className="md:text-6xl text-4xl font-[var(--font-primary)] relative z-10">
@@ -59,6 +62,9 @@ const Hero = () => {
         </div>
       </div>
 
+      <div className="absolute bottom-0 left-0 right-0 z-10">
+        <hr className="border-t border-[var(--foreground)]/15" />
+      </div>
     </section>
   );
 };
