@@ -50,7 +50,7 @@ export default function TestimonialsSection() {
     <section
       id="testimonials"
       className="py-12 px-4 md:mt-24 flex flex-col items-center justify-center mx-4 
-                  bg-[var(--background)] text-[var(--color-font)] rounded-2xl md:gap-10 overflow-x-hidden
+                  text-[var(--color-font)] rounded-2xl md:gap-10 overflow-x-hidden
                  transition-colors duration-700"
     >
       <div className="flex flex-col items-center justify-center gap-2 mb-12">

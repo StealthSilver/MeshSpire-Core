@@ -12,7 +12,7 @@ const CTA = () => {
     <section
       id="cta"
       className="overflow-x-hidden overflow-y-hidden relative py-30 px-4 mt-4 flex flex-col items-center justify-center 
-                 max-w-7xl mx-auto rounded-2xl gap-12 bg-[var(--background)] text-[var(--color-font)] transition-colors duration-700"
+                 max-w-7xl mx-auto rounded-2xl gap-12 text-[var(--color-font)] transition-colors duration-700"
     >
       {/* Background grid */}
       <div

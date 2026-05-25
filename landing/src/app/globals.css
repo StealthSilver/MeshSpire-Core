@@ -15,7 +15,7 @@
 }
 :root {
   --color-font: #141414;
-  --background: #ffffff;
+  --background: #F1F5F9;
   --foreground: #141414;
   --hover-dark: oklch(20.8% 0.042 265.755); /* darker hover for light theme */
   --hover-light: oklch(92.9% 0.013 255.508); /* lighter hover for dark theme */
@@ -29,7 +29,7 @@
 
   /* Default (light mode) */
   --color-font: #141414;
-  --background: #ffffff;
+  --background: #F1F5F9;
   --foreground: #141414;
   --hover-dark: oklch(20.8% 0.042 265.755);
   --hover-light: oklch(92.9% 0.013 255.508);
@@ -41,7 +41,7 @@
 
 /* Dark mode overrides */
 .dark {
-  --background: #000000;
+  --background: #111418;
   --foreground: #e9edf0;
   --color-font: #e9edf0;
   --glow-color: rgba(186, 127, 252, 0.3);

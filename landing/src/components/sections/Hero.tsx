@@ -9,7 +9,6 @@ const Hero = () => {
         flex flex-col items-center justify-center
         overflow-hidden
         text-[var(--color-font)]
-        bg-[var(--background)]
         transition-colors duration-700
       "
     >
