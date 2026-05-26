@@ -49,9 +49,9 @@ export default function Navbar() {
     </svg>
     <nav
       className={`
-        w-full sticky top-0 z-50 px-4 sm:px-6 py-3
-        bg-[#F1F5F9] backdrop-blur-xl
-        text-[#0F172A]
+        w-full fixed top-0 z-50 px-4 sm:px-6 py-3
+        bg-transparent backdrop-blur-none
+        text-[#0F172A] dark:text-[#9CA3AF]
         transition-all duration-500
         ${scrolled ? "border-b border-[var(--foreground)]/10 shadow-[0_1px_20px_rgba(0,0,0,0.06)]" : "border-b border-transparent"}
       `}
@@ -76,7 +76,7 @@ export default function Navbar() {
         </Link>
 
         <div
-          className="hidden md:flex items-center font-[var(--font-secondary)] relative gap-1 rounded-full bg-[var(--foreground)]/[0.04] px-1.5 py-1.5"
+          className="hidden md:flex items-center font-[var(--font-secondary)] relative gap-1 rounded-full bg-[var(--foreground)]/[0.04] dark:bg-[#111418] px-1.5 py-1.5"
           onMouseLeave={() => setHovered(null)}
         >
           {navItems.map((item) => (
@@ -84,7 +84,7 @@ export default function Navbar() {
               {hovered === item.name && (
                 <motion.span
                   layoutId="navHover"
-                  className="absolute inset-0 rounded-full bg-[#F4F7FF]"
+                  className="absolute inset-0 rounded-full bg-[#F4F7FF] dark:bg-[#1F2530]"
                   transition={{
                     type: "spring",
                     stiffness: 400,
@@ -100,8 +100,8 @@ export default function Navbar() {
                 onFocus={() => setHovered(item.name)}
                 className="
                   font-[var(--font-secondary)]
-                  relative z-10 text-sm
-                  text-[#0F172A]/70 hover:text-[#0F172A]
+                  relative z-10 text-sm font-light
+                  text-[#0F172A]/70 hover:text-[#0F172A] dark:text-[#9CA3AF] dark:hover:text-[#F5F7FA]
                   transition-colors duration-300
                 "
               >
@@ -115,17 +115,17 @@ export default function Navbar() {
           <div className="group relative flex items-center" style={{ filter: "url(#gooey)" }}>
             <a
               href="https://meshspire-core.vercel.app/"
-              className="relative flex items-center font-[var(--font-secondary)] text-sm font-medium
-                bg-[#FFA629] text-[#0F172A] rounded-full px-6 py-2
-                transition-colors duration-300 hover:bg-[#FFB84D]"
+              className="relative flex items-center font-[var(--font-secondary)] text-sm font-normal
+                bg-[#FFA629] text-[#0F172A] dark:text-[#F5F7FA] rounded-full px-6 py-2
+                transition-colors duration-300 hover:bg-[#F09520]"
             >
               Get Started
             </a>
             <a
               href="https://meshspire-core.vercel.app/"
               className="absolute -right-2 flex items-center justify-center
-                w-9 h-9 rounded-full bg-[#FFA629] group-hover:bg-[#FFB84D]
-                text-[#0F172A]
+                w-9 h-9 rounded-full bg-[#FFA629] group-hover:bg-[#F09520]
+                text-[#0F172A] dark:text-[#F5F7FA]
                 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
                 translate-x-0 scale-0 opacity-0
                 group-hover:translate-x-[105%] group-hover:scale-100 group-hover:opacity-100"
@@ -139,7 +139,7 @@ export default function Navbar() {
           <button
             onClick={toggleMenu}
             aria-label={isOpen ? "Close menu" : "Open menu"}
-            className="p-2 rounded-xl hover:bg-[#F4F7FF] transition-colors duration-200"
+            className="p-2 rounded-xl hover:bg-[#F4F7FF] dark:hover:bg-[#1F2530] transition-colors duration-200"
           >
             {isOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -169,9 +169,9 @@ export default function Navbar() {
                     href={item.href}
                     className="
                       w-full text-center py-3 px-6 rounded-xl
-                      text-[#0F172A]/70
-                      text-sm
-                      hover:bg-[#F4F7FF] hover:text-[#0F172A]
+                      text-[#0F172A]/70 dark:text-[#9CA3AF]
+                      text-sm font-light
+                      hover:bg-[#F4F7FF] hover:text-[#0F172A] dark:hover:bg-[#1F2530] dark:hover:text-[#F5F7FA]
                       transition-all duration-200
                     "
                     onClick={() => setIsOpen(false)}
@@ -183,8 +183,8 @@ export default function Navbar() {
                 <div className="group relative flex items-center mt-3" style={{ filter: "url(#gooey)" }}>
                   <a
                     href="https://meshspire-core.vercel.app/"
-                    className="relative flex items-center rounded-full px-8 py-2.5 text-sm font-medium
-                      bg-[#FFA629] text-[#0F172A] transition-colors duration-300 hover:bg-[#FFB84D]
+                    className="relative flex items-center rounded-full px-8 py-2.5 text-sm font-normal
+                      bg-[#FFA629] text-[#0F172A] dark:text-[#F5F7FA] transition-colors duration-300 hover:bg-[#F09520]
                       font-[var(--font-secondary)]"
                     onClick={() => setIsOpen(false)}
                   >
@@ -193,8 +193,8 @@ export default function Navbar() {
                   <a
                     href="https://meshspire-core.vercel.app/"
                     className="absolute -right-2 flex items-center justify-center
-                      w-9 h-9 rounded-full bg-[#FFA629] group-hover:bg-[#FFB84D]
-                      text-[#0F172A]
+                      w-9 h-9 rounded-full bg-[#FFA629] group-hover:bg-[#F09520]
+                      text-[#0F172A] dark:text-[#F5F7FA]
                       transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
                       translate-x-0 scale-0 opacity-0
                       group-hover:translate-x-[105%] group-hover:scale-100 group-hover:opacity-100"
