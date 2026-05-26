@@ -53,8 +53,18 @@
   }
 }
 
+html {
+  touch-action: pan-x pan-y;
+  -ms-touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   font-family: var(--font-secondary);
+  min-width: 1440px;
+  overflow-x: auto;
 }
 
 h1,

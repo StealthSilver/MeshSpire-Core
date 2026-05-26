@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const { theme } = useTheme();
@@ -20,8 +19,6 @@ export default function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  const toggleMenu = () => setIsOpen((v) => !v);
 
   const navItems = [
     { name: "Transition", href: "#transition" },
@@ -49,7 +46,7 @@ export default function Navbar() {
     </svg>
     <nav
       className={`
-        w-full fixed top-0 z-50 px-4 sm:px-6 py-3
+        w-full fixed top-0 z-50 px-6 py-3
         bg-transparent backdrop-blur-none
         text-[#0F172A] dark:text-[#9CA3AF]
         transition-all duration-500
@@ -68,7 +65,7 @@ export default function Navbar() {
                   : "/logos/ms_light.svg"
             }
             alt="Meshspire logo"
-            className="w-28 h-auto sm:w-32 md:w-36 transition-opacity duration-300 group-hover:opacity-80"
+            className="w-36 h-auto transition-opacity duration-300 group-hover:opacity-80"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
@@ -76,7 +73,7 @@ export default function Navbar() {
         </Link>
 
         <div
-          className="hidden md:flex items-center font-[var(--font-secondary)] relative gap-1 rounded-full bg-[var(--foreground)]/[0.04] dark:bg-[#111418] px-1.5 py-1.5"
+          className="flex items-center font-[var(--font-secondary)] relative gap-1 rounded-full bg-[var(--foreground)]/[0.04] dark:bg-[#111418] px-1.5 py-1.5"
           onMouseLeave={() => setHovered(null)}
         >
           {navItems.map((item) => (
@@ -111,7 +108,7 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-4">
+        <div className="flex items-center gap-4">
           <div className="group relative flex items-center" style={{ filter: "url(#gooey)" }}>
             <a
               href="https://meshspire-core.vercel.app/"
@@ -134,80 +131,7 @@ export default function Navbar() {
             </a>
           </div>
         </div>
-
-        <div className="md:hidden flex items-center gap-3">
-          <button
-            onClick={toggleMenu}
-            aria-label={isOpen ? "Close menu" : "Open menu"}
-            className="p-2 rounded-xl hover:bg-[#F4F7FF] dark:hover:bg-[#1F2530] transition-colors duration-200"
-          >
-            {isOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
-        </div>
       </div>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="md:hidden overflow-hidden"
-          >
-            <div
-              className="
-                mt-3 pt-4 pb-6
-                border-t border-[var(--foreground)]/10
-                font-[var(--font-secondary)]
-              "
-            >
-              <div className="flex flex-col items-center gap-1">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="
-                      w-full text-center py-3 px-6 rounded-xl
-                      text-[#0F172A]/70 dark:text-[#9CA3AF]
-                      text-sm font-light
-                      hover:bg-[#F4F7FF] hover:text-[#0F172A] dark:hover:bg-[#1F2530] dark:hover:text-[#F5F7FA]
-                      transition-all duration-200
-                    "
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-
-                <div className="group relative flex items-center mt-3" style={{ filter: "url(#gooey)" }}>
-                  <a
-                    href="https://meshspire-core.vercel.app/"
-                    className="relative flex items-center rounded-full px-8 py-2.5 text-sm font-normal
-                      bg-[#FFA629] text-[#0F172A] dark:text-[#F5F7FA] transition-colors duration-300 hover:bg-[#F09520]
-                      font-[var(--font-secondary)]"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Get Started
-                  </a>
-                  <a
-                    href="https://meshspire-core.vercel.app/"
-                    className="absolute -right-2 flex items-center justify-center
-                      w-9 h-9 rounded-full bg-[#FFA629] group-hover:bg-[#F09520]
-                      text-[#0F172A] dark:text-[#F5F7FA]
-                      transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
-                      translate-x-0 scale-0 opacity-0
-                      group-hover:translate-x-[105%] group-hover:scale-100 group-hover:opacity-100"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <ArrowRight size={15} strokeWidth={2.5} />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </nav>
     </>
   );

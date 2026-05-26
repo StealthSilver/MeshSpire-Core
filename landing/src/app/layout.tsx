@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { SITE } from "../config/site.config";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import ThemeHeadIcons from "@/components/ui/ThemeHeadIcon";
 import ClientWrapper from "@/components/ui/ClientWrapper";
+import NoZoom from "@/components/ui/NoZoom";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 
@@ -12,6 +13,14 @@ const inter = Inter({
   weight: ["400", "500", "600", "700"],
   variable: "--font-inter",
 });
+
+export const viewport: Viewport = {
+  width: 1440,
+  initialScale: 1,
+  maximumScale: 1,
+  minimumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -65,6 +74,7 @@ export default function RootLayout({
         <ThemeHeadIcons />
       </head>
       <body>
+        <NoZoom />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
