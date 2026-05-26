@@ -5,7 +5,7 @@ import { ThemeProvider } from "next-themes";
 import ThemeHeadIcons from "@/components/ui/ThemeHeadIcon";
 import ClientWrapper from "@/components/ui/ClientWrapper";
 import NoZoom from "@/components/ui/NoZoom";
-import { Inter, Inter_Tight } from "next/font/google";
+import { Inter, Inter_Tight, Patrick_Hand } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({
@@ -18,6 +18,12 @@ const interTight = Inter_Tight({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700"],
   variable: "--font-inter-tight",
+});
+
+const patrickHand = Patrick_Hand({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-patrick-hand",
 });
 
 export const viewport: Viewport = {
@@ -70,7 +76,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${interTight.variable}`}
+      className={`${inter.variable} ${interTight.variable} ${patrickHand.variable}`}
     >
       <head>
         <link

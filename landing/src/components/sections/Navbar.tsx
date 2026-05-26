@@ -8,17 +8,10 @@ import { useTheme } from "next-themes";
 
 export default function Navbar() {
   const [hovered, setHovered] = useState<string | null>(null);
-  const [scrolled, setScrolled] = useState(false);
   const { theme } = useTheme();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   const navItems = [
     { name: "Transition", href: "#transition" },
@@ -50,7 +43,7 @@ export default function Navbar() {
         bg-transparent backdrop-blur-none
         text-[#0F172A] dark:text-[#9CA3AF]
         transition-all duration-500
-        ${scrolled ? "border-b border-[var(--foreground)]/10 shadow-[0_1px_20px_rgba(0,0,0,0.06)]" : "border-b border-transparent"}
+        border-b border-transparent
       `}
     >
       <div className="flex items-center justify-between max-w-7xl mx-auto w-full">
@@ -73,7 +66,7 @@ export default function Navbar() {
         </Link>
 
         <div
-          className="flex items-center font-[var(--font-secondary)] relative gap-1 rounded-full bg-[var(--foreground)]/[0.04] dark:bg-[#111418] px-1.5 py-1.5"
+          className="flex items-center font-[var(--font-secondary)] relative gap-1 rounded-full bg-[#ECEEF2] dark:bg-[#111418] px-1.5 py-1.5"
           onMouseLeave={() => setHovered(null)}
         >
           {navItems.map((item) => (

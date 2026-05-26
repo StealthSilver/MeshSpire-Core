@@ -4,7 +4,7 @@ import Hero from "@/components/sections/Hero";
 import Navbar from "../components/sections/Navbar";
 import Services from "@/components/sections/Services";
 import StoryAnimation from "@/components/sections/StoryAnimation";
-import Testimonial from "@/components/sections/Testimonial";
+import StudentsSection from "@/components/sections/StudentsSection";
 
 export default function Home() {
   return (
@@ -14,7 +14,7 @@ export default function Home() {
       <StoryAnimation />
       <Services />
       <Features />
-      <Testimonial />
+      <StudentsSection />
       <Footer />
     </main>
   );

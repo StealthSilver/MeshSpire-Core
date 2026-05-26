@@ -1,4 +1,6 @@
-import Image from "next/image";
+"use client";
+
+import DraggableGrid from "@/components/DraggableGrid";
 
 const Hero = () => {
   return (
@@ -12,31 +14,14 @@ const Hero = () => {
         transition-colors duration-700
       "
     >
-      <div
-        className="absolute inset-0 z-0
-          [background-size:56px_56px]
-          [background-image:radial-gradient(#d4d4d4_1.4px,transparent_1.4px)]
-          dark:[background-image:radial-gradient(#404040_1.4px,transparent_1.4px)]
-          dark:opacity-50
-        "
-      />
+      {/* Draggable Grid Layer */}
+      <DraggableGrid />
 
-      {/* Hero image — top right */}
-      <div className="absolute top-26 right-52 z-10">
-        <Image
-          src="/hero img.png"
-          alt="Student studying in a cozy environment"
-          width={700}
-          height={700}
-          priority
-          className="rounded-3xl object-cover w-[660px] h-[660px]"
-        />
-      </div>
-
-      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-start justify-end pb-32 px-6 text-left">
+      {/* Hero Text — fixed above grid */}
+      <div className="relative z-20 w-full max-w-7xl mx-auto flex flex-col items-start justify-end pb-32 px-6 text-left pointer-events-none">
         <h1 className="font-[var(--font-primary)] text-7xl font-thin tracking-tight leading-tight
           text-[#0F172A] dark:text-[#F5F7FA] max-w-3xl">
-          The Most Personalis<span className="text-[#F5F7FA]">ed</span><br />Learning Platform
+          The Most Personalis<span className="text-[#0F172A] dark:text-[#F5F7FA]">ed</span><br />Learning Platform
         </h1>
         <p className="mt-6 max-w-2xl text-base font-[var(--font-primary)] font-thin leading-relaxed
           text-[#0F172A]/60 dark:text-[#F5F7FA]/60">

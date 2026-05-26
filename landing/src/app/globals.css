@@ -37,6 +37,7 @@
   /* Font families */
   --font-primary: "Satoshi", sans-serif;
   --font-secondary: var(--font-inter, "Inter", sans-serif);
+  --font-handwritten: var(--font-patrick-hand, "Patrick Hand", cursive);
 }
 
 /* Dark mode overrides */
@@ -51,6 +52,22 @@
   :root {
     --glow-color: rgba(186, 127, 252, 0.3);
   }
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
 
 html {

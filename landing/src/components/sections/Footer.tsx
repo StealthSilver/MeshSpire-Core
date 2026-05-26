@@ -25,16 +25,28 @@ const Footer = () => {
   return (
     <footer
       id="contact"
-      className="relative w-full pt-6 pb-6 bg-[var(--background)] transition-colors duration-700 border-t border-[var(--foreground)]/10"
+      className="relative w-full pt-6 pb-6 bg-[var(--background)] transition-colors duration-700"
     >
-      {/* Logo centered on top border */}
-      <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-0 bg-[var(--background)] px-4">
+      {/* Top border — split into two halves with a gap for the logo */}
+      <div className="absolute top-0 left-0 right-0 flex items-center">
+        <div className="flex-1 h-px bg-[var(--foreground)]/10" />
+        <div className="w-24" />
+        <div className="flex-1 h-px bg-[var(--foreground)]/10" />
+      </div>
+
+      {/* Logo centered on top border — no background needed */}
+      <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-0">
         <Link href="/">
-          <img
-            src="/logos/logo_l.svg"
-            alt="Meshspire logo"
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 65 41"
             className="w-20 h-auto"
-          />
+            aria-label="Meshspire logo"
+          >
+            <path d="M40.1509 20.27C40.1509 31.3157 31.1966 40.27 20.1509 40.27C9.10524 40.27 0.150879 31.3157 0.150879 20.27C0.150879 9.2243 9.10524 0.269989 20.1509 0.269989C31.1966 0.269989 40.1509 9.2243 40.1509 20.27Z" fill="#FFA629" />
+            <path d="M63.1509 20.27C63.1509 31.3157 54.1964 40.27 43.1508 40.27C32.1052 40.27 23.1509 31.3157 23.1509 20.27C23.1509 9.2243 32.1052 0.269989 43.1508 0.269989C54.1964 0.269989 63.1509 9.2243 63.1509 20.27Z" fill="#809FFF" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M31.6509 36.6351C36.792 33.0157 40.1509 27.0351 40.1509 20.27C40.1509 13.5049 36.792 7.52425 31.6509 3.90488C26.5098 7.52425 23.1509 13.5049 23.1509 20.27C23.1509 27.0351 26.5098 33.0157 31.6509 36.6351Z" className="fill-[#0F172A] dark:fill-[#F8FAFC]" />
+          </svg>
         </Link>
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Loader from "./Loader";
+import SmoothScroll from "./SmoothScroll";
 
 export default function ClientWrapper({
   children,
@@ -21,5 +22,5 @@ export default function ClientWrapper({
     }
   }, []);
 
-  return <>{loading ? <Loader /> : children}</>;
+  return <>{loading ? <Loader /> : <SmoothScroll>{children}</SmoothScroll>}</>;
 }
