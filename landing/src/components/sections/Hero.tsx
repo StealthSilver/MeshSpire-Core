@@ -4,7 +4,7 @@ const Hero = () => {
       id="home"
       className="
         relative w-full min-h-screen
-        flex flex-col items-center justify-center
+        flex flex-col items-start justify-end
         overflow-hidden
         text-[var(--color-font)]
         transition-colors duration-700
@@ -15,11 +15,20 @@ const Hero = () => {
           [background-size:56px_56px]
           [background-image:radial-gradient(#d4d4d4_1.4px,transparent_1.4px)]
           dark:[background-image:radial-gradient(#404040_1.4px,transparent_1.4px)]
+          dark:opacity-50
         "
       />
 
 
-      <div className="mt-10 relative z-10 max-w-4xl mx-auto flex flex-col items-center justify-center pt-6 px-4">
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-start justify-end pb-32 px-4 sm:px-6 text-left">
+        <h1 className="font-[var(--font-primary)] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-thin tracking-tight leading-tight
+          text-[#0F172A] dark:text-[#F5F7FA] max-w-3xl">
+          The Most Personalised<br />Learning Platform
+        </h1>
+        <p className="mt-6 max-w-2xl text-xs sm:text-sm md:text-base font-[var(--font-primary)] font-thin leading-relaxed
+          text-[#0F172A]/60 dark:text-[#F5F7FA]/60">
+          Study from your selected teachers, at your own pace, when-ever you want, what-ever you want, how-ever you want
+        </p>
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 z-10">
