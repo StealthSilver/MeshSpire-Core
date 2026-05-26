@@ -121,112 +121,917 @@ function SketchSVG({ name, color, accent }: Subject) {
     case "Mathematics":
       return (
         <>
-          <text x="4" y="68" fontSize="62" fontFamily="serif" fill={c} opacity=".06" fontWeight="bold">Σ</text>
-          <polygon points="18,74 58,8 98,74" fill="none" stroke={c} strokeWidth="2" />
-          {[14,20,26,32,38,44,50,56,62].map((y, i) => {
-            const leftX = 18 + (i * (40/9));
-            const rightX = 98 - (i * (40/9));
-            return <line key={i} x1={leftX} y1={y + 8} x2={rightX} y2={y + 8} stroke={c} strokeWidth="0.8" opacity=".3" />;
-          })}
-          <path d="M 26,74 A 12,12 0 0,1 18,64" fill="none" stroke={a} strokeWidth="1.8" />
-          <text x="22" y="64" fontSize="7" fill={a} fontFamily="serif">α</text>
-          <path d="M 5,78 Q 15,70 25,78 Q 35,86 45,78 Q 55,70 65,78 Q 75,86 85,78 Q 95,70 105,78"
-            fill="none" stroke={a} strokeWidth="1.4" opacity=".7" />
-          <text x="78" y="22" fontSize="18" fontFamily="serif" fill={a} fontWeight="bold" opacity=".85">π</text>
-          <path d="M 68,44 Q 72,38 78,40 Q 84,42 84,47 Q 84,52 78,54 Q 72,56 68,50 Q 64,44 58,42 Q 52,40 52,45 Q 52,50 58,52 Q 64,54 68,50"
-            fill="none" stroke={c} strokeWidth="1.5" opacity=".6" />
-          <text x="5" y="18" fontSize="9" fontFamily="serif" fill={c} opacity=".55">dy/dx</text>
-          <line x1="90" y1="55" x2="104" y2="72" stroke={c} strokeWidth="1.5" opacity=".5" />
-          <line x1="86" y1="52" x2="104" y2="72" stroke={c} strokeWidth="1.5" opacity=".5" />
-          <circle cx="104" cy="72" r="2" fill={c} opacity=".4" />
+          {/* Graph paper style background lines */}
+          {[16,24,32,40,48,56,64,72].map((y, i) => (
+            <line
+              key={`h-${i}`}
+              x1="10"
+              y1={y}
+              x2="108"
+              y2={y}
+              stroke={c}
+              strokeWidth=".6"
+              opacity=".08"
+            />
+          ))}
+    
+          {[16,24,32,40,48,56,64,72,80,88,96].map((x, i) => (
+            <line
+              key={`v-${i}`}
+              x1={x}
+              y1="10"
+              x2={x}
+              y2="82"
+              stroke={c}
+              strokeWidth=".6"
+              opacity=".08"
+            />
+          ))}
+    
+          {/* Main coordinate axes */}
+          <line
+            x1="18"
+            y1="72"
+            x2="102"
+            y2="72"
+            stroke={c}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          <line
+            x1="24"
+            y1="78"
+            x2="24"
+            y2="12"
+            stroke={c}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+    
+          {/* Axis arrows */}
+          <path
+            d="M 102,72 L 97,69 L 97,75 Z"
+            fill={c}
+            opacity=".7"
+          />
+          <path
+            d="M 24,12 L 21,17 L 27,17 Z"
+            fill={c}
+            opacity=".7"
+          />
+    
+          {/* Hand-drawn parabola */}
+          <path
+            d="M 30,64 Q 48,28 72,42 Q 86,50 96,22"
+            fill="none"
+            stroke="#4F8EF7"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+    
+          {/* Sketch hatch lines on parabola */}
+          <line x1="40" y1="54" x2="44" y2="50" stroke="#4F8EF7" strokeWidth=".8" opacity=".35" />
+          <line x1="52" y1="42" x2="56" y2="38" stroke="#4F8EF7" strokeWidth=".8" opacity=".35" />
+          <line x1="66" y1="40" x2="70" y2="36" stroke="#4F8EF7" strokeWidth=".8" opacity=".35" />
+          <line x1="80" y1="42" x2="84" y2="38" stroke="#4F8EF7" strokeWidth=".8" opacity=".35" />
+    
+          {/* Sine wave */}
+          <path
+            d="M 18,58
+               Q 26,48 34,58
+               Q 42,68 50,58
+               Q 58,48 66,58
+               Q 74,68 82,58
+               Q 90,48 98,58"
+            fill="none"
+            stroke="#FF8A3D"
+            strokeWidth="1.8"
+            opacity=".9"
+            strokeLinecap="round"
+          />
+    
+          {/* Geometry triangle */}
+          <polygon
+            points="70,16 96,34 78,52"
+            fill="none"
+            stroke="#7AC943"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+    
+          {/* Triangle sketch strokes */}
+          <line x1="74" y1="22" x2="88" y2="32" stroke="#7AC943" strokeWidth=".8" opacity=".35" />
+          <line x1="76" y1="30" x2="84" y2="44" stroke="#7AC943" strokeWidth=".8" opacity=".35" />
+          <line x1="82" y1="26" x2="92" y2="34" stroke="#7AC943" strokeWidth=".8" opacity=".35" />
+    
+          {/* Integral equation */}
+          <text
+            x="8"
+            y="22"
+            fontSize="14"
+            fontFamily="serif"
+            fill={c}
+            opacity=".65"
+          >
+            ∫
+          </text>
+    
+          <text
+            x="15"
+            y="22"
+            fontSize="8"
+            fontFamily="monospace"
+            fill={c}
+            opacity=".5"
+          >
+            x² dx
+          </text>
+    
+          {/* Pi symbol */}
+          <text
+            x="50"
+            y="20"
+            fontSize="16"
+            fontFamily="serif"
+            fill="#B56CFF"
+            opacity=".85"
+            fontWeight="bold"
+          >
+            π
+          </text>
+    
+          {/* Sigma symbol */}
+          <text
+            x="86"
+            y="72"
+            fontSize="18"
+            fontFamily="serif"
+            fill={c}
+            opacity=".4"
+            fontWeight="bold"
+          >
+            Σ
+          </text>
+    
+          {/* Scatter plot points */}
+          <circle cx="36" cy="52" r="2" fill="#FF8A3D" opacity=".7" />
+          <circle cx="46" cy="46" r="2" fill="#FF8A3D" opacity=".7" />
+          <circle cx="58" cy="40" r="2" fill="#FF8A3D" opacity=".7" />
+          <circle cx="72" cy="38" r="2" fill="#FF8A3D" opacity=".7" />
+          <circle cx="88" cy="28" r="2" fill="#FF8A3D" opacity=".7" />
+    
+          {/* Dashed trend line */}
+          <path
+            d="M 34,54 L 90,26"
+            fill="none"
+            stroke={c}
+            strokeWidth="1"
+            opacity=".25"
+            strokeDasharray="3 3"
+          />
+    
+          {/* Small formula doodles */}
+          <text
+            x="10"
+            y="84"
+            fontSize="7"
+            fontFamily="monospace"
+            fill={c}
+            opacity=".45"
+          >
+            y = mx + c
+          </text>
+    
+          <text
+            x="72"
+            y="12"
+            fontSize="6"
+            fontFamily="monospace"
+            fill={c}
+            opacity=".4"
+          >
+            a²+b²
+          </text>
+    
+          {/* Tiny sketch circles */}
+          <circle
+            cx="104"
+            cy="18"
+            r="3"
+            fill="none"
+            stroke="#B56CFF"
+            strokeWidth="1"
+            opacity=".5"
+          />
+          <circle
+            cx="110"
+            cy="24"
+            r="2"
+            fill="none"
+            stroke="#B56CFF"
+            strokeWidth=".8"
+            opacity=".4"
+          />
+    
+          {/* Hand-drawn underline */}
+          <path
+            d="M 34,80 Q 50,84 66,80 Q 82,76 98,80"
+            fill="none"
+            stroke={a}
+            strokeWidth="1.4"
+            opacity=".45"
+          />
         </>
       );
 
-    case "Physics":
-      return (
-        <>
-          <circle cx="55" cy="40" r="6" fill={c} opacity=".25" stroke={c} strokeWidth="2" />
-          <circle cx="53" cy="38" r="1.5" fill={a} />
-          <circle cx="57" cy="42" r="1.5" fill={c} />
-          <ellipse cx="55" cy="40" rx="38" ry="13" fill="none" stroke={c} strokeWidth="1.6" opacity=".75" />
-          <ellipse cx="55" cy="40" rx="38" ry="13" fill="none" stroke={a} strokeWidth="1.6" opacity=".7" transform="rotate(60,55,40)" />
-          <ellipse cx="55" cy="40" rx="38" ry="13" fill="none" stroke={c} strokeWidth="1.6" opacity=".55" transform="rotate(120,55,40)" />
-          <circle cx="93" cy="40" r="3" fill={a} />
-          <circle cx="36" cy="20" r="3" fill={a} />
-          <circle cx="36" cy="60" r="3" fill={c} />
-          <path d="M 5,8 Q 12,2 19,8 Q 26,14 33,8 Q 40,2 47,8 Q 54,14 61,8 Q 68,2 75,8"
-            fill="none" stroke={a} strokeWidth="1.4" opacity=".55" />
-          <line x1="75" y1="8" x2="82" y2="8" stroke={a} strokeWidth="1.4" opacity=".55" markerEnd="url(#arrow)" />
-          <text x="78" y="12" fontSize="7.5" fontFamily="serif" fill={a} opacity=".65" fontStyle="italic">c</text>
-          <line x1="8" y1="5" x2="8" y2="30" stroke={c} strokeWidth="1.4" opacity=".5" />
-          <circle cx="8" cy="33" r="4" fill="none" stroke={c} strokeWidth="1.4" opacity=".5" />
-          <path d="M 4,5 Q 8,18 14,28" fill="none" stroke={c} strokeWidth="1" opacity=".3" strokeDasharray="2 2" />
-          <text x="4" y="74" fontSize="8" fontFamily="serif" fill={c} opacity=".5" fontStyle="italic">F=ma</text>
-          <path d="M 88,58 Q 90,54 92,58 Q 94,62 96,58 Q 98,54 100,58 Q 102,62 104,58"
-            fill="none" stroke={a} strokeWidth="1.5" opacity=".5" />
-          <line x1="86" y1="58" x2="88" y2="58" stroke={a} strokeWidth="1.5" opacity=".5" />
-          <line x1="104" y1="58" x2="107" y2="58" stroke={a} strokeWidth="1.5" opacity=".5" />
-          <circle cx="107" cy="62" r="3" fill={a} opacity=".3" stroke={a} strokeWidth="1" />
-        </>
-      );
+      case "Physics":
+        return (
+          <>
+            {/* Top frame */}
+            <line
+              x1="20"
+              y1="16"
+              x2="92"
+              y2="16"
+              stroke={c}
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            />
+      
+            {/* Frame supports */}
+            <line
+              x1="28"
+              y1="16"
+              x2="20"
+              y2="74"
+              stroke={c}
+              strokeWidth="2"
+              opacity=".8"
+            />
+            <line
+              x1="84"
+              y1="16"
+              x2="92"
+              y2="74"
+              stroke={c}
+              strokeWidth="2"
+              opacity=".8"
+            />
+      
+            {/* Bottom stand */}
+            <line
+              x1="16"
+              y1="74"
+              x2="96"
+              y2="74"
+              stroke={c}
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            />
+      
+            {/* Hanging strings */}
+            <line x1="36" y1="16" x2="36" y2="48" stroke={c} strokeWidth="1.4" opacity=".8" />
+            <line x1="48" y1="16" x2="48" y2="48" stroke={c} strokeWidth="1.4" opacity=".8" />
+            <line x1="60" y1="16" x2="60" y2="48" stroke={c} strokeWidth="1.4" opacity=".8" />
+            <line x1="72" y1="16" x2="72" y2="48" stroke={c} strokeWidth="1.4" opacity=".8" />
+      
+            {/* Swinging left ball */}
+            <line
+              x1="24"
+              y1="16"
+              x2="32"
+              y2="48"
+              stroke="#4F8EF7"
+              strokeWidth="1.5"
+              opacity=".9"
+            />
+      
+            {/* Swinging right ball */}
+            <line
+              x1="84"
+              y1="16"
+              x2="76"
+              y2="48"
+              stroke="#FF8A3D"
+              strokeWidth="1.5"
+              opacity=".9"
+            />
+      
+            {/* Cradle balls */}
+            <circle
+              cx="32"
+              cy="52"
+              r="5"
+              fill="none"
+              stroke="#4F8EF7"
+              strokeWidth="2"
+            />
+      
+            <circle
+              cx="36"
+              cy="52"
+              r="5"
+              fill="none"
+              stroke={c}
+              strokeWidth="2"
+            />
+      
+            <circle
+              cx="48"
+              cy="52"
+              r="5"
+              fill="none"
+              stroke={c}
+              strokeWidth="2"
+            />
+      
+            <circle
+              cx="60"
+              cy="52"
+              r="5"
+              fill="none"
+              stroke={c}
+              strokeWidth="2"
+            />
+      
+            <circle
+              cx="72"
+              cy="52"
+              r="5"
+              fill="none"
+              stroke={c}
+              strokeWidth="2"
+            />
+      
+            <circle
+              cx="76"
+              cy="52"
+              r="5"
+              fill="none"
+              stroke="#FF8A3D"
+              strokeWidth="2"
+            />
+      
+            {/* Sketch hatch lines inside balls */}
+            <line x1="29" y1="49" x2="34" y2="54" stroke="#4F8EF7" strokeWidth=".7" opacity=".35" />
+            <line x1="45" y1="49" x2="50" y2="54" stroke={c} strokeWidth=".7" opacity=".25" />
+            <line x1="57" y1="49" x2="62" y2="54" stroke={c} strokeWidth=".7" opacity=".25" />
+            <line x1="69" y1="49" x2="74" y2="54" stroke={c} strokeWidth=".7" opacity=".25" />
+            <line x1="73" y1="49" x2="78" y2="54" stroke="#FF8A3D" strokeWidth=".7" opacity=".35" />
+      
+            {/* Motion arcs */}
+            <path
+              d="M 18,44 Q 22,30 32,24"
+              fill="none"
+              stroke="#4F8EF7"
+              strokeWidth="1.4"
+              opacity=".5"
+              strokeDasharray="3 3"
+            />
+      
+            <path
+              d="M 76,24 Q 86,30 90,44"
+              fill="none"
+              stroke="#FF8A3D"
+              strokeWidth="1.4"
+              opacity=".5"
+              strokeDasharray="3 3"
+            />
+      
+            {/* Energy wave */}
+            <path
+              d="M 20,84
+                 Q 28,76 36,84
+                 Q 44,92 52,84
+                 Q 60,76 68,84
+                 Q 76,92 84,84
+                 Q 92,76 100,84"
+              fill="none"
+              stroke={a}
+              strokeWidth="1.5"
+              opacity=".45"
+            />
+      
+            {/* Tiny physics doodles */}
+            <text
+              x="6"
+              y="18"
+              fontSize="8"
+              fontFamily="serif"
+              fill={c}
+              opacity=".5"
+              fontStyle="italic"
+            >
+              F = ma
+            </text>
+      
+            <text
+              x="92"
+              y="22"
+              fontSize="8"
+              fontFamily="serif"
+              fill={a}
+              opacity=".5"
+              fontStyle="italic"
+            >
+              E
+            </text>
+      
+            <text
+              x="96"
+              y="28"
+              fontSize="5"
+              fontFamily="serif"
+              fill={a}
+              opacity=".4"
+            >
+              k
+            </text>
+      
+            {/* Atom doodle */}
+            <ellipse
+              cx="104"
+              cy="58"
+              rx="5"
+              ry="2"
+              fill="none"
+              stroke="#B56CFF"
+              strokeWidth="1"
+              opacity=".45"
+            />
+      
+            <ellipse
+              cx="104"
+              cy="58"
+              rx="5"
+              ry="2"
+              fill="none"
+              stroke="#B56CFF"
+              strokeWidth="1"
+              opacity=".35"
+              transform="rotate(60,104,58)"
+            />
+      
+            <circle
+              cx="104"
+              cy="58"
+              r="1.5"
+              fill="#B56CFF"
+              opacity=".45"
+            />
+      
+            {/* Hand-drawn sketch marks */}
+            <path
+              d="M 12,10 Q 16,6 20,10"
+              fill="none"
+              stroke={c}
+              strokeWidth="1"
+              opacity=".25"
+            />
+      
+            <path
+              d="M 14,14 Q 18,10 22,14"
+              fill="none"
+              stroke={c}
+              strokeWidth="1"
+              opacity=".2"
+            />
+      
+            {/* Small spark lines */}
+            <line x1="54" y1="6" x2="58" y2="10" stroke={a} strokeWidth="1" opacity=".35" />
+            <line x1="58" y1="6" x2="54" y2="10" stroke={a} strokeWidth="1" opacity=".35" />
+          </>
+        );
 
-    case "Chemistry":
-      return (
-        <>
-          <path d="M 42,6 L 42,30 L 16,68 Q 13,76 22,76 L 88,76 Q 97,76 94,68 L 68,30 L 68,6"
-            fill="none" stroke={c} strokeWidth="2" />
-          <line x1="36" y1="6" x2="74" y2="6" stroke={c} strokeWidth="2.2" />
-          <line x1="39" y1="10" x2="71" y2="10" stroke={c} strokeWidth="1" opacity=".4" />
-          <path d="M 24,56 Q 30,48 38,52 Q 48,46 55,50 Q 65,44 72,50 Q 80,54 86,56 L 94,68 Q 97,76 88,76 L 22,76 Q 13,76 16,68 Z"
-            fill={a} opacity=".14" />
-          <path d="M 24,56 Q 30,48 38,52 Q 48,46 55,50 Q 65,44 72,50 Q 80,54 86,56"
-            fill="none" stroke={a} strokeWidth="1.6" />
-          <circle cx="35" cy="64" r="3.5" fill="none" stroke={c} strokeWidth="1.2" opacity=".5" />
-          <circle cx="50" cy="60" r="2.5" fill="none" stroke={c} strokeWidth="1.2" opacity=".5" />
-          <circle cx="65" cy="65" r="3" fill="none" stroke={c} strokeWidth="1.2" opacity=".5" />
-          <circle cx="75" cy="60" r="2" fill="none" stroke={c} strokeWidth="1.2" opacity=".5" />
-          <path d="M 47,2 Q 44,-2 47,-6 Q 50,-10 47,-14" fill="none" stroke={c} strokeWidth="1.3" opacity=".4" />
-          <path d="M 55,0 Q 52,-4 55,-8 Q 58,-12 55,-16" fill="none" stroke={c} strokeWidth="1.3" opacity=".4" />
-          <path d="M 63,2 Q 60,-2 63,-6 Q 66,-10 63,-14" fill="none" stroke={c} strokeWidth="1.3" opacity=".4" />
-          <circle cx="96" cy="20" r="5" fill="none" stroke={a} strokeWidth="1.5" opacity=".7" />
-          <circle cx="106" cy="14" r="3.5" fill="none" stroke={a} strokeWidth="1.2" opacity=".6" />
-          <circle cx="108" cy="26" r="3.5" fill="none" stroke={a} strokeWidth="1.2" opacity=".6" />
-          <line x1="101" y1="17" x2="103" y2="15" stroke={a} strokeWidth="1.2" opacity=".6" />
-          <line x1="101" y1="23" x2="104" y2="24" stroke={a} strokeWidth="1.2" opacity=".6" />
-          <rect x="4" y="4" width="14" height="14" rx="1" fill="none" stroke={c} strokeWidth="1" opacity=".45" />
-          <text x="7" y="15" fontSize="9" fontFamily="monospace" fill={c} opacity=".55" fontWeight="bold">H</text>
-          <text x="5" y="8" fontSize="5" fontFamily="monospace" fill={c} opacity=".45">1</text>
-        </>
-      );
+      case "Chemistry":
+        return (
+          <>
+            {/* Test tube rack */}
+            <rect
+              x="18"
+              y="34"
+              width="84"
+              height="6"
+              rx="1"
+              fill="none"
+              stroke={c}
+              strokeWidth="2"
+            />
+            <rect
+              x="18"
+              y="76"
+              width="84"
+              height="6"
+              rx="1"
+              fill="none"
+              stroke={c}
+              strokeWidth="2"
+            />
+      
+            {/* Rack supports */}
+            <line x1="26" y1="40" x2="26" y2="76" stroke={c} strokeWidth="2" />
+            <line x1="94" y1="40" x2="94" y2="76" stroke={c} strokeWidth="2" />
+      
+            {/* LEFT TEST TUBE */}
+            <path
+              d="M 30,18 L 30,62 Q 30,72 38,72 Q 46,72 46,62 L 46,18"
+              fill="none"
+              stroke="#2D9CFF"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            />
+            <ellipse
+              cx="38"
+              cy="18"
+              rx="8"
+              ry="3"
+              fill="none"
+              stroke="#2D9CFF"
+              strokeWidth="2.2"
+            />
+      
+            {/* Liquid */}
+            <path
+              d="M 32,52 Q 38,48 44,52 L 44,62 Q 44,68 38,68 Q 32,68 32,62 Z"
+              fill="#2D9CFF"
+              opacity=".16"
+            />
+            <path
+              d="M 32,52 Q 38,48 44,52"
+              fill="none"
+              stroke="#2D9CFF"
+              strokeWidth="1.3"
+              opacity=".8"
+            />
+      
+            {/* Bubbles */}
+            <circle cx="36" cy="60" r="1.5" fill="none" stroke="#2D9CFF" strokeWidth="1" opacity=".7" />
+            <circle cx="40" cy="56" r="1" fill="none" stroke="#2D9CFF" strokeWidth="1" opacity=".7" />
+            <circle cx="35" cy="50" r="1" fill="none" stroke="#2D9CFF" strokeWidth="1" opacity=".5" />
+      
+            {/* Sketch lines */}
+            <line x1="33" y1="24" x2="37" y2="30" stroke="#2D9CFF" strokeWidth=".8" opacity=".35" />
+            <line x1="34" y1="34" x2="38" y2="40" stroke="#2D9CFF" strokeWidth=".8" opacity=".35" />
+            <line x1="35" y1="44" x2="39" y2="50" stroke="#2D9CFF" strokeWidth=".8" opacity=".35" />
+      
+            {/* CENTER TEST TUBE */}
+            <path
+              d="M 56,18 L 56,62 Q 56,72 64,72 Q 72,72 72,62 L 72,18"
+              fill="none"
+              stroke="#7AC943"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            />
+            <ellipse
+              cx="64"
+              cy="18"
+              rx="8"
+              ry="3"
+              fill="none"
+              stroke="#7AC943"
+              strokeWidth="2.2"
+            />
+      
+            {/* Liquid */}
+            <path
+              d="M 58,50 Q 64,54 70,50 L 70,62 Q 70,68 64,68 Q 58,68 58,62 Z"
+              fill="#7AC943"
+              opacity=".16"
+            />
+            <path
+              d="M 58,50 Q 64,54 70,50"
+              fill="none"
+              stroke="#7AC943"
+              strokeWidth="1.3"
+              opacity=".8"
+            />
+      
+            {/* Bubbles */}
+            <circle cx="62" cy="58" r="1.5" fill="none" stroke="#7AC943" strokeWidth="1" opacity=".7" />
+            <circle cx="66" cy="54" r="1" fill="none" stroke="#7AC943" strokeWidth="1" opacity=".7" />
+            <circle cx="64" cy="48" r="1" fill="none" stroke="#7AC943" strokeWidth="1" opacity=".5" />
+      
+            {/* Sketch lines */}
+            <line x1="59" y1="24" x2="63" y2="30" stroke="#7AC943" strokeWidth=".8" opacity=".35" />
+            <line x1="60" y1="34" x2="64" y2="40" stroke="#7AC943" strokeWidth=".8" opacity=".35" />
+            <line x1="61" y1="44" x2="65" y2="50" stroke="#7AC943" strokeWidth=".8" opacity=".35" />
+      
+            {/* RIGHT TEST TUBE */}
+            <path
+              d="M 82,18 L 82,62 Q 82,72 90,72 Q 98,72 98,62 L 98,18"
+              fill="none"
+              stroke="#B56CFF"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            />
+            <ellipse
+              cx="90"
+              cy="18"
+              rx="8"
+              ry="3"
+              fill="none"
+              stroke="#B56CFF"
+              strokeWidth="2.2"
+            />
+      
+            {/* Liquid */}
+            <path
+              d="M 84,53 Q 90,49 96,53 L 96,62 Q 96,68 90,68 Q 84,68 84,62 Z"
+              fill="#B56CFF"
+              opacity=".16"
+            />
+            <path
+              d="M 84,53 Q 90,49 96,53"
+              fill="none"
+              stroke="#B56CFF"
+              strokeWidth="1.3"
+              opacity=".8"
+            />
+      
+            {/* Bubbles */}
+            <circle cx="88" cy="60" r="1.5" fill="none" stroke="#B56CFF" strokeWidth="1" opacity=".7" />
+            <circle cx="92" cy="56" r="1" fill="none" stroke="#B56CFF" strokeWidth="1" opacity=".7" />
+            <circle cx="87" cy="50" r="1" fill="none" stroke="#B56CFF" strokeWidth="1" opacity=".5" />
+      
+            {/* Sketch lines */}
+            <line x1="85" y1="24" x2="89" y2="30" stroke="#B56CFF" strokeWidth=".8" opacity=".35" />
+            <line x1="86" y1="34" x2="90" y2="40" stroke="#B56CFF" strokeWidth=".8" opacity=".35" />
+            <line x1="87" y1="44" x2="91" y2="50" stroke="#B56CFF" strokeWidth=".8" opacity=".35" />
+      
+            {/* Small chemistry spark doodles */}
+            <circle cx="108" cy="20" r="4" fill="none" stroke={a} strokeWidth="1.3" opacity=".7" />
+            <circle cx="116" cy="15" r="2.5" fill="none" stroke={a} strokeWidth="1" opacity=".6" />
+            <circle cx="117" cy="25" r="2.5" fill="none" stroke={a} strokeWidth="1" opacity=".6" />
+            <line x1="111" y1="18" x2="114" y2="16" stroke={a} strokeWidth="1" opacity=".6" />
+            <line x1="111" y1="22" x2="114" y2="24" stroke={a} strokeWidth="1" opacity=".6" />
+      
+            {/* Hand-drawn notebook style mark */}
+            <path
+              d="M 10,12 Q 14,8 18,12"
+              fill="none"
+              stroke={c}
+              strokeWidth="1"
+              opacity=".35"
+            />
+            <path
+              d="M 12,16 Q 16,12 20,16"
+              fill="none"
+              stroke={c}
+              strokeWidth="1"
+              opacity=".25"
+            />
+          </>
+        );
 
-    case "Biology":
-      return (
-        <>
-          <path d="M 28,4 Q 38,14 28,24 Q 18,34 28,44 Q 38,54 28,64 Q 18,74 28,84"
-            fill="none" stroke={c} strokeWidth="2" />
-          <path d="M 48,4 Q 38,14 48,24 Q 58,34 48,44 Q 38,54 48,64 Q 58,74 48,84"
-            fill="none" stroke={a} strokeWidth="2" />
-          <line x1="28" y1="14" x2="48" y2="14" stroke={c} strokeWidth="1.5" opacity=".55" />
-          <line x1="26" y1="24" x2="46" y2="24" stroke={a} strokeWidth="1.5" opacity=".55" />
-          <line x1="28" y1="34" x2="48" y2="34" stroke={c} strokeWidth="1.5" opacity=".55" />
-          <line x1="26" y1="44" x2="46" y2="44" stroke={a} strokeWidth="1.5" opacity=".55" />
-          <line x1="28" y1="54" x2="48" y2="54" stroke={c} strokeWidth="1.5" opacity=".55" />
-          <line x1="26" y1="64" x2="46" y2="64" stroke={a} strokeWidth="1.5" opacity=".55" />
-          <line x1="28" y1="74" x2="48" y2="74" stroke={c} strokeWidth="1.5" opacity=".55" />
-          <ellipse cx="80" cy="40" rx="26" ry="32" fill="none" stroke={c} strokeWidth="2" />
-          <ellipse cx="80" cy="40" rx="22" ry="28" fill="none" stroke={c} strokeWidth="0.8" opacity=".3" strokeDasharray="3 2" />
-          <ellipse cx="78" cy="38" rx="10" ry="8" fill={c} opacity=".12" stroke={c} strokeWidth="1.5" />
-          <circle cx="78" cy="37" r="3" fill={a} opacity=".3" />
-          <ellipse cx="94" cy="52" rx="6" ry="3" fill="none" stroke={a} strokeWidth="1.2" opacity=".6" transform="rotate(-30,94,52)" />
-          <path d="M 91,49 Q 93,52 91,55" fill="none" stroke={a} strokeWidth="1" opacity=".5" />
-          <circle cx="68" cy="52" r="5" fill="none" stroke={c} strokeWidth="1.2" opacity=".45" />
-          <circle cx="90" cy="34" r="1.5" fill={a} opacity=".5" />
-          <circle cx="86" cy="28" r="1.5" fill={a} opacity=".5" />
-          <circle cx="72" cy="26" r="1.5" fill={a} opacity=".5" />
-          <circle cx="66" cy="44" r="1.5" fill={c} opacity=".5" />
-          <ellipse cx="86" cy="46" rx="4" ry="2.5" fill={a} opacity=".15" stroke={a} strokeWidth="1" />
-        </>
-      );
+        case "Biology":
+          return (
+            <>
+              {/* Microscope base */}
+              <path
+                d="M 26,74 Q 40,66 54,74"
+                fill="none"
+                stroke={c}
+                strokeWidth="2.4"
+                strokeLinecap="round"
+              />
+        
+              {/* Microscope stand */}
+              <path
+                d="M 42,72 Q 38,56 48,40 Q 56,28 66,20"
+                fill="none"
+                stroke={c}
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+        
+              {/* Eyepiece */}
+              <rect
+                x="62"
+                y="12"
+                width="14"
+                height="6"
+                rx="1"
+                fill="none"
+                stroke={c}
+                strokeWidth="2"
+                transform="rotate(-18 62 12)"
+              />
+        
+              {/* Tube */}
+              <line
+                x1="66"
+                y1="18"
+                x2="58"
+                y2="30"
+                stroke={c}
+                strokeWidth="2.4"
+                strokeLinecap="round"
+              />
+        
+              {/* Objective lens */}
+              <line
+                x1="54"
+                y1="32"
+                x2="48"
+                y2="40"
+                stroke="#4F8EF7"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+        
+              {/* Stage */}
+              <rect
+                x="44"
+                y="42"
+                width="26"
+                height="5"
+                rx="1"
+                fill="none"
+                stroke={c}
+                strokeWidth="2"
+              />
+        
+              {/* Slide */}
+              <rect
+                x="50"
+                y="39"
+                width="14"
+                height="4"
+                rx=".8"
+                fill="none"
+                stroke="#7AC943"
+                strokeWidth="1.4"
+                opacity=".9"
+              />
+        
+              {/* Green biology sample */}
+              <path
+                d="M 53,41
+                   Q 55,38 57,41
+                   Q 59,44 61,41"
+                fill="none"
+                stroke="#7AC943"
+                strokeWidth="1"
+                opacity=".8"
+              />
+        
+              <circle
+                cx="56"
+                cy="41"
+                r="1"
+                fill="#7AC943"
+                opacity=".7"
+              />
+        
+              <circle
+                cx="60"
+                cy="41"
+                r=".8"
+                fill="#7AC943"
+                opacity=".6"
+              />
+        
+              {/* Focus knob */}
+              <circle
+                cx="40"
+                cy="48"
+                r="4"
+                fill="none"
+                stroke="#B56CFF"
+                strokeWidth="1.8"
+              />
+        
+              <circle
+                cx="40"
+                cy="48"
+                r="1.2"
+                fill="#B56CFF"
+                opacity=".5"
+              />
+        
+              {/* Arm support */}
+              <path
+                d="M 34,70 Q 30,54 36,40"
+                fill="none"
+                stroke={c}
+                strokeWidth="2"
+                opacity=".8"
+              />
+        
+              {/* Sketch hatch marks */}
+              <line x1="46" y1="48" x2="52" y2="54" stroke={c} strokeWidth=".8" opacity=".25" />
+              <line x1="48" y1="56" x2="54" y2="62" stroke={c} strokeWidth=".8" opacity=".25" />
+              <line x1="58" y1="24" x2="62" y2="28" stroke={c} strokeWidth=".8" opacity=".25" />
+              <line x1="60" y1="18" x2="64" y2="22" stroke={c} strokeWidth=".8" opacity=".25" />
+        
+              {/* Petri dish doodle */}
+              <ellipse
+                cx="92"
+                cy="58"
+                rx="10"
+                ry="4"
+                fill="none"
+                stroke="#7AC943"
+                strokeWidth="1.4"
+                opacity=".7"
+              />
+        
+              <ellipse
+                cx="92"
+                cy="58"
+                rx="7"
+                ry="2"
+                fill="#7AC943"
+                opacity=".12"
+              />
+        
+              {/* Cells / microbes */}
+              <circle
+                cx="88"
+                cy="57"
+                r="1"
+                fill="#7AC943"
+                opacity=".65"
+              />
+        
+              <circle
+                cx="92"
+                cy="59"
+                r="1"
+                fill="#7AC943"
+                opacity=".65"
+              />
+        
+              <circle
+                cx="95"
+                cy="56"
+                r=".8"
+                fill="#7AC943"
+                opacity=".6"
+              />
+        
+              {/* DNA doodle */}
+              <path
+                d="M 98,14
+                   Q 102,18 98,22
+                   Q 94,26 98,30"
+                fill="none"
+                stroke={a}
+                strokeWidth="1.4"
+                opacity=".45"
+              />
+        
+              <path
+                d="M 106,14
+                   Q 102,18 106,22
+                   Q 110,26 106,30"
+                fill="none"
+                stroke={a}
+                strokeWidth="1.4"
+                opacity=".45"
+              />
+        
+              <line x1="99" y1="18" x2="105" y2="18" stroke={a} strokeWidth=".9" opacity=".45" />
+              <line x1="99" y1="22" x2="105" y2="22" stroke={a} strokeWidth=".9" opacity=".45" />
+              <line x1="99" y1="26" x2="105" y2="26" stroke={a} strokeWidth=".9" opacity=".45" />
+        
+              {/* Tiny biology notes */}
+              <text
+                x="8"
+                y="18"
+                fontSize="7"
+                fontFamily="monospace"
+                fill={c}
+                opacity=".45"
+              >
+                cell
+              </text>
+        
+              <text
+                x="84"
+                y="18"
+                fontSize="8"
+                fontFamily="serif"
+                fill="#7AC943"
+                opacity=".55"
+                fontStyle="italic"
+              >
+                DNA
+              </text>
+        
+              {/* Organic sketch underline */}
+              <path
+                d="M 12,84
+                   Q 24,78 36,84
+                   Q 48,90 60,84
+                   Q 72,78 84,84"
+                fill="none"
+                stroke={a}
+                strokeWidth="1.3"
+                opacity=".35"
+              />
+            </>
+          );
 
     case "Computer Science":
       return (
