@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import ThemeToggle from "../ui/ThemeToggle";
 import { useTheme } from "next-themes";
 
 export default function Navbar() {
@@ -25,18 +24,34 @@ export default function Navbar() {
   const toggleMenu = () => setIsOpen((v) => !v);
 
   const navItems = [
-    { name: "Services", href: "#services" },
+    { name: "Transition", href: "#transition" },
+    { name: "Platform", href: "#platform" },
     { name: "Features", href: "#features" },
-    { name: "Testimonial", href: "#testimonials" },
-    { name: "Contact us", href: "#footer" },
+    { name: "Students", href: "#students" },
+    { name: "Contact", href: "#contact" },
   ];
 
   return (
+    <>
+    <svg className="absolute w-0 h-0" aria-hidden="true">
+      <defs>
+        <filter id="gooey">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
+          <feColorMatrix
+            in="blur"
+            mode="matrix"
+            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 25 -12"
+            result="goo"
+          />
+          <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+        </filter>
+      </defs>
+    </svg>
     <nav
       className={`
         w-full sticky top-0 z-50 px-4 sm:px-6 py-3
-        bg-[var(--background)]/70 backdrop-blur-xl
-        text-[var(--color-font)]
+        bg-[#F1F5F9] backdrop-blur-xl
+        text-[#0F172A]
         transition-all duration-500
         ${scrolled ? "border-b border-[var(--foreground)]/10 shadow-[0_1px_20px_rgba(0,0,0,0.06)]" : "border-b border-transparent"}
       `}
@@ -69,7 +84,7 @@ export default function Navbar() {
               {hovered === item.name && (
                 <motion.span
                   layoutId="navHover"
-                  className="absolute inset-0 rounded-full bg-[var(--foreground)]/[0.08]"
+                  className="absolute inset-0 rounded-full bg-[#F4F7FF]"
                   transition={{
                     type: "spring",
                     stiffness: 400,
@@ -86,7 +101,7 @@ export default function Navbar() {
                 className="
                   font-[var(--font-secondary)]
                   relative z-10 text-sm
-                  text-[var(--color-font)]/70 hover:text-[var(--color-font)]
+                  text-[#0F172A]/70 hover:text-[#0F172A]
                   transition-colors duration-300
                 "
               >
@@ -97,31 +112,34 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-4">
-          <ThemeToggle />
-
-          <a
-            href="https://meshspire-core.vercel.app/"
-            className="
-              font-[var(--font-secondary)] text-sm font-medium
-              bg-[#FFA629] text-[#0F172A]
-              rounded-full px-6 py-2
-              transition-all duration-300
-              hover:brightness-110 hover:shadow-[0_4px_20px_rgba(255,166,41,0.35)]
-            "
-          >
-            Get Started
-          </a>
+          <div className="group relative flex items-center" style={{ filter: "url(#gooey)" }}>
+            <a
+              href="https://meshspire-core.vercel.app/"
+              className="relative flex items-center font-[var(--font-secondary)] text-sm font-medium
+                bg-[#FFA629] text-[#0F172A] rounded-full px-6 py-2
+                transition-colors duration-300 hover:bg-[#FFB84D]"
+            >
+              Get Started
+            </a>
+            <a
+              href="https://meshspire-core.vercel.app/"
+              className="absolute -right-2 flex items-center justify-center
+                w-9 h-9 rounded-full bg-[#FFA629] group-hover:bg-[#FFB84D]
+                text-[#0F172A]
+                transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
+                translate-x-0 scale-0 opacity-0
+                group-hover:translate-x-[105%] group-hover:scale-100 group-hover:opacity-100"
+            >
+              <ArrowRight size={15} strokeWidth={2.5} />
+            </a>
+          </div>
         </div>
 
         <div className="md:hidden flex items-center gap-3">
-          <div className="scale-90">
-            <ThemeToggle />
-          </div>
-
           <button
             onClick={toggleMenu}
             aria-label={isOpen ? "Close menu" : "Open menu"}
-            className="p-2 rounded-xl hover:bg-[var(--foreground)]/[0.06] transition-colors duration-200"
+            className="p-2 rounded-xl hover:bg-[#F4F7FF] transition-colors duration-200"
           >
             {isOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -151,9 +169,9 @@ export default function Navbar() {
                     href={item.href}
                     className="
                       w-full text-center py-3 px-6 rounded-xl
-                      text-[var(--color-font)]/70
+                      text-[#0F172A]/70
                       text-sm
-                      hover:bg-[var(--foreground)]/[0.06] hover:text-[var(--color-font)]
+                      hover:bg-[#F4F7FF] hover:text-[#0F172A]
                       transition-all duration-200
                     "
                     onClick={() => setIsOpen(false)}
@@ -162,24 +180,35 @@ export default function Navbar() {
                   </Link>
                 ))}
 
-                <a
-                  href="https://meshspire-core.vercel.app/"
-                  className="
-                    mt-3 rounded-full px-8 py-2.5 text-sm font-medium
-                    bg-[#FFA629] text-[#0F172A]
-                    transition-all duration-300
-                    hover:brightness-110 hover:shadow-[0_4px_20px_rgba(255,166,41,0.35)]
-                    font-[var(--font-secondary)]
-                  "
-                  onClick={() => setIsOpen(false)}
-                >
-                  Get Started
-                </a>
+                <div className="group relative flex items-center mt-3" style={{ filter: "url(#gooey)" }}>
+                  <a
+                    href="https://meshspire-core.vercel.app/"
+                    className="relative flex items-center rounded-full px-8 py-2.5 text-sm font-medium
+                      bg-[#FFA629] text-[#0F172A] transition-colors duration-300 hover:bg-[#FFB84D]
+                      font-[var(--font-secondary)]"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Get Started
+                  </a>
+                  <a
+                    href="https://meshspire-core.vercel.app/"
+                    className="absolute -right-2 flex items-center justify-center
+                      w-9 h-9 rounded-full bg-[#FFA629] group-hover:bg-[#FFB84D]
+                      text-[#0F172A]
+                      transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
+                      translate-x-0 scale-0 opacity-0
+                      group-hover:translate-x-[105%] group-hover:scale-100 group-hover:opacity-100"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <ArrowRight size={15} strokeWidth={2.5} />
+                  </a>
+                </div>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </nav>
+    </>
   );
 }

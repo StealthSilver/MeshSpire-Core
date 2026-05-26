@@ -1,6 +1,9 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { Github, Twitter, Linkedin, Mail } from "lucide-react";
+import ThemeToggle from "../ui/ThemeToggle";
 
 const Footer = () => {
   return (
@@ -86,6 +89,10 @@ const Footer = () => {
         >
           <Linkedin className="w-6 h-6 hover:text-[var(--color-font)] transition-colors duration-300" />
         </a>
+      </div>
+
+      <div className="mt-6">
+        <ThemeToggle />
       </div>
 
       {/* Divider */}
