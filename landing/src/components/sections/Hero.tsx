@@ -19,11 +19,11 @@ const Hero = () => {
 
       {/* Hero Text — fixed above grid */}
       <div className="relative z-20 w-full max-w-7xl mx-auto flex flex-col items-start justify-end pb-32 px-6 text-left pointer-events-none">
-        <h1 className="font-[var(--font-primary)] text-7xl font-thin tracking-tight leading-tight
+        <h1 className="font-[var(--font-primary)] text-7xl font-extralight tracking-tight leading-tight
           text-[#0F172A] dark:text-[#F5F7FA] max-w-3xl">
           The Most Personalis<span className="text-[#0F172A] dark:text-[#F5F7FA]">ed</span><br />Learning Platform
         </h1>
-        <p className="mt-6 max-w-2xl text-base font-[var(--font-primary)] font-thin leading-relaxed
+        <p className="mt-6 max-w-2xl text-base font-[var(--font-primary)] font-light leading-relaxed
           text-[#0F172A]/60 dark:text-[#F5F7FA]/60">
           Study from your selected teachers, at your own pace, when-ever you want, what-ever you want, how-ever you want
         </p>
