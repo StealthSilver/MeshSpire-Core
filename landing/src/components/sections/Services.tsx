@@ -1,141 +1,102 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React from "react";
 import { useTheme } from "next-themes";
 
-import { Icon } from "@/components/ui/Icon";
-import { Timeline } from "@/components/ui/Timeline";
-import AnimatedFlowSVG from "../ui/AnimatedFlow";
-
-const timelineData = () => [
+const steps = [
   {
-    title: "Signup and create account",
-    content: (
-      <p
-        className="
-          text-base md:text-lg leading-relaxed max-w-md
-          transition-colors duration-500
-          text-[var(--color-font)]/90
-          font-[var(--font-secondary)]
-        "
-      >
-        Signup and create a student profile to find the best tutors for you. No
-        payments, free signup. Access all the topics you want to learn.
-      </p>
-    ),
+    number: "01",
+    title: "Create your profile",
+    description:
+      "Sign up in seconds. Tell us your subjects, goals, and preferred learning style. No payments needed to get started.",
+    accent: "#FFA629",
   },
   {
-    title: "Enter the topic you want to learn",
-    content: (
-      <p
-        className="
-          text-base md:text-lg leading-relaxed max-w-md
-          transition-colors duration-500
-          text-[var(--color-font)]/90
-          font-[var(--font-secondary)]
-        "
-      >
-        Select the tutor you want to learn from. We have wide range of tutors
-        which will match your learning style.
-      </p>
-    ),
+    number: "02",
+    title: "Choose your teacher",
+    description:
+      "Browse verified tutors matched to your needs. Watch intro videos, check reviews, and pick the one that resonates with you.",
+    accent: "#809FFF",
   },
   {
-    title: "Connect to your tutor instantly",
-    content: (
-      <p
-        className="
-          text-base md:text-lg leading-relaxed max-w-md
-          transition-colors duration-500
-          text-[var(--color-font)]/90
-          font-[var(--font-secondary)]
-        "
-      >
-        Instantly connect to your tutor and learn. You getting it right is our
-        responsibility. Solve instant assignments, give tests and a lot more.
-      </p>
-    ),
+    number: "03",
+    title: "Start learning instantly",
+    description:
+      "Connect with your tutor in real-time. Learn through live sessions, interactive assignments, and personalized feedback loops.",
+    accent: "#7DD3A0",
   },
 ];
 
-const Content = () => {
+const Services = () => {
   const { theme } = useTheme();
-  const [timelineHeight, setTimelineHeight] = useState<number>(0);
-  const timelineRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const updateHeight = () => {
-      if (timelineRef.current)
-        setTimelineHeight(timelineRef.current.offsetHeight);
-    };
-    updateHeight();
-    window.addEventListener("resize", updateHeight);
-    return () => window.removeEventListener("resize", updateHeight);
-  }, []);
+  const isDark = theme === "dark";
 
   return (
     <section
-      id="services"
-      className="
-        py-20 md:py-22 px-6 md:mt-32 flex flex-col items-center justify-center mx-4 
-        gap-10 md:gap-24 overflow-x-hidden 
-        transition-colors duration-700
-        text-[var(--color-font)] 
-      "
+      id="platform"
+      className="relative w-full py-32 overflow-hidden bg-[var(--background)] transition-colors duration-700"
     >
-      <div className="flex flex-col items-center justify-center gap-4 w-full">
-        <div
-          className="
-            border-2 flex flex-col items-center md:items-start mx-auto p-4
-            max-w-xs md:max-w-none relative transition-all duration-700 
-            border-[var(--foreground)]/20 bg-[var(--background)]/60
-          "
-        >
-          <Icon className="absolute h-6 w-6 -top-4 -left-4 text-[var(--color-font)]/70 transition-colors" />
-          <Icon className="absolute h-6 w-6 -bottom-4 -left-4 text-[var(--color-font)]/70 transition-colors" />
-          <Icon className="absolute h-6 w-6 -top-4 -right-4 text-[var(--color-font)]/70 transition-colors" />
-          <Icon className="absolute h-6 w-6 -bottom-4 -right-4 text-[var(--color-font)]/70 transition-colors" />
-
-          <h2
-            className="
-              text-2xl md:text-2xl lg:text-3xl font-[var(--font-primary)] 
-               text-center md:text-left transition-colors 
-              text-[var(--color-font)]
-            "
-          >
-            Learning made easy
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Header */}
+        <div className="text-center mb-20">
+          <span className="inline-block text-sm font-[var(--font-secondary)] font-medium tracking-widest uppercase text-[#809FFF] mb-6">
+            How it works
+          </span>
+          <h2 className="font-[var(--font-primary)] text-5xl font-thin tracking-tight leading-tight text-[#0F172A] dark:text-[#F5F7FA]">
+            Three steps to better learning
           </h2>
+          <p className="mt-5 text-base font-[var(--font-secondary)] font-light text-[#0F172A]/55 dark:text-[#F5F7FA]/55 max-w-lg mx-auto">
+            No complicated onboarding. No hidden fees. Just a clean path from sign-up to your first lesson.
+          </p>
+        </div>
+
+        {/* Steps */}
+        <div className="flex items-stretch gap-8">
+          {steps.map((step, index) => (
+            <div
+              key={step.number}
+              className={`
+                group relative flex-1 p-10 rounded-3xl border transition-all duration-300
+                ${isDark
+                  ? "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
+                  : "border-[#0F172A]/[0.06] bg-[#0F172A]/[0.01] hover:bg-[#0F172A]/[0.03]"
+                }
+              `}
+            >
+              {/* Step number */}
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center mb-8 font-[var(--font-secondary)] text-sm font-semibold"
+                style={{
+                  backgroundColor: `${step.accent}15`,
+                  color: step.accent,
+                }}
+              >
+                {step.number}
+              </div>
+
+              <h3 className="font-[var(--font-primary)] text-2xl font-normal text-[#0F172A] dark:text-[#F5F7FA] mb-4">
+                {step.title}
+              </h3>
+
+              <p className="font-[var(--font-secondary)] text-sm font-light leading-relaxed text-[#0F172A]/55 dark:text-[#F5F7FA]/55">
+                {step.description}
+              </p>
+
+              {/* Connector line between cards */}
+              {index < steps.length - 1 && (
+                <div className="absolute top-1/2 -right-4 w-8 h-[1px] bg-[var(--foreground)]/10" />
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-14 w-full max-w-7xl">
-        <div ref={timelineRef} className="hidden md:flex w-full md:w-1/2 mt-10">
-          <Timeline data={timelineData()} hoverEffect />
-        </div>
-
-        <div
-          className="hidden md:flex w-full md:w-1/2 justify-center items-start relative"
-          style={{
-            height: timelineHeight ? `${timelineHeight - 250}px` : "400px",
-          }}
-        >
-          <div
-            style={{
-              height: timelineHeight ? `${timelineHeight - 250}px` : "400px",
-              width: "100%",
-            }}
-            className="animate-float transition-transform duration-700"
-          >
-            <AnimatedFlowSVG />
-          </div>
-        </div>
-
-        <div className="flex md:hidden flex-col gap-12 w-full">
-          <Timeline data={timelineData()} hoverEffect />
-        </div>
+      {/* Subtle divider */}
+      <div className="absolute bottom-0 left-0 right-0">
+        <hr className="border-t border-[var(--foreground)]/10" />
       </div>
     </section>
   );
 };
 
-export default Content;
+export default Services;
