@@ -9,6 +9,7 @@ import {
   projectMapPoint,
   type Marker,
 } from "@/components/ui/DottedMap";
+import LazyWhenVisible from "@/components/ui/LazyWhenVisible";
 
 const ORANGE = "#FFA629";
 const BLUE = "#809FFF";
@@ -2480,7 +2481,12 @@ const Features = () => {
                   }`}
                 >
                   <div className={feat.illustrationClassName ?? "w-44 h-44"}>
-                    <Ill isDark={isDark} />
+                    <LazyWhenVisible
+                      className="h-full w-full"
+                      placeholderClassName="h-full w-full"
+                    >
+                      <Ill isDark={isDark} />
+                    </LazyWhenVisible>
                   </div>
                 </div>
                 <div

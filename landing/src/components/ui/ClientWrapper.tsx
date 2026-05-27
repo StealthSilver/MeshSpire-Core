@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import Loader from "./Loader";
 import SmoothScroll from "./SmoothScroll";
 
-const LOADER_MAX_MS = 650;
+/** Show loader long enough for the ripple to read; cap so slow networks are not stuck */
+const LOADER_MIN_MS = 1100;
+const LOADER_MAX_MS = 2400;
 
 export default function ClientWrapper({
   children,
@@ -15,23 +17,35 @@ export default function ClientWrapper({
 
   useEffect(() => {
     let done = false;
-    const finish = () => {
+    const started = Date.now();
+    let minTimer = 0;
+    let maxTimer = 0;
+
+    const hide = () => {
       if (done) return;
       done = true;
       setLoading(false);
     };
 
-    const cap = window.setTimeout(finish, LOADER_MAX_MS);
+    const scheduleHide = () => {
+      const elapsed = Date.now() - started;
+      const wait = Math.max(0, LOADER_MIN_MS - elapsed);
+      window.clearTimeout(minTimer);
+      minTimer = window.setTimeout(hide, wait);
+    };
+
+    maxTimer = window.setTimeout(hide, LOADER_MAX_MS);
 
     if (document.readyState !== "loading") {
-      requestAnimationFrame(finish);
+      scheduleHide();
     } else {
-      document.addEventListener("DOMContentLoaded", finish, { once: true });
+      document.addEventListener("DOMContentLoaded", scheduleHide, { once: true });
     }
 
     return () => {
-      window.clearTimeout(cap);
-      document.removeEventListener("DOMContentLoaded", finish);
+      window.clearTimeout(minTimer);
+      window.clearTimeout(maxTimer);
+      document.removeEventListener("DOMContentLoaded", scheduleHide);
     };
   }, []);
 

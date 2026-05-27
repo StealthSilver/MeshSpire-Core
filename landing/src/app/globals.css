@@ -13,26 +13,151 @@
     display: none;
   }
 }
-@keyframes loaderSquarePulse {
+@keyframes loaderSquareRipple {
   0%,
   100% {
-    opacity: 0;
+    opacity: 0.05;
+    transform: scale(0.78);
+  }
+  14% {
+    opacity: var(--loader-peak, 0.85);
+    transform: scale(1.14);
+  }
+  28% {
+    opacity: 0.1;
+    transform: scale(0.86);
+  }
+}
+
+@keyframes loaderEllipsis {
+  0%,
+  24% {
+    opacity: 0.15;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+  56%,
+  100% {
+    opacity: 0.15;
+    transform: translateY(0);
+  }
+}
+
+@keyframes loaderLabelGlow {
+  0%,
+  100% {
+    opacity: 0.72;
   }
   50% {
-    opacity: var(--loader-peak, 0.75);
+    opacity: 1;
   }
+}
+
+.loader-label {
+  animation: loaderLabelGlow 2.2s ease-in-out infinite;
+}
+
+.loader-ellipsis {
+  display: inline-flex;
+  width: 1.35em;
+  margin-left: 0.05em;
+}
+
+.loader-ellipsis span {
+  display: inline-block;
+  animation: loaderEllipsis 1.35s ease-in-out infinite;
+}
+
+.loader-ellipsis span:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.loader-ellipsis span:nth-child(3) {
+  animation-delay: 0.32s;
 }
 
 .loader-grid-square {
-  opacity: 0;
-  animation: loaderSquarePulse ease-in-out infinite;
-  will-change: opacity;
+  opacity: 0.05;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: loaderSquareRipple 2.1s ease-in-out infinite;
+  will-change: opacity, transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .loader-label,
+  .loader-ellipsis span {
+    animation: none;
+  }
+
+  .loader-label {
+    opacity: 1;
+  }
+
+  .loader-ellipsis span {
+    opacity: 0.65;
+    transform: none;
+  }
+
   .loader-grid-square {
     animation: none;
-    opacity: calc(var(--loader-peak, 0.6) * 0.65);
+    opacity: calc(var(--loader-peak, 0.6) * 0.7);
+    transform: none;
+  }
+}
+
+@keyframes heroTextFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes heroCardPaste {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.94);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(2px) scale(1.015);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.hero-text-fade {
+  opacity: 0;
+  animation: heroTextFadeIn 1.65s ease-out forwards;
+}
+
+.hero-text-fade--delayed {
+  animation-delay: 0.45s;
+}
+
+.hero-card-paste {
+  opacity: 0;
+  animation: heroCardPaste 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-text-fade,
+  .hero-text-fade--delayed {
+    animation: none;
+    opacity: 1;
+  }
+
+  .hero-card-paste {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -105,4 +230,10 @@ h4,
 h5,
 h6 {
   font-family: var(--font-primary);
+}
+
+/* Skip layout/paint for off-screen sections until needed */
+main > section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 32rem;
 }

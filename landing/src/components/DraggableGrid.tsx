@@ -51,6 +51,33 @@ const CARD_W = 152;
 const CARD_H = 200;
 const FOLD = 20;
 const CARD_RADIUS = 8; // matches rounded-lg
+const MAX_CARD_ROTATION_DEG = 10; // subject tilt + stacked back paper
+
+/** Extra space so rotated cards and borders are not clipped by overflow ancestors. */
+function rotationPadding(w: number, h: number, deg: number) {
+  const rad = (deg * Math.PI) / 180;
+  const rw = Math.abs(w * Math.cos(rad)) + Math.abs(h * Math.sin(rad));
+  const rh = Math.abs(w * Math.sin(rad)) + Math.abs(h * Math.cos(rad));
+  return {
+    x: Math.ceil((rw - w) / 2) + 2,
+    y: Math.ceil((rh - h) / 2) + 2,
+  };
+}
+
+const CARD_ROTATION_PAD = rotationPadding(
+  CARD_W,
+  CARD_H,
+  MAX_CARD_ROTATION_DEG,
+);
+const CARD_LAYOUT_W = CARD_W + CARD_ROTATION_PAD.x * 2;
+const CARD_LAYOUT_H = CARD_H + CARD_ROTATION_PAD.y * 2;
+/** Furthest corner distance from card center after rotation (conservative). */
+const CARD_ROTATED_RADIUS = Math.ceil(
+  Math.hypot(CARD_W / 2 + CARD_ROTATION_PAD.x, CARD_H / 2 + CARD_ROTATION_PAD.y),
+);
+
+/** Inset of the draggable layer inside the hero so tilted corners stay inside overflow:hidden. */
+const HERO_GRID_INSET = 40;
 
 /** Inset SVG path tracing the folded paper shape (stable under rotation). */
 function getCardOutlinePath(inset = 0.5): string {
@@ -104,8 +131,8 @@ function isInHeroViewport(
   viewW = HERO_REF_VIEW_W,
   viewH = HERO_REF_VIEW_H,
 ) {
-  const halfW = viewW / 2 - CARD_W / 2;
-  const halfH = viewH / 2 - CARD_H / 2;
+  const halfW = viewW / 2 - CARD_ROTATED_RADIUS - HERO_GRID_INSET;
+  const halfH = viewH / 2 - CARD_ROTATED_RADIUS - HERO_GRID_INSET;
   return Math.abs(p.x) <= halfW && Math.abs(p.y) <= halfH;
 }
 
@@ -144,13 +171,13 @@ function getHeroInitialLayout() {
   const positions: Record<number, { x: number; y: number }> = {};
 
   // Chemistry — right side, just below the navbar Contact link
-  positions[SUBJECT_IDX.Chemistry] = { x: 310, y: -290 };
+  positions[SUBJECT_IDX.Chemistry] = { x: 280, y: -250 };
 
   // Biology — just above the hero headline (bottom-left copy block)
   positions[SUBJECT_IDX.Biology] = { x: -300, y: 40 };
 
-  // Finance — bottom-right, partially clipped by the hero overflow
-  positions[SUBJECT_IDX.Finance] = { x: 440, y: 370 };
+  // Finance — bottom-right, kept inside viewport with rotation padding
+  positions[SUBJECT_IDX.Finance] = { x: 400, y: 280 };
 
   const occupied = Object.values(positions);
   const remaining = SUBJECTS.map((_, i) => i).filter((i) => !HERO_ANCHOR_INDICES.has(i));
@@ -2078,6 +2105,8 @@ interface SubjectCardProps {
   rotation: number;
   isDark: boolean;
   reduceMotion: boolean;
+  entering?: boolean;
+  enterDelay?: number;
 }
 
 const SubjectCard = React.memo(function SubjectCard({
@@ -2086,27 +2115,36 @@ const SubjectCard = React.memo(function SubjectCard({
   rotation,
   isDark,
   reduceMotion,
+  entering = false,
+  enterDelay = 0,
 }: SubjectCardProps) {
   return (
     <div
       className="group absolute select-none pointer-events-auto"
       style={{
         ...style,
-        contentVisibility: "auto",
-        // Omit paint containment — rotated cards extend past their layout box and borders get clipped.
-        contain: "layout style",
+        width: CARD_LAYOUT_W,
+        height: CARD_LAYOUT_H,
         overflow: "visible",
       }}
     >
       <div
-        className="relative"
+        className={`relative flex items-center justify-center${entering ? " hero-card-paste" : ""}`}
         style={{
-          width: CARD_W,
-          height: CARD_H,
-          transform: `rotate(${rotation}deg)`,
-          transformOrigin: "center center",
+          width: CARD_LAYOUT_W,
+          height: CARD_LAYOUT_H,
+          ...(entering ? { animationDelay: `${enterDelay}ms` } : {}),
         }}
       >
+        <div
+          className="relative"
+          style={{
+            width: CARD_W,
+            height: CARD_H,
+            transform: `rotate(${rotation}deg)`,
+            transformOrigin: "center center",
+          }}
+        >
         {/* Back paper (stacked effect) */}
         <div
           className={`absolute rounded-[3px] ${isDark ? "bg-[#0A0C0F]" : "bg-[#F1F5F9]"}`}
@@ -2117,10 +2155,10 @@ const SubjectCard = React.memo(function SubjectCard({
           }}
         />
 
-        {/* Main paper */}
+        {/* Main paper — no overflow-hidden so rotated outline strokes stay visible */}
         <div
           className={`
-            relative h-full rounded-lg overflow-hidden
+            relative h-full rounded-lg
             ${reduceMotion ? "" : "transition-all duration-300"}
             ${isDark ? "bg-[#0A0C0F]" : `bg-[#F1F5F9] ${reduceMotion ? "" : "hover:shadow-lg"}`}
           `}
@@ -2165,30 +2203,32 @@ const SubjectCard = React.memo(function SubjectCard({
             style={{ width: FOLD, height: FOLD }}
           />
 
-          {/* Outline on top so rotation / fold do not clip CSS borders */}
-          <svg
-            className="absolute inset-0 z-20 pointer-events-none"
-            width={CARD_W}
-            height={CARD_H}
-            viewBox={`0 0 ${CARD_W} ${CARD_H}`}
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d={getCardOutlinePath()}
-              strokeWidth={1}
-              strokeLinejoin="round"
-              vectorEffect="non-scaling-stroke"
-              className={`
-                transition-colors duration-300
-                ${
-                  isDark
-                    ? "stroke-white/[0.06] group-hover:stroke-white/[0.12]"
-                    : "stroke-[#0F172A]/[0.06] group-hover:stroke-[#0F172A]/[0.12]"
-                }
-              `}
-            />
-          </svg>
+        </div>
+
+        {/* Outline outside clipped inner content so tilt never crops the border */}
+        <svg
+          className="absolute inset-0 z-20 pointer-events-none"
+          width={CARD_W}
+          height={CARD_H}
+          viewBox={`0 0 ${CARD_W} ${CARD_H}`}
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d={getCardOutlinePath()}
+            strokeWidth={1}
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+            className={`
+              transition-colors duration-300
+              ${
+                isDark
+                  ? "stroke-white/[0.06] group-hover:stroke-white/[0.12]"
+                  : "stroke-[#0F172A]/[0.06] group-hover:stroke-[#0F172A]/[0.12]"
+              }
+            `}
+          />
+        </svg>
         </div>
       </div>
     </div>
@@ -2215,8 +2255,9 @@ function buildCardInstances(
   viewW: number,
   viewH: number,
 ): CardInstance[] {
-  const marginX = viewW / 2 + CARD_W;
-  const marginY = viewH / 2 + CARD_H;
+  // Keep tile centers inside the safe zone so rotated corners are not clipped.
+  const marginX = viewW / 2 - CARD_ROTATED_RADIUS - HERO_GRID_INSET;
+  const marginY = viewH / 2 - CARD_ROTATED_RADIUS - HERO_GRID_INSET;
   const TILE_PAD = 1;
 
   // One tile column/row range for the whole pattern (all cards shift together).
@@ -2237,11 +2278,21 @@ function buildCardInstances(
 
     for (let col = colMin; col <= colMax; col++) {
       for (let row = rowMin; row <= rowMax; row++) {
+        const x = base.x + col * tileW;
+        const y = base.y + row * tileH;
+        const screenX = x + offsetX;
+        const screenY = y + offsetY;
+        if (
+          Math.abs(screenX) > marginX ||
+          Math.abs(screenY) > marginY
+        ) {
+          continue;
+        }
         instances.push({
           key: `${subject.name}-${col}-${row}`,
           subjectIndex,
-          x: base.x + col * tileW,
-          y: base.y + row * tileH,
+          x,
+          y,
         });
       }
     }
@@ -2250,7 +2301,17 @@ function buildCardInstances(
   return instances;
 }
 
-export default function DraggableGrid() {
+type DraggableGridProps = {
+  /** When false, only the dotted grid is shown (hero entry sequence). */
+  showCards?: boolean;
+  /** Staggered paste-in animation when cards first mount. */
+  cardsEntering?: boolean;
+};
+
+export default function DraggableGrid({
+  showCards = true,
+  cardsEntering = false,
+}: DraggableGridProps) {
   const [subjectOrder] = useState<number[]>(HERO_INITIAL_LAYOUT.subjectOrder);
   const heroBasePositions = HERO_INITIAL_LAYOUT.positions;
   const heroTileW = HERO_INITIAL_LAYOUT.tileW;
@@ -2362,15 +2423,21 @@ export default function DraggableGrid() {
 
   return (
     <div
-      className="absolute inset-0 overflow-hidden touch-none"
-      style={{ cursor: isDragging.current ? "grabbing" : "grab" }}
+      className="absolute touch-none"
+      style={{
+        cursor: isDragging.current ? "grabbing" : "grab",
+        inset: HERO_GRID_INSET,
+      }}
       onPointerDown={onPointerDown}
       onPointerMove={handlers.onPointerMove}
       onPointerUp={onPointerUp}
       onPointerLeave={onPointerUp}
     >
-      {/* Dot grid */}
-      <svg className="absolute inset-0 w-full h-full" aria-hidden="true">
+      {/* Dot grid — clipped; cards layer stays overflow-visible */}
+      <svg
+        className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none"
+        aria-hidden="true"
+      >
         <defs>
           <pattern
             ref={dotPatternRef}
@@ -2395,26 +2462,35 @@ export default function DraggableGrid() {
       {/* Cards — GPU layer pans smoothly; tile copies refresh at tile boundaries */}
       <div
         ref={cardsLayerRef}
-        className="absolute inset-0"
+        className="absolute inset-0 overflow-visible"
         style={{ willChange: "transform" }}
       >
-        {cardInstances.map((instance) => {
-          const subject = SUBJECTS[instance.subjectIndex];
-          return (
-            <SubjectCard
-              key={instance.key}
-              subject={subject}
-              isDark={isDark}
-              reduceMotion={isDraggingUi}
-              rotation={ROTATIONS[instance.subjectIndex]}
-              style={{
-                left: "50%",
-                top: "50%",
-                transform: `translate3d(${instance.x - CARD_W / 2}px, ${instance.y - CARD_H / 2}px, 0)`,
-              }}
-            />
-          );
-        })}
+        {showCards &&
+          cardInstances.map((instance) => {
+            const subject = SUBJECTS[instance.subjectIndex];
+            const col = Math.round(instance.x / heroTileW);
+            const row = Math.round(instance.y / heroTileH);
+            const enterDelay = cardsEntering
+              ? (instance.subjectIndex * 37 + Math.abs(col * 11 + row * 17)) % 120
+              : 0;
+
+            return (
+              <SubjectCard
+                key={instance.key}
+                subject={subject}
+                isDark={isDark}
+                reduceMotion={isDraggingUi}
+                entering={cardsEntering}
+                enterDelay={enterDelay}
+                rotation={ROTATIONS[instance.subjectIndex]}
+                style={{
+                  left: "50%",
+                  top: "50%",
+                  transform: `translate3d(${instance.x - CARD_LAYOUT_W / 2}px, ${instance.y - CARD_LAYOUT_H / 2}px, 0)`,
+                }}
+              />
+            );
+          })}
       </div>
     </div>
   );

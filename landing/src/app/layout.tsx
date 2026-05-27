@@ -6,24 +6,27 @@ import ThemeHeadIcons from "@/components/ui/ThemeHeadIcon";
 import ClientWrapper from "@/components/ui/ClientWrapper";
 import NoZoom from "@/components/ui/NoZoom";
 import { Inter, Inter_Tight, Patrick_Hand } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
+import DeferredAnalytics from "@/components/ui/DeferredAnalytics";
 
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-inter",
+  display: "swap",
 });
 
 const interTight = Inter_Tight({
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700"],
+  weight: ["200"],
   variable: "--font-inter-tight",
+  display: "swap",
 });
 
 const patrickHand = Patrick_Hand({
   subsets: ["latin"],
   weight: ["400"],
   variable: "--font-patrick-hand",
+  display: "swap",
 });
 
 export const viewport: Viewport = {
@@ -79,6 +82,7 @@ export default function RootLayout({
       className={`${inter.variable} ${interTight.variable} ${patrickHand.variable}`}
     >
       <head>
+        <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="" />
         <link
           href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap"
           rel="stylesheet"
@@ -95,7 +99,7 @@ export default function RootLayout({
         >
           <ClientWrapper>{children}</ClientWrapper>
         </ThemeProvider>
-        <Analytics />
+        <DeferredAnalytics />
       </body>
     </html>
   );
