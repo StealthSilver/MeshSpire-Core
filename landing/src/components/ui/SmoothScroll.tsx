@@ -1,35 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import Lenis from "lenis";
+import { useEffect } from "react";
+
+const ANCHOR_OFFSET = 80;
 
 export default function SmoothScroll({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const lenisRef = useRef<Lenis | null>(null);
-
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => {
-        // cubic-bezier(0.25, 0.1, 0.25, 1) — smooth ease-out curve
-        return 1 - Math.pow(1 - t, 4);
-      },
-      smoothWheel: true,
-      touchMultiplier: 1.5,
-    });
-
-    lenisRef.current = lenis;
-
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-
-    // Intercept anchor clicks for smooth scroll-to-section
     const handleAnchorClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const anchor = target.closest("a");
@@ -42,15 +22,13 @@ export default function SmoothScroll({
       if (!el) return;
 
       e.preventDefault();
-      lenis.scrollTo(el as HTMLElement, { offset: -80 });
+      const top =
+        el.getBoundingClientRect().top + window.scrollY - ANCHOR_OFFSET;
+      window.scrollTo({ top, behavior: "smooth" });
     };
 
     document.addEventListener("click", handleAnchorClick);
-
-    return () => {
-      document.removeEventListener("click", handleAnchorClick);
-      lenis.destroy();
-    };
+    return () => document.removeEventListener("click", handleAnchorClick);
   }, []);
 
   return <>{children}</>;

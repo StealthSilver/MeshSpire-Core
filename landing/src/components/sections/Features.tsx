@@ -2,12 +2,27 @@
 
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useIsDark } from "@/hooks/useIsDark";
+import {
+  DottedMap,
+  DOTTED_MAP_VIEW_H,
+  DOTTED_MAP_VIEW_W,
+  projectMapPoint,
+  type Marker,
+} from "@/components/ui/DottedMap";
 
 const ORANGE = "#FFA629";
 const BLUE = "#809FFF";
 const PURPLE = "#8B5CF6";
+const YELLOW = "#FFD580";
 const GREEN = "#7DD3A0";
 const ROSE = "#F472B6";
+
+const FEATURE_ROW_ILLUSTRATION_CLASS =
+  "w-[88%] max-w-[88%] mx-auto min-h-[8rem] h-36 sm:min-h-[9rem] sm:h-40";
+const FEATURE_ROW_ILLUSTRATION_WRAPPER = "pt-4 pb-8 px-3 sm:px-4";
+const FEATURE_ROW_TEXT_CLASS = "px-8 pt-4 pb-8";
+
+const featureIllustrationCardFill = (isDark: boolean) => (isDark ? "#12151A" : "#FFFFFF");
 
 /* ─── Matching Illustration ─── */
 
@@ -103,8 +118,8 @@ const MatchingAnimatedPath = ({
   trackColor: string;
   index: number;
 }) => {
-  const dashDur = `${3.6 + index * 0.45}s`;
-  const motionDur = `${4.2 + index * 0.5}s`;
+  const dashDur = `${1.4 + index * 0.18}s`;
+  const motionDur = `${1.6 + index * 0.2}s`;
 
   return (
     <g>
@@ -129,8 +144,8 @@ const MatchingAnimatedPath = ({
         <animateMotion dur={motionDur} repeatCount="indefinite" path={d} />
       </circle>
       <circle r="2.5" fill={color} opacity="0">
-        <animate attributeName="opacity" values="0.28;0;0.28" dur="2s" repeatCount="indefinite" />
-        <animate attributeName="r" values="1.5;4;1.5" dur="2s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.28;0;0.28" dur="1.2s" repeatCount="indefinite" />
+        <animate attributeName="r" values="1.5;4;1.5" dur="1.2s" repeatCount="indefinite" />
         <animateMotion dur={motionDur} repeatCount="indefinite" path={d} />
       </circle>
     </g>
@@ -212,7 +227,7 @@ const TutorCard = ({
 
 const MatchingIllustration = ({ isDark }: { isDark: boolean }) => {
   const muted = isDark ? "rgba(255,255,255,0.12)" : "rgba(15,23,42,0.12)";
-  const cardFill = isDark ? "#12151A" : "#FFFFFF";
+  const cardFill = featureIllustrationCardFill(isDark);
   const cardStroke = isDark ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.08)";
   const textColor = isDark ? "#F5F7FA" : "#0F172A";
   const logogramCenter = isDark ? "#F8FAFC" : "#0F172A";
@@ -293,8 +308,8 @@ const SCHEDULE_LESSONS: ScheduleLesson[] = [
   { id: "english", title: "English Lesson", time: "14:00 - 15:00", theme: "purple" },
 ];
 
-const SCHEDULE_CARD_HEIGHT = 38;
-const SCHEDULE_CARD_GAP = 5;
+const SCHEDULE_CARD_HEIGHT = 32;
+const SCHEDULE_CARD_GAP = 4;
 const SCHEDULE_STEP = SCHEDULE_CARD_HEIGHT + SCHEDULE_CARD_GAP;
 
 const scheduleThemeStyles = (theme: ScheduleLesson["theme"], isDark: boolean) => {
@@ -418,21 +433,21 @@ const ScheduleIllustration = ({ isDark }: { isDark: boolean }) => {
 
   return (
     <div
-      className={`w-full max-w-[188px] mx-auto rounded-[10px] border px-[12px] pt-[10px] pb-[10px] select-none touch-none ${
+      className={`w-full max-w-[172px] mx-auto rounded-[10px] border px-[10px] pt-[8px] pb-[8px] select-none touch-none ${
         isDark
           ? "border-white/[0.1] bg-[#12151A] shadow-[0_1px_2px_rgba(0,0,0,0.35),0_8px_24px_rgba(0,0,0,0.28)]"
           : "border-[#E2E8F0] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.08)]"
       }`}
     >
-      <div className="mb-[8px] flex items-baseline justify-between gap-2">
-        <p className="font-[var(--font-secondary)] text-[10px] leading-none">
+      <div className="mb-[6px] flex items-baseline justify-between gap-2">
+        <p className="font-[var(--font-secondary)] text-[9px] leading-none">
           <span className={isDark ? "text-[#94A3B8]" : "text-[#64748B]"}>Today, </span>
           <span className={`font-semibold ${isDark ? "text-[#F5F7FA]" : "text-[#0F172A]"}`}>
             {todayLabel.weekday}
           </span>
         </p>
         <span
-          className={`font-[var(--font-secondary)] text-[9px] leading-none ${
+          className={`font-[var(--font-secondary)] text-[8px] leading-none ${
             isDark ? "text-[#64748B]" : "text-[#94A3B8]"
           }`}
         >
@@ -488,18 +503,18 @@ const ScheduleIllustration = ({ isDark }: { isDark: boolean }) => {
               }}
             >
               <div
-                className="my-[7px] ml-[8px] w-[2.5px] shrink-0 rounded-full"
+                className="my-[6px] ml-[7px] w-[2px] shrink-0 rounded-full"
                 style={{ backgroundColor: theme.accent }}
               />
-              <div className="flex min-w-0 flex-col justify-center py-[6px] pl-[7px] pr-[8px]">
+              <div className="flex min-w-0 flex-col justify-center py-[5px] pl-[6px] pr-[7px]">
                 <span
-                  className="truncate font-[var(--font-secondary)] text-[10px] font-semibold leading-[1.15]"
+                  className="truncate font-[var(--font-secondary)] text-[9px] font-semibold leading-[1.15]"
                   style={{ color: theme.title }}
                 >
                   {lesson.title}
                 </span>
                 <span
-                  className="mt-[2px] font-[var(--font-secondary)] text-[9px] font-normal leading-none"
+                  className="mt-[1px] font-[var(--font-secondary)] text-[8px] font-normal leading-none"
                   style={{ color: theme.time }}
                 >
                   {lesson.time}
@@ -531,13 +546,12 @@ type GrowthSeries = {
 const GROWTH_SERIES: GrowthSeries[] = [
   { id: "math", label: "Math", color: ORANGE, start: 0.1, mid: 0.48, end: 0.9, steepness: 9.5, shift: 0 },
   { id: "chem", label: "Chem", color: BLUE, start: 0.06, mid: 0.44, end: 0.94, steepness: 10.5, shift: 0.03 },
-  { id: "phys", label: "Physics", color: PURPLE, start: 0.14, mid: 0.5, end: 0.86, steepness: 9, shift: 0.02 },
-  { id: "bio", label: "Bio", color: GREEN, start: 0.12, mid: 0.46, end: 0.88, steepness: 9.2, shift: 0.05 },
   { id: "eng", label: "English", color: PURPLE, start: 0.16, mid: 0.52, end: 0.82, steepness: 8.5, shift: 0.01 },
-  { id: "hist", label: "History", color: ROSE, start: 0.18, mid: 0.54, end: 0.8, steepness: 8, shift: 0.06 },
+  { id: "bio", label: "Bio", color: YELLOW, start: 0.12, mid: 0.46, end: 0.88, steepness: 9.2, shift: 0.05 },
 ];
 
-const CHART = { left: 18, right: 302, top: 26, bottom: 126 };
+const CHART = { left: 12, right: 188, top: 20, bottom: 78 };
+const GROWTH_LEGEND_Y = 96;
 const POINT_COUNT = 28;
 
 const sigmoidValue = (t: number, s: GrowthSeries) => {
@@ -584,6 +598,7 @@ const ProgressIllustration = ({ isDark }: { isDark: boolean }) => {
   const tooltipStroke = isDark ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.08)";
   const dotFill = isDark ? "#0A0C0F" : "#F8FAFC";
   const areaAccent = BLUE;
+  const sessionBarFill = featureIllustrationCardFill(isDark);
 
   const seriesData = useMemo(
     () =>
@@ -632,14 +647,15 @@ const ProgressIllustration = ({ isDark }: { isDark: boolean }) => {
 
   const barCount = SESSION_BAR_HEIGHTS.length;
   const barWidth = (CHART.right - CHART.left) / barCount;
+  const legendSlotWidth = (CHART.right - CHART.left) / GROWTH_SERIES.length;
 
   return (
     <svg
-      viewBox="0 0 320 155"
+      viewBox="0 0 200 120"
       className="w-full h-full select-none"
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label="Student progress chart across six subjects"
+      aria-label="Student progress chart across four subjects"
     >
       <defs>
         <linearGradient id={`${uid}-area`} x1="0" y1="0" x2="0" y2="1">
@@ -649,20 +665,20 @@ const ProgressIllustration = ({ isDark }: { isDark: boolean }) => {
       </defs>
 
       <text
-        x="160"
-        y="18"
+        x="100"
+        y="12"
         textAnchor="middle"
-        fontSize="9"
+        fontSize="7"
         fontWeight="500"
         fill={headerColor}
         fontFamily="var(--font-secondary), system-ui, sans-serif"
         letterSpacing="0.02em"
       >
-        {visibleSeries.length} subjects tracked · Avg score {avgScore}%
+        {visibleSeries.length} subjects · Avg {avgScore}%
       </text>
 
-      {Array.from({ length: 7 }, (_, i) => {
-        const x = CHART.left + (i / 6) * (CHART.right - CHART.left);
+      {Array.from({ length: 5 }, (_, i) => {
+        const x = CHART.left + (i / 4) * (CHART.right - CHART.left);
         return (
           <line key={`v-${i}`} x1={x} y1={CHART.top} x2={x} y2={CHART.bottom} stroke={gridStroke} strokeWidth="0.6" />
         );
@@ -680,8 +696,8 @@ const ProgressIllustration = ({ isDark }: { isDark: boolean }) => {
             width={w}
             height={barH}
             rx="1.5"
-            fill={areaAccent}
-            opacity={isDark ? 0.08 : 0.11}
+            fill={sessionBarFill}
+            opacity={1}
           />
         );
       })}
@@ -700,7 +716,7 @@ const ProgressIllustration = ({ isDark }: { isDark: boolean }) => {
               d={s.path}
               fill="none"
               stroke={s.color}
-              strokeWidth={activeId === s.id ? 2.2 : 1.65}
+              strokeWidth={activeId === s.id ? 1.8 : 1.35}
               strokeLinecap="round"
               strokeLinejoin="round"
               style={{ transition: "stroke-width 0.2s ease" }}
@@ -708,7 +724,7 @@ const ProgressIllustration = ({ isDark }: { isDark: boolean }) => {
             <circle
               cx={last.x}
               cy={last.y}
-              r={activeId === s.id ? 3.2 : 2.4}
+              r={activeId === s.id ? 2.6 : 2}
               fill={dotFill}
               stroke={s.color}
               strokeWidth={activeId === s.id ? 1.4 : 1}
@@ -729,10 +745,10 @@ const ProgressIllustration = ({ isDark }: { isDark: boolean }) => {
 
       {activeSeries && (() => {
         const last = activeSeries.points[activeSeries.points.length - 1];
-        const tipW = 52;
-        const tipH = 22;
-        const tipX = Math.min(last.x - tipW - 6, CHART.right - tipW - 4);
-        const tipY = Math.max(last.y - tipH - 8, CHART.top + 2);
+        const tipW = 46;
+        const tipH = 18;
+        const tipX = Math.min(last.x - tipW - 4, CHART.right - tipW - 2);
+        const tipY = Math.max(last.y - tipH - 6, CHART.top + 2);
         return (
           <g pointerEvents="none">
             <rect
@@ -740,16 +756,16 @@ const ProgressIllustration = ({ isDark }: { isDark: boolean }) => {
               y={tipY}
               width={tipW}
               height={tipH}
-              rx="4"
+              rx="3"
               fill={tooltipBg}
               stroke={tooltipStroke}
               strokeWidth="0.6"
             />
             <text
               x={tipX + tipW / 2}
-              y={tipY + 9}
+              y={tipY + 8}
               textAnchor="middle"
-              fontSize="7"
+              fontSize="6"
               fontWeight="600"
               fill={activeSeries.color}
               fontFamily="system-ui, sans-serif"
@@ -758,23 +774,23 @@ const ProgressIllustration = ({ isDark }: { isDark: boolean }) => {
             </text>
             <text
               x={tipX + tipW / 2}
-              y={tipY + 17}
+              y={tipY + 14}
               textAnchor="middle"
-              fontSize="6.5"
+              fontSize="5.5"
               fill={headerColor}
               fontFamily="system-ui, sans-serif"
             >
-              {activeSeries.score}% mastery
+              {activeSeries.score}%
             </text>
           </g>
         );
       })()}
 
-      <g transform="translate(0, 132)">
+      <g transform={`translate(0, ${GROWTH_LEGEND_Y})`}>
         {seriesData.map((s, i) => {
           const isHidden = hiddenIds.has(s.id);
           const isHovered = hoveredId === s.id;
-          const x = 12 + i * 52;
+          const x = CHART.left + i * legendSlotWidth;
           return (
             <g
               key={`leg-${s.id}`}
@@ -796,17 +812,17 @@ const ProgressIllustration = ({ isDark }: { isDark: boolean }) => {
             >
               <rect
                 x={0}
-                y={5}
-                width={14}
-                height={3}
-                rx="1.5"
+                y={4}
+                width={12}
+                height={2.5}
+                rx="1.25"
                 fill={s.color}
                 opacity={isHidden ? 0.25 : isHovered ? 1 : 0.85}
               />
               <text
-                x={18}
-                y={9}
-                fontSize="7"
+                x={15}
+                y={8}
+                fontSize="6"
                 fontWeight={isHovered ? "600" : "500"}
                 fill={isHidden ? legendMuted : isHovered ? (isDark ? "#F5F7FA" : "#0F172A") : legendMuted}
                 fontFamily="var(--font-secondary), system-ui, sans-serif"
@@ -823,45 +839,108 @@ const ProgressIllustration = ({ isDark }: { isDark: boolean }) => {
 
 /* ─── Subjects Illustration ─── */
 
-const SubjectIcon = ({ type, color }: { type: string; color: string }) => {
-  const sw = 0.75;
-  switch (type) {
-    case "math":
+type SubjectDocVariant = "grid" | "lines" | "markdown" | "slides";
+
+const SubjectDocContent = ({
+  variant,
+  color,
+  muted,
+  isDark,
+}: {
+  variant: SubjectDocVariant;
+  color: string;
+  muted: string;
+  isDark: boolean;
+}) => {
+  const accentSoft = `${color}${isDark ? "55" : "44"}`;
+  const accentFill = `${color}${isDark ? "30" : "22"}`;
+
+  switch (variant) {
+    case "grid": {
+      const gx = 9;
+      const gy = 11;
+      const cols = 5;
+      const rows = 4;
+      const cw = 4.8;
+      const ch = 5.2;
       return (
-        <text x="0" y="0.5" textAnchor="middle" dominantBaseline="middle" fontSize="7" fontWeight="600" fill={color} opacity="0.9">
-          π
-        </text>
-      );
-    case "science":
-      return (
-        <g stroke={color} strokeWidth={sw} fill="none" strokeLinecap="round" opacity="0.85">
-          <path d="M-3.5,-2.5 L3.5,-2.5 L4.5,4 L-4.5,4 Z" />
-          <line x1="-1.5" y1="-2.5" x2="-2.5" y2="-5" />
-          <line x1="1.5" y1="-2.5" x2="2.5" y2="-5" />
+        <g>
+          {Array.from({ length: rows + 1 }, (_, r) => (
+            <line
+              key={`h-${r}`}
+              x1={gx}
+              y1={gy + r * ch}
+              x2={gx + cols * cw}
+              y2={gy + r * ch}
+              stroke={muted}
+              strokeWidth="0.5"
+            />
+          ))}
+          {Array.from({ length: cols + 1 }, (_, c) => (
+            <line
+              key={`v-${c}`}
+              x1={gx + c * cw}
+              y1={gy}
+              x2={gx + c * cw}
+              y2={gy + rows * ch}
+              stroke={muted}
+              strokeWidth="0.5"
+            />
+          ))}
+          <rect x={gx + cw * 2} y={gy + ch} width={cw} height={ch} fill={accentFill} rx="0.5" />
+          <rect x={gx + cw * 3} y={gy + ch * 2} width={cw} height={ch} fill={accentSoft} rx="0.5" opacity="0.65" />
         </g>
       );
-    case "english":
+    }
+    case "lines":
       return (
-        <g stroke={color} strokeWidth={sw} fill="none" strokeLinecap="round" opacity="0.85">
-          <path d="M-4,0 L0,-4 L4,0 L4,4.5 L-4,4.5 Z" />
-          <line x1="0" y1="-4" x2="0" y2="4.5" />
+        <g>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <rect
+              key={i}
+              x={9}
+              y={12 + i * 5.5}
+              width={26 - i * 2}
+              height="1.6"
+              rx="0.8"
+              fill={muted}
+            />
+          ))}
+          <circle cx={14} cy={16} r="2.2" fill={accentFill} stroke={color} strokeWidth="0.4" opacity="0.9" />
         </g>
       );
-    case "history":
+    case "markdown":
       return (
-        <g stroke={color} strokeWidth={sw} fill="none" opacity="0.85">
-          <circle cx="0" cy="0" r="4.5" />
-          <ellipse cx="0" cy="0" rx="4.5" ry="1.6" />
-          <line x1="0" y1="-4.5" x2="0" y2="4.5" />
+        <g>
+          {[
+            { y: 12, w: 24, thick: false },
+            { y: 17.5, w: 20, thick: false },
+            { y: 23, w: 26, thick: true },
+            { y: 29, w: 18, thick: false },
+            { y: 34.5, w: 22, thick: false },
+          ].map((line, i) => (
+            <rect
+              key={i}
+              x={9}
+              y={line.y}
+              width={line.w}
+              height={line.thick ? "2.2" : "1.5"}
+              rx="0.75"
+              fill={line.thick ? accentSoft : muted}
+            />
+          ))}
         </g>
       );
-    case "art":
+    case "slides":
       return (
-        <g stroke={color} strokeWidth={sw} fill="none" strokeLinecap="round" opacity="0.85">
-          <path d="M-4,3.5 Q-4,-3 0,-3 Q4,-3 4,3.5" />
-          <circle cx="-2" cy="0" r="0.9" fill={ORANGE} stroke="none" />
-          <circle cx="0.5" cy="-1" r="0.9" fill={BLUE} stroke="none" />
-          <circle cx="2.5" cy="1" r="0.9" fill={GREEN} stroke="none" />
+        <g>
+          <rect x={9} y={12} width={26} height={16} rx="1.5" fill={isDark ? "rgba(255,255,255,0.03)" : "rgba(15,23,42,0.04)"} stroke={muted} strokeWidth="0.4" />
+          <circle cx={15} cy={20} r="3.2" fill={accentFill} stroke={color} strokeWidth="0.35" />
+          <rect x={20} y={16} width="5" height="5" rx="1" fill={accentSoft} />
+          <rect x={20} y={23} width="12" height="1.4" rx="0.7" fill={muted} />
+          <rect x={20} y={26} width="9" height="1.4" rx="0.7" fill={muted} />
+          <rect x={9} y={32} width={10} height="1.4" rx="0.7" fill={muted} />
+          <rect x={9} y={35.5} width={14} height="1.4" rx="0.7" fill={muted} />
         </g>
       );
     default:
@@ -869,142 +948,178 @@ const SubjectIcon = ({ type, color }: { type: string; color: string }) => {
   }
 };
 
-const SubjectCard = ({
+const SUBJECT_CARD_W = 42;
+const SUBJECT_CARD_H = 54;
+
+const SubjectDocCard = ({
   x,
   y,
   rotate,
-  label,
   badge,
   color,
-  icon,
+  variant,
   cardFill,
   cardStroke,
-  textColor,
   muted,
   isDark,
+  badgeShadowId,
 }: {
   x: number;
   y: number;
   rotate: number;
-  label: string;
   badge: string;
   color: string;
-  icon: string;
+  variant: SubjectDocVariant;
   cardFill: string;
   cardStroke: string;
-  textColor: string;
   muted: string;
   isDark: boolean;
+  badgeShadowId: string;
 }) => {
-  const w = 40;
-  const h = 56;
-  const fold = 6;
-  const headerH = 14;
-  const tint = `${color}${isDark ? "22" : "18"}`;
+  const w = SUBJECT_CARD_W;
+  const h = SUBJECT_CARD_H;
+  const fold = 7;
+  const badgeW = 20;
+  const badgeH = 8;
+  const badgeX = w - badgeW + 2;
+  const badgeY = h - badgeH + 1;
 
   return (
     <g transform={`translate(${x + w / 2}, ${y + h / 2}) rotate(${rotate}) translate(${-w / 2}, ${-h / 2})`}>
-      <rect x={0} y={0} width={w} height={h} rx="3" fill={cardFill} stroke={cardStroke} strokeWidth="0.6" />
+      <rect x={0} y={0} width={w} height={h} rx="5" fill={cardFill} stroke={cardStroke} strokeWidth="0.6" />
       <path
         d={`M${w - fold} 0 L${w} 0 L${w} ${fold} Z`}
-        fill={isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)"}
+        fill={isDark ? "rgba(255,255,255,0.05)" : "rgba(15,23,42,0.05)"}
         stroke={cardStroke}
-        strokeWidth="0.4"
+        strokeWidth="0.35"
       />
-      <rect x={0.5} y={0.5} width={w - 1} height={headerH} rx="2.5" fill={tint} />
-      <g transform={`translate(9, ${headerH / 2 + 0.5})`}>
-        <circle cx={0} cy={0} r="4.5" fill={`${color}${isDark ? "20" : "14"}`} stroke={color} strokeWidth="0.45" opacity="0.9" />
-        <g transform="translate(0, 0)">
-          <SubjectIcon type={icon} color={color} />
-        </g>
+      <SubjectDocContent variant={variant} color={color} muted={muted} isDark={isDark} />
+      <g filter={`url(#${badgeShadowId})`}>
+        <rect x={badgeX} y={badgeY} width={badgeW} height={badgeH} rx="2.5" fill={color} />
+        <text
+          x={badgeX + badgeW / 2}
+          y={badgeY + badgeH / 2 + 0.5}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize="4.5"
+          fontWeight="700"
+          fill="#F8FAFC"
+          fontFamily="var(--font-secondary), system-ui, sans-serif"
+          letterSpacing="0.35"
+        >
+          {badge}
+        </text>
       </g>
-      <text
-        x={18}
-        y={headerH / 2 + 1}
-        fontSize={label.length > 6 ? "5" : "5.5"}
-        fontWeight="600"
-        fill={textColor}
-        fontFamily="var(--font-secondary), system-ui, sans-serif"
-        letterSpacing="0.1"
-      >
-        {label}
-      </text>
-      {[0, 1, 2, 3].map((i) => (
-        <line
-          key={i}
-          x1={8}
-          y1={headerH + 6 + i * 5}
-          x2={w - 7 - i * 2}
-          y2={headerH + 6 + i * 5}
-          stroke={muted}
-          strokeWidth="1"
-          strokeLinecap="round"
-          strokeDasharray="2,1.5"
-        />
-      ))}
-      <rect x={w - 20} y={h - 10} width={17} height={7} rx="1.5" fill={color} opacity={isDark ? 0.85 : 0.9} />
-      <text
-        x={w - 11.5}
-        y={h - 6.5}
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fontSize="4.5"
-        fontWeight="600"
-        fill="#F8FAFC"
-        fontFamily="var(--font-secondary), system-ui, sans-serif"
-        letterSpacing="0.2"
-      >
-        {badge}
-      </text>
     </g>
   );
 };
 
 const SubjectsIllustration = ({ isDark }: { isDark: boolean }) => {
   const uid = useId().replace(/:/g, "");
-  const muted = isDark ? "rgba(255,255,255,0.12)" : "rgba(15,23,42,0.12)";
-  const cardFill = isDark ? "#12151A" : "#FFFFFF";
+  const muted = isDark ? "rgba(255,255,255,0.14)" : "rgba(15,23,42,0.1)";
+  const cardFill = featureIllustrationCardFill(isDark);
   const cardStroke = isDark ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.08)";
-  const textColor = isDark ? "#F5F7FA" : "#0F172A";
 
-  const subjects = [
-    { x: 34, y: 32, rotate: -6, label: "Math", badge: "Math", color: ORANGE, icon: "math" },
-    { x: 48, y: 28, rotate: -3, label: "Science", badge: "Sci", color: BLUE, icon: "science" },
-    { x: 62, y: 24, rotate: 0, label: "English", badge: "Eng", color: PURPLE, icon: "english" },
-    { x: 76, y: 28, rotate: 3, label: "History", badge: "Hist", color: GREEN, icon: "history" },
-    { x: 90, y: 32, rotate: 6, label: "Art", badge: "Art", color: ROSE, icon: "art" },
+  const gapX = 12;
+  const gapY = 10;
+  const gridW = SUBJECT_CARD_W * 2 + gapX;
+  const gridH = SUBJECT_CARD_H * 2 + gapY;
+  const originX = (200 - gridW) / 2;
+  const originY = (120 - gridH) / 2;
+
+  const subjects: {
+    key: string;
+    col: number;
+    row: number;
+    rotate: number;
+    badge: string;
+    color: string;
+    variant: SubjectDocVariant;
+    badgeShadowId: string;
+  }[] = [
+    {
+      key: "math",
+      col: 0,
+      row: 0,
+      rotate: -2.5,
+      badge: "MTH",
+      color: ORANGE,
+      variant: "grid",
+      badgeShadowId: `${uid}-badge-orange`,
+    },
+    {
+      key: "science",
+      col: 1,
+      row: 0,
+      rotate: 2,
+      badge: "SCI",
+      color: BLUE,
+      variant: "lines",
+      badgeShadowId: `${uid}-badge-blue`,
+    },
+    {
+      key: "english",
+      col: 0,
+      row: 1,
+      rotate: -1.5,
+      badge: "ENG",
+      color: PURPLE,
+      variant: "markdown",
+      badgeShadowId: `${uid}-badge-purple`,
+    },
+    {
+      key: "history",
+      col: 1,
+      row: 1,
+      rotate: 2.5,
+      badge: "HIS",
+      color: GREEN,
+      variant: "slides",
+      badgeShadowId: `${uid}-badge-green`,
+    },
   ];
 
   return (
     <svg viewBox="0 0 200 120" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
       <defs>
-        <filter id={`${uid}-shadow`} x="-25%" y="-25%" width="150%" height="150%">
+        <filter id={`${uid}-card-shadow`} x="-25%" y="-25%" width="150%" height="150%">
           <feDropShadow
             dx="0"
-            dy="1"
-            stdDeviation="1.5"
+            dy="1.5"
+            stdDeviation="2"
             floodColor={isDark ? "#000" : "#0F172A"}
-            floodOpacity={isDark ? 0.35 : 0.08}
+            floodOpacity={isDark ? 0.4 : 0.1}
           />
+        </filter>
+        <filter id={`${uid}-badge-orange`} x="-40%" y="-40%" width="180%" height="180%">
+          <feDropShadow dx="0" dy="1" stdDeviation="1.2" floodColor={ORANGE} floodOpacity={isDark ? 0.45 : 0.35} />
+        </filter>
+        <filter id={`${uid}-badge-blue`} x="-40%" y="-40%" width="180%" height="180%">
+          <feDropShadow dx="0" dy="1" stdDeviation="1.2" floodColor={BLUE} floodOpacity={isDark ? 0.45 : 0.35} />
+        </filter>
+        <filter id={`${uid}-badge-purple`} x="-40%" y="-40%" width="180%" height="180%">
+          <feDropShadow dx="0" dy="1" stdDeviation="1.2" floodColor={PURPLE} floodOpacity={isDark ? 0.45 : 0.35} />
+        </filter>
+        <filter id={`${uid}-badge-green`} x="-40%" y="-40%" width="180%" height="180%">
+          <feDropShadow dx="0" dy="1" stdDeviation="1.2" floodColor={GREEN} floodOpacity={isDark ? 0.45 : 0.35} />
         </filter>
       </defs>
 
-      <g filter={`url(#${uid}-shadow)`} transform="translate(100, 62) rotate(5) translate(-82, -40)">
+      <g filter={`url(#${uid}-card-shadow)`}>
         {subjects.map((s) => (
-          <SubjectCard
-            key={s.label}
-            x={s.x}
-            y={s.y}
+          <SubjectDocCard
+            key={s.key}
+            x={originX + s.col * (SUBJECT_CARD_W + gapX)}
+            y={originY + s.row * (SUBJECT_CARD_H + gapY)}
             rotate={s.rotate}
-            label={s.label}
             badge={s.badge}
             color={s.color}
-            icon={s.icon}
+            variant={s.variant}
             cardFill={cardFill}
             cardStroke={cardStroke}
-            textColor={textColor}
             muted={muted}
             isDark={isDark}
+            badgeShadowId={s.badgeShadowId}
           />
         ))}
       </g>
@@ -1019,13 +1134,14 @@ const ScanCornerBracket = ({
   y,
   corner,
   stroke,
+  len = 10,
 }: {
   x: number;
   y: number;
   corner: "tl" | "tr" | "bl" | "br";
   stroke: string;
+  len?: number;
 }) => {
-  const len = 11;
   const paths = {
     tl: `M ${x + len} ${y} L ${x} ${y} L ${x} ${y + len}`,
     tr: `M ${x - len} ${y} L ${x} ${y} L ${x} ${y + len}`,
@@ -1037,7 +1153,7 @@ const ScanCornerBracket = ({
       d={paths[corner]}
       fill="none"
       stroke={stroke}
-      strokeWidth="1.4"
+      strokeWidth="1.25"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
@@ -1046,24 +1162,34 @@ const ScanCornerBracket = ({
 
 const VerifiedIllustration = ({ isDark }: { isDark: boolean }) => {
   const uid = useId().replace(/:/g, "");
-  const muted = isDark ? "rgba(255,255,255,0.12)" : "rgba(15,23,42,0.1)";
-  const cardFill = isDark ? "#12151A" : "#FFFFFF";
+  const muted = isDark ? "rgba(255,255,255,0.11)" : "rgba(15,23,42,0.09)";
+  const accentBar = `${BLUE}${isDark ? "38" : "2A"}`;
+  const cardFill = featureIllustrationCardFill(isDark);
   const cardStroke = isDark ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.08)";
-  const frameFill = isDark ? "rgba(255,255,255,0.04)" : "rgba(15,23,42,0.04)";
-  const bracketStroke = isDark ? "rgba(245,247,250,0.4)" : "rgba(15,23,42,0.28)";
-  const scanLine = isDark ? "#F5F7FA" : "#0F172A";
+  const frameFill = isDark ? "rgba(255,255,255,0.035)" : "rgba(241,245,249,0.92)";
+  const frameStroke = isDark ? "rgba(255,255,255,0.07)" : "rgba(15,23,42,0.06)";
+  const bracketStroke = isDark ? "rgba(245,247,250,0.42)" : "rgba(15,23,42,0.3)";
+  const scanLine = isDark ? "rgba(245,247,250,0.92)" : "#0F172A";
 
-  const frame = { x: 38, y: 12, w: 124, h: 96, rx: 8 };
-  const doc = { x: 52, y: 26, w: 96, h: 68, rx: 5 };
-  const scanTop = doc.y + 6;
-  const scanBottom = doc.y + doc.h - 6;
+  const frame = { x: 50, y: 4, w: 100, h: 112, rx: 10 };
+  const doc = { x: 62, y: 16, w: 76, h: 88, rx: 6 };
+  const bracketInset = 12;
+  const scanTop = doc.y + 8;
+  const scanBottom = doc.y + doc.h - 8;
+  const barH = 2.2;
+  const barRx = barH / 2;
 
-  const bodyLines = [
-    { y: 52, w: 72 },
-    { y: 60, w: 64 },
-    { y: 68, w: 68 },
-    { y: 76, w: 56 },
-    { y: 84, w: 62 },
+  const headerBars = [
+    { x: doc.x + 24, y: doc.y + 11, w: 34 },
+    { x: doc.x + 24, y: doc.y + 19, w: 22, accent: true },
+  ];
+  const bodyBars = [
+    { y: doc.y + 34, w: 52 },
+    { y: doc.y + 42, w: 46 },
+    { y: doc.y + 50, w: 54 },
+    { y: doc.y + 58, w: 40 },
+    { y: doc.y + 66, w: 48 },
+    { y: doc.y + 74, w: 44 },
   ];
 
   return (
@@ -1072,14 +1198,21 @@ const VerifiedIllustration = ({ isDark }: { isDark: boolean }) => {
         <filter id={`${uid}-shadow`} x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow
             dx="0"
-            dy="1"
-            stdDeviation="1.5"
+            dy="1.5"
+            stdDeviation="2"
             floodColor={isDark ? "#000" : "#0F172A"}
-            floodOpacity={isDark ? 0.35 : 0.08}
+            floodOpacity={isDark ? 0.38 : 0.09}
           />
         </filter>
-        <filter id={`${uid}-scan-glow`} x="-200%" y="-200%" width="500%" height="500%">
-          <feGaussianBlur stdDeviation="1.2" result="blur" />
+        <filter id={`${uid}-edge-glow`} x="-120%" y="-120%" width="340%" height="340%">
+          <feGaussianBlur stdDeviation="2.2" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id={`${uid}-line-glow`} x="-10%" y="-400%" width="120%" height="900%">
+          <feGaussianBlur stdDeviation="0.6" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
@@ -1090,9 +1223,14 @@ const VerifiedIllustration = ({ isDark }: { isDark: boolean }) => {
         </clipPath>
         <linearGradient id={`${uid}-beam`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={BLUE} stopOpacity="0" />
-          <stop offset="45%" stopColor={BLUE} stopOpacity={isDark ? 0.12 : 0.08} />
-          <stop offset="50%" stopColor={BLUE} stopOpacity={isDark ? 0.22 : 0.14} />
-          <stop offset="55%" stopColor={BLUE} stopOpacity={isDark ? 0.12 : 0.08} />
+          <stop offset="38%" stopColor={BLUE} stopOpacity={isDark ? "0.06" : "0.04"} />
+          <stop offset="50%" stopColor={BLUE} stopOpacity={isDark ? "0.2" : "0.14"} />
+          <stop offset="62%" stopColor={BLUE} stopOpacity={isDark ? "0.06" : "0.04"} />
+          <stop offset="100%" stopColor={BLUE} stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id={`${uid}-edge-fade`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={BLUE} stopOpacity="0" />
+          <stop offset="50%" stopColor={BLUE} stopOpacity={isDark ? "0.85" : "0.7"} />
           <stop offset="100%" stopColor={BLUE} stopOpacity="0" />
         </linearGradient>
       </defs>
@@ -1105,14 +1243,34 @@ const VerifiedIllustration = ({ isDark }: { isDark: boolean }) => {
           height={frame.h}
           rx={frame.rx}
           fill={frameFill}
-          stroke={cardStroke}
+          stroke={frameStroke}
           strokeWidth="0.6"
         />
 
-        <ScanCornerBracket x={frame.x + 10} y={frame.y + 10} corner="tl" stroke={bracketStroke} />
-        <ScanCornerBracket x={frame.x + frame.w - 10} y={frame.y + 10} corner="tr" stroke={bracketStroke} />
-        <ScanCornerBracket x={frame.x + 10} y={frame.y + frame.h - 10} corner="bl" stroke={bracketStroke} />
-        <ScanCornerBracket x={frame.x + frame.w - 10} y={frame.y + frame.h - 10} corner="br" stroke={bracketStroke} />
+        <ScanCornerBracket
+          x={frame.x + bracketInset}
+          y={frame.y + bracketInset}
+          corner="tl"
+          stroke={bracketStroke}
+        />
+        <ScanCornerBracket
+          x={frame.x + frame.w - bracketInset}
+          y={frame.y + bracketInset}
+          corner="tr"
+          stroke={bracketStroke}
+        />
+        <ScanCornerBracket
+          x={frame.x + bracketInset}
+          y={frame.y + frame.h - bracketInset}
+          corner="bl"
+          stroke={bracketStroke}
+        />
+        <ScanCornerBracket
+          x={frame.x + frame.w - bracketInset}
+          y={frame.y + frame.h - bracketInset}
+          corner="br"
+          stroke={bracketStroke}
+        />
 
         <rect
           x={doc.x}
@@ -1125,19 +1283,27 @@ const VerifiedIllustration = ({ isDark }: { isDark: boolean }) => {
           strokeWidth="0.6"
         />
 
-        <circle cx={doc.x + 14} cy={doc.y + 16} r="5.5" fill={`${BLUE}${isDark ? "35" : "28"}`} />
-        <line x1={doc.x + 26} y1={doc.y + 12} x2={doc.x + 58} y2={doc.y + 12} stroke={muted} strokeWidth="2.2" strokeLinecap="round" />
-        <line x1={doc.x + 26} y1={doc.y + 20} x2={doc.x + 48} y2={doc.y + 20} stroke={muted} strokeWidth="2.2" strokeLinecap="round" />
-        {bodyLines.map((line) => (
-          <line
-            key={line.y}
-            x1={doc.x + 12}
-            y1={line.y}
-            x2={doc.x + 12 + line.w}
-            y2={line.y}
-            stroke={muted}
-            strokeWidth="2"
-            strokeLinecap="round"
+        <circle cx={doc.x + 12} cy={doc.y + 15} r="5.5" fill={accentBar} />
+        {headerBars.map((bar, i) => (
+          <rect
+            key={`hdr-${i}`}
+            x={bar.x}
+            y={bar.y}
+            width={bar.w}
+            height={barH}
+            rx={barRx}
+            fill={bar.accent ? accentBar : muted}
+          />
+        ))}
+        {bodyBars.map((bar, i) => (
+          <rect
+            key={`body-${i}`}
+            x={doc.x + 10}
+            y={bar.y}
+            width={bar.w}
+            height={barH}
+            rx={barRx}
+            fill={i === 0 ? accentBar : muted}
           />
         ))}
 
@@ -1147,47 +1313,46 @@ const VerifiedIllustration = ({ isDark }: { isDark: boolean }) => {
               attributeName="transform"
               type="translate"
               values={`0,${scanTop}; 0,${scanBottom}; 0,${scanTop}`}
-              dur="2.6s"
+              dur="2.8s"
               repeatCount="indefinite"
               calcMode="spline"
-              keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"
+              keySplines="0.42 0 0.58 1; 0.42 0 0.58 1"
               keyTimes="0; 0.5; 1"
             />
             <rect
-              x={doc.x}
-              y={-6}
-              width={doc.w}
-              height={12}
+              x={frame.x + 2}
+              y={-8}
+              width={frame.w - 4}
+              height={16}
               fill={`url(#${uid}-beam)`}
             />
             <line
-              x1={frame.x + 4}
+              x1={frame.x + 2}
               y1={0}
-              x2={frame.x + frame.w - 4}
+              x2={frame.x + frame.w - 2}
               y2={0}
               stroke={scanLine}
-              strokeWidth="0.9"
+              strokeWidth="1"
               strokeLinecap="round"
+              filter={`url(#${uid}-line-glow)`}
             />
             <rect
-              x={doc.x}
-              y={-4}
-              width={2}
-              height={8}
-              rx="1"
-              fill={BLUE}
-              opacity={isDark ? 0.75 : 0.65}
-              filter={`url(#${uid}-scan-glow)`}
+              x={doc.x - 1}
+              y={-7}
+              width={3.5}
+              height={14}
+              rx="1.5"
+              fill={`url(#${uid}-edge-fade)`}
+              filter={`url(#${uid}-edge-glow)`}
             />
             <rect
-              x={doc.x + doc.w - 2}
-              y={-4}
-              width={2}
-              height={8}
-              rx="1"
-              fill={BLUE}
-              opacity={isDark ? 0.75 : 0.65}
-              filter={`url(#${uid}-scan-glow)`}
+              x={doc.x + doc.w - 2.5}
+              y={-7}
+              width={3.5}
+              height={14}
+              rx="1.5"
+              fill={`url(#${uid}-edge-fade)`}
+              filter={`url(#${uid}-edge-glow)`}
             />
           </g>
         </g>
@@ -1198,507 +1363,433 @@ const VerifiedIllustration = ({ isDark }: { isDark: boolean }) => {
 
 /* ─── Instant Connect Illustration (chat) ─── */
 
-const ConnectTypingDots = ({
-  x,
-  y,
-  fill,
-  begin,
-}: {
-  x: number;
-  y: number;
-  fill: string;
-  begin: string;
-}) => (
-  <g opacity="0">
-    <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.14;0.34;0.4;1" dur="7s" begin={begin} repeatCount="indefinite" />
-    {[0, 7, 14].map((dx, i) => (
-      <circle key={dx} cx={x + dx} cy={y} r="2.2" fill={fill}>
-        <animate
-          attributeName="opacity"
-          values="0.35;1;0.35"
-          dur="0.9s"
-          begin={`${begin}; ${i * 0.15}s`}
-          repeatCount="indefinite"
-        />
-        <animate
-          attributeName="cy"
-          values={`${y};${y - 2.5};${y}`}
-          dur="0.9s"
-          begin={`${begin}; ${i * 0.15}s`}
-          repeatCount="indefinite"
-        />
-      </circle>
-    ))}
-  </g>
-);
+type ConnectSender = "tutor" | "student";
 
-const ConnectIllustration = ({ isDark }: { isDark: boolean }) => {
-  const uid = useId().replace(/:/g, "");
-  const panelFill = isDark ? "#12151A" : "#FFFFFF";
-  const panelStroke = isDark ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.08)";
-  const chatBg = isDark ? "rgba(255,255,255,0.03)" : "#F8FAFC";
-  const meta = isDark ? "rgba(245,247,250,0.42)" : "rgba(15,23,42,0.42)";
-  const tutorBubbleFill = isDark ? "#1A1F27" : "#FFFFFF";
-  const tutorBubbleStroke = isDark ? "rgba(255,255,255,0.08)" : "rgba(15,23,42,0.06)";
-  const tutorText = isDark ? "#F5F7FA" : "#0F172A";
-  const studentText = "#F8FAFC";
-  const typingFill = isDark ? "rgba(245,247,250,0.55)" : "rgba(15,23,42,0.35)";
-  const font = "var(--font-secondary), system-ui, sans-serif";
-
-  const tutor = {
-    x: 14,
-    y: 28,
-    w: 104,
-    h: 32,
-    rx: 10,
-    lines: ["Happy to help — send me", "the problem you're stuck on."],
-  };
-  const student = {
-    x: 82,
-    y: 66,
-    w: 104,
-    h: 32,
-    rx: 10,
-    lines: ["Can you walk me through", "question 4 from the worksheet?"],
-  };
-  const typing = { x: 186, y: 54, w: 40, h: 20, rx: 9 };
-
-  return (
-    <svg viewBox="0 0 200 120" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <filter id={`${uid}-shadow`} x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow
-            dx="0"
-            dy="1"
-            stdDeviation="1.5"
-            floodColor={isDark ? "#000" : "#0F172A"}
-            floodOpacity={isDark ? 0.35 : 0.08}
-          />
-        </filter>
-        <filter id={`${uid}-bubble`} x="-15%" y="-15%" width="130%" height="130%">
-          <feDropShadow
-            dx="0"
-            dy="0.5"
-            stdDeviation="1"
-            floodColor={isDark ? "#000" : "#0F172A"}
-            floodOpacity={isDark ? 0.25 : 0.06}
-          />
-        </filter>
-      </defs>
-
-      <g filter={`url(#${uid}-shadow)`}>
-        <rect x="0" y="0" width="200" height="120" rx="8" fill={panelFill} stroke={panelStroke} strokeWidth="0.6" />
-        <rect x="8" y="8" width="184" height="104" rx="6" fill={chatBg} />
-
-        {/* Tutor date */}
-        <g opacity="0">
-          <animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;0.06;0.9;0.97;1" dur="7s" repeatCount="indefinite" />
-          <text x={tutor.x} y="22" fontSize="6" fill={meta} fontFamily={font}>
-            Sat 22 Feb
-          </text>
-        </g>
-
-        {/* Tutor message (left) */}
-        <g opacity="0" filter={`url(#${uid}-bubble)`}>
-          <animateTransform
-            attributeName="transform"
-            type="translate"
-            values="0,5; 0,0; 0,0; 0,5"
-            keyTimes="0;0.1;0.9;1"
-            dur="7s"
-            repeatCount="indefinite"
-          />
-          <animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;0.08;0.9;0.97;1" dur="7s" repeatCount="indefinite" />
-          <rect
-            x={tutor.x}
-            y={tutor.y}
-            width={tutor.w}
-            height={tutor.h}
-            rx={tutor.rx}
-            fill={tutorBubbleFill}
-            stroke={tutorBubbleStroke}
-            strokeWidth="0.5"
-          />
-          <text x={tutor.x + 10} y={tutor.y + 14} fontSize="6.2" fontWeight="500" fill={tutorText} fontFamily={font}>
-            {tutor.lines[0]}
-          </text>
-          <text x={tutor.x + 10} y={tutor.y + 24} fontSize="6.2" fontWeight="500" fill={tutorText} fontFamily={font}>
-            {tutor.lines[1]}
-          </text>
-        </g>
-
-        {/* Typing indicator (student side) */}
-        <g>
-          <rect
-            x={typing.x - typing.w}
-            y={typing.y}
-            width={typing.w}
-            height={typing.h}
-            rx={typing.rx}
-            fill={isDark ? "#1A1F27" : "#FFFFFF"}
-            stroke={tutorBubbleStroke}
-            strokeWidth="0.5"
-            opacity="0"
-          >
-            <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.16;0.2;0.34;0.4;1" dur="7s" repeatCount="indefinite" />
-          </rect>
-          <ConnectTypingDots x={typing.x - typing.w + 12} y={typing.y + 10} fill={typingFill} begin="0s" />
-        </g>
-
-        {/* Student message (right) */}
-        <g opacity="0" filter={`url(#${uid}-bubble)`}>
-          <animateTransform
-            attributeName="transform"
-            type="translate"
-            values="0,5; 0,0; 0,0; 0,5"
-            keyTimes="0;0.38;0.9;1"
-            dur="7s"
-            repeatCount="indefinite"
-          />
-          <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.36;0.9;1" dur="7s" repeatCount="indefinite" />
-          <rect
-            x={student.x}
-            y={student.y}
-            width={student.w}
-            height={student.h}
-            rx={student.rx}
-            fill={PURPLE}
-            opacity={isDark ? 0.9 : 0.88}
-          />
-          <text x={student.x + 10} y={student.y + 14} fontSize="6.2" fontWeight="500" fill={studentText} fontFamily={font}>
-            {student.lines[0]}
-          </text>
-          <text x={student.x + 10} y={student.y + 24} fontSize="6.2" fontWeight="500" fill={studentText} fontFamily={font}>
-            {student.lines[1]}
-          </text>
-        </g>
-
-        {/* Student timestamp */}
-        <g opacity="0">
-          <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.44;0.9;1" dur="7s" repeatCount="indefinite" />
-          <text
-            x={student.x + student.w}
-            y={student.y + student.h + 9}
-            textAnchor="end"
-            fontSize="5"
-            fill={meta}
-            fontFamily={font}
-          >
-            Now
-          </text>
-        </g>
-      </g>
-    </svg>
-  );
+type ConnectMessage = {
+  id: string;
+  from: ConnectSender;
+  text: string;
 };
 
-/* ─── Learn From Anywhere Illustration (global map) ─── */
+const CONNECT_MESSAGES: ConnectMessage[] = [
+  { id: "t1", from: "tutor", text: "Hey! Stuck on the worksheet?" },
+  { id: "s1", from: "student", text: "Yes — problem 4 is tricky." },
+  { id: "t2", from: "tutor", text: "Send a photo — we'll solve it." },
+  { id: "s2", from: "student", text: "Just uploaded it 👍" },
+];
 
-function mapSrand(seed: number): number {
-  const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
-  return x - Math.floor(x);
-}
+const CONNECT_AVATAR_R = 6.5;
+const CONNECT_ROW_GAP = 6;
+const CONNECT_BUBBLE_H = 18;
+const CONNECT_BUBBLE_RX = 8;
+const CONNECT_PAD_X = 10;
+const CONNECT_PAD_Y = 12;
+const CONNECT_MESSAGE_MS = 1300;
+const CONNECT_HOLD_MS = 2400;
+const CONNECT_RESET_MS = 450;
 
-type MapPinDef = {
-  id: string;
-  x: number;
-  y: number;
-  label: string;
+const connectBubbleWidth = (text: string) =>
+  Math.min(118, Math.max(48, text.length * 5.1 + 18));
+
+type ConnectBubbleTheme = {
+  bg: string;
+  border: string;
+  text: string;
   avatarFrom: string;
   avatarTo: string;
-  accent: string;
+  avatarRing: string;
 };
 
-const ANYWHERE_PINS: MapPinDef[] = [
-  { id: "sa", x: 52, y: 82, label: "São Paulo", avatarFrom: "#E8B88A", avatarTo: "#A0714F", accent: ORANGE },
-  { id: "af", x: 98, y: 62, label: "Lagos", avatarFrom: "#9AE6B4", avatarTo: "#52B788", accent: GREEN },
-  { id: "as", x: 158, y: 42, label: "Tokyo", avatarFrom: "#A5B4FC", avatarTo: "#6688FF", accent: BLUE },
-];
+const connectBubbleThemes = (isDark: boolean): Record<ConnectSender, ConnectBubbleTheme> => {
+  const cardStroke = isDark ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.08)";
 
-const ANYWHERE_CONNECTIONS = [
-  { id: "sa-af", from: "sa", to: "af", color: ORANGE, bend: 0.22 },
-  { id: "af-as", from: "af", to: "as", color: PURPLE, bend: 0.28 },
-  { id: "sa-as", from: "sa", to: "as", color: BLUE, bend: 0.38 },
-];
-
-const arcBetween = (x1: number, y1: number, x2: number, y2: number, bend: number) => {
-  const mx = (x1 + x2) / 2;
-  const my = (y1 + y2) / 2 - Math.abs(x2 - x1) * bend;
-  return `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`;
-};
-
-const buildWorldDots = (mapX: number, mapY: number, mapW: number, mapH: number) => {
-  const spacing = 3.1;
-  const cols = Math.floor(mapW / spacing);
-  const rows = Math.floor(mapH / spacing);
-  const regions = [
-    { cx: 0.17, cy: 0.26, rx: 0.12, ry: 0.2, density: 0.88 },
-    { cx: 0.24, cy: 0.68, rx: 0.075, ry: 0.26, density: 0.92 },
-    { cx: 0.5, cy: 0.52, rx: 0.095, ry: 0.31, density: 0.9 },
-    { cx: 0.54, cy: 0.24, rx: 0.065, ry: 0.11, density: 0.86 },
-    { cx: 0.7, cy: 0.34, rx: 0.21, ry: 0.24, density: 0.84 },
-    { cx: 0.78, cy: 0.72, rx: 0.075, ry: 0.085, density: 0.82 },
-    { cx: 0.52, cy: 0.16, rx: 0.045, ry: 0.07, density: 0.72 },
-  ];
-
-  const dots: { x: number; y: number; o: number }[] = [];
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const nx = (c + 0.5) / cols;
-      const ny = (r + 0.5) / rows;
-      const seed = c * 137 + r * 311 + 42;
-      const jitter = mapSrand(seed);
-
-      for (const reg of regions) {
-        const dx = (nx - reg.cx) / reg.rx;
-        const dy = (ny - reg.cy) / reg.ry;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist <= 1 && jitter < reg.density * (1 - dist * 0.35)) {
-          dots.push({
-            x: mapX + c * spacing + spacing / 2,
-            y: mapY + r * spacing + spacing / 2,
-            o: 0.22 + (1 - dist) * 0.38,
-          });
-          break;
-        }
-      }
-    }
+  if (isDark) {
+    return {
+      tutor: {
+        bg: featureIllustrationCardFill(true),
+        border: cardStroke,
+        text: "#F5F7FA",
+        avatarFrom: "#C4B5FD",
+        avatarTo: "#6D28D9",
+        avatarRing: PURPLE,
+      },
+      student: {
+        bg: "rgba(128,159,255,0.16)",
+        border: "rgba(128,159,255,0.3)",
+        text: "#C7D2FE",
+        avatarFrom: "#A5B4FC",
+        avatarTo: "#4F6FD8",
+        avatarRing: BLUE,
+      },
+    };
   }
-  return dots;
+
+  return {
+    tutor: {
+      bg: featureIllustrationCardFill(false),
+      border: cardStroke,
+      text: "#0F172A",
+      avatarFrom: "#DDD6FE",
+      avatarTo: "#8B5CF6",
+      avatarRing: PURPLE,
+    },
+    student: {
+      bg: "#EEF4FF",
+      border: "#BFDBFE",
+      text: "#2563EB",
+      avatarFrom: "#BFDBFE",
+      avatarTo: "#6688FF",
+      avatarRing: BLUE,
+    },
+  };
 };
 
-const MapPinAvatar = ({
-  uid,
-  pin,
+const ConnectAvatar = ({
+  cx,
+  cy,
+  theme,
+  gradientId,
   isDark,
 }: {
-  uid: string;
-  pin: MapPinDef;
+  cx: number;
+  cy: number;
+  theme: ConnectBubbleTheme;
+  gradientId: string;
   isDark: boolean;
 }) => {
-  const skin = isDark ? "rgba(15,20,25,0.35)" : "rgba(255,255,255,0.45)";
+  const skin = isDark ? "rgba(248,250,252,0.88)" : "rgba(255,255,255,0.92)";
+
   return (
-    <g clipPath={`url(#${uid}-${pin.id}-clip)`}>
-      <circle cx="0" cy="-14" r="5.5" fill={`url(#${uid}-${pin.id}-avatar)`} />
-      <ellipse cx="0" cy="-15.5" rx="2.4" ry="2.6" fill={skin} />
+    <g>
+      <circle
+        cx={cx}
+        cy={cy}
+        r={CONNECT_AVATAR_R}
+        fill={`url(#${gradientId})`}
+        stroke={theme.avatarRing}
+        strokeWidth="0.55"
+        opacity={0.95}
+      />
+      <ellipse cx={cx} cy={cy - 1.2} rx="2.35" ry="2.5" fill={skin} />
       <path
-        d="M -3.2 -12.2 Q 0 -10.2 3.2 -12.2 Q 0 -8.2 -3.2 -12.2"
+        d={`M ${cx - 2.8} ${cy + 0.6} Q ${cx} ${cy + 2.8} ${cx + 2.8} ${cy + 0.6}`}
         fill={skin}
-        opacity="0.55"
+        opacity={0.5}
       />
     </g>
   );
 };
 
-const LearnFromAnywhereIllustration = ({ isDark }: { isDark: boolean }) => {
+const ConnectChatRow = ({
+  message,
+  rowY,
+  visible,
+  theme,
+  avatarGradientId,
+  isDark,
+  font,
+}: {
+  message: ConnectMessage;
+  rowY: number;
+  visible: boolean;
+  theme: ConnectBubbleTheme;
+  avatarGradientId: string;
+  isDark: boolean;
+  font: string;
+}) => {
+  const isTutor = message.from === "tutor";
+  const bubbleW = connectBubbleWidth(message.text);
+  const avatarCx = isTutor
+    ? CONNECT_PAD_X + CONNECT_AVATAR_R
+    : 200 - CONNECT_PAD_X - CONNECT_AVATAR_R;
+  const bubbleY = rowY - CONNECT_BUBBLE_H / 2;
+  const bubbleX = isTutor
+    ? avatarCx + CONNECT_AVATAR_R + 5
+    : avatarCx - CONNECT_AVATAR_R - 5 - bubbleW;
+  const textX = isTutor ? bubbleX + 9 : bubbleX + bubbleW - 9;
+
+  const bubble = (
+    <>
+      <rect
+        x={bubbleX}
+        y={bubbleY}
+        width={bubbleW}
+        height={CONNECT_BUBBLE_H}
+        rx={CONNECT_BUBBLE_RX}
+        fill={theme.bg}
+        stroke={theme.border}
+        strokeWidth="0.55"
+      />
+      <text
+        x={textX}
+        y={rowY + 2}
+        textAnchor={isTutor ? "start" : "end"}
+        fontSize="6.2"
+        fontWeight="500"
+        fill={theme.text}
+        fontFamily={font}
+        dominantBaseline="middle"
+      >
+        {message.text}
+      </text>
+    </>
+  );
+
+  return (
+    <g
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0px)" : "translateY(5px)",
+        transition:
+          "opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1), transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)",
+      }}
+    >
+      {isTutor ? (
+        <>
+          <ConnectAvatar
+            cx={avatarCx}
+            cy={rowY}
+            theme={theme}
+            gradientId={avatarGradientId}
+            isDark={isDark}
+          />
+          {bubble}
+        </>
+      ) : (
+        <>
+          {bubble}
+          <ConnectAvatar
+            cx={avatarCx}
+            cy={rowY}
+            theme={theme}
+            gradientId={avatarGradientId}
+            isDark={isDark}
+          />
+        </>
+      )}
+    </g>
+  );
+};
+
+const ConnectIllustration = ({ isDark }: { isDark: boolean }) => {
   const uid = useId().replace(/:/g, "");
-  const [hoveredPin, setHoveredPin] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(0);
+  const themes = connectBubbleThemes(isDark);
+  const font = "var(--font-secondary), system-ui, sans-serif";
 
-  const dotColor = isDark ? "rgba(245,247,250,0.28)" : "rgba(15,23,42,0.22)";
-  const lineMuted = isDark ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.1)";
-  const pinFill = isDark ? "#F5F7FA" : "#FFFFFF";
-  const pinStroke = isDark ? "rgba(255,255,255,0.12)" : "rgba(15,23,42,0.08)";
-  const labelColor = isDark ? "rgba(245,247,250,0.45)" : "rgba(15,23,42,0.42)";
-
-  const map = { x: 16, y: 24, w: 168, h: 78 };
-  const worldDots = useMemo(() => buildWorldDots(map.x, map.y, map.w, map.h), []);
-
-  const pinById = useMemo(
-    () => Object.fromEntries(ANYWHERE_PINS.map((p) => [p.id, p])),
-    [],
+  const rowStep = CONNECT_BUBBLE_H + CONNECT_ROW_GAP;
+  const rowYs = CONNECT_MESSAGES.map(
+    (_, i) => CONNECT_PAD_Y + CONNECT_BUBBLE_H / 2 + i * rowStep
   );
 
-  const connections = useMemo(
-    () =>
-      ANYWHERE_CONNECTIONS.map((c) => {
-        const from = pinById[c.from];
-        const to = pinById[c.to];
-        const path = arcBetween(from.x, from.y - 16, to.x, to.y - 16, c.bend);
-        return { ...c, path };
-      }),
-    [pinById],
-  );
+  useEffect(() => {
+    let cancelled = false;
+    let count = 0;
+    let timeoutId = 0;
 
-  const isConnActive = (conn: (typeof connections)[0]) =>
-    !hoveredPin || conn.from === hoveredPin || conn.to === hoveredPin;
+    const schedule = (delay: number) => {
+      timeoutId = window.setTimeout(() => {
+        if (cancelled) return;
+        if (count >= CONNECT_MESSAGES.length) {
+          setVisibleCount(0);
+          count = 0;
+          schedule(CONNECT_RESET_MS);
+          return;
+        }
+        count += 1;
+        setVisibleCount(count);
+        const delayMs = count >= CONNECT_MESSAGES.length ? CONNECT_HOLD_MS : CONNECT_MESSAGE_MS;
+        schedule(delayMs);
+      }, delay);
+    };
+
+    schedule(400);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, []);
 
   return (
     <svg
       viewBox="0 0 200 120"
-      className="w-full h-full select-none"
+      className="w-full h-full"
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label="Global map showing tutors connected across continents"
+      aria-label="Student and tutor chat messages appearing one by one"
     >
       <defs>
-        <filter id={`${uid}-pin-shadow`} x="-50%" y="-50%" width="200%" height="200%">
-          <feDropShadow
-            dx="0"
-            dy="1.5"
-            stdDeviation="1.8"
-            floodColor={isDark ? "#000" : "#0F172A"}
-            floodOpacity={isDark ? 0.4 : 0.12}
-          />
-        </filter>
-        {ANYWHERE_PINS.map((pin) => (
-          <React.Fragment key={pin.id}>
-            <linearGradient id={`${uid}-${pin.id}-avatar`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={pin.avatarFrom} />
-              <stop offset="100%" stopColor={pin.avatarTo} />
-            </linearGradient>
-            <clipPath id={`${uid}-${pin.id}-clip`}>
-              <circle cx={pin.x} cy={pin.y - 14} r="5.5" />
-            </clipPath>
-          </React.Fragment>
-        ))}
+        <linearGradient id={`${uid}-tutor-avatar`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={themes.tutor.avatarFrom} />
+          <stop offset="100%" stopColor={themes.tutor.avatarTo} />
+        </linearGradient>
+        <linearGradient id={`${uid}-student-avatar`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={themes.student.avatarFrom} />
+          <stop offset="100%" stopColor={themes.student.avatarTo} />
+        </linearGradient>
       </defs>
 
-      {/* Dot-matrix world map */}
-      {worldDots.map((d, i) => (
-        <circle key={`dot-${i}`} cx={d.x} cy={d.y} r="0.65" fill={dotColor} opacity={d.o} />
+      {CONNECT_MESSAGES.map((message, index) => (
+        <ConnectChatRow
+          key={message.id}
+          message={message}
+          rowY={rowYs[index]}
+          visible={index < visibleCount}
+          theme={themes[message.from]}
+          avatarGradientId={`${uid}-${message.from}-avatar`}
+          isDark={isDark}
+          font={font}
+        />
       ))}
-
-      {/* Connection arcs */}
-      {connections.map((conn, i) => {
-        const active = isConnActive(conn);
-        return (
-          <g
-            key={conn.id}
-            opacity={active ? 1 : 0.22}
-            style={{ transition: "opacity 0.25s ease" }}
-          >
-            <path
-              d={conn.path}
-              fill="none"
-              stroke={lineMuted}
-              strokeWidth="0.6"
-              strokeLinecap="round"
-            />
-            <path
-              d={conn.path}
-              fill="none"
-              stroke={conn.color}
-              strokeWidth={active ? 1 : 0.7}
-              strokeLinecap="round"
-              strokeDasharray="3.5 3"
-              opacity={active ? 0.75 : 0.35}
-            >
-              <animate
-                attributeName="stroke-dashoffset"
-                values="0;-13"
-                dur={`${2.8 + i * 0.4}s`}
-                repeatCount="indefinite"
-              />
-            </path>
-            <circle r={active ? 2 : 1.4} fill={conn.color} opacity={active ? 0.95 : 0.45}>
-              <animateMotion
-                dur={`${3.2 + i * 0.5}s`}
-                repeatCount="indefinite"
-                path={conn.path}
-              />
-            </circle>
-            {active && (
-              <circle r="2.5" fill={conn.color} opacity="0">
-                <animate attributeName="opacity" values="0.35;0;0.35" dur="1.8s" repeatCount="indefinite" />
-                <animate attributeName="r" values="1.5;4.5;1.5" dur="1.8s" repeatCount="indefinite" />
-                <animateMotion dur={`${3.2 + i * 0.5}s`} repeatCount="indefinite" path={conn.path} />
-              </circle>
-            )}
-          </g>
-        );
-      })}
-
-      {/* Location pins */}
-      {ANYWHERE_PINS.map((pin) => {
-        const isHovered = hoveredPin === pin.id;
-        const isDimmed = hoveredPin !== null && !isHovered;
-        return (
-          <g
-            key={pin.id}
-            transform={`translate(${pin.x}, ${pin.y}) scale(${isHovered ? 1.1 : 1})`}
-            style={{ transition: "transform 0.2s ease", cursor: "pointer" }}
-            opacity={isDimmed ? 0.55 : 1}
-            filter={`url(#${uid}-pin-shadow)`}
-            onMouseEnter={() => setHoveredPin(pin.id)}
-            onMouseLeave={() => setHoveredPin(null)}
-            role="button"
-            tabIndex={0}
-            aria-label={`${pin.label} tutor location`}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setHoveredPin((prev) => (prev === pin.id ? null : pin.id));
-              }
-            }}
-          >
-            <ellipse cx="0" cy="13" rx="5.5" ry="1.6" fill={isDark ? "#000" : "#0F172A"} opacity="0.1" />
-            <path
-              d="M -7.5 -15 A 7.5 7.5 0 1 1 7.5 -15 L 0 11 Z"
-              fill={pinFill}
-              stroke={pinStroke}
-              strokeWidth="0.55"
-            />
-            <circle
-              cx="0"
-              cy="-15"
-              r="6.2"
-              fill="none"
-              stroke={isHovered ? pin.accent : pinStroke}
-              strokeWidth={isHovered ? 1 : 0.45}
-              style={{ transition: "stroke 0.2s ease" }}
-            />
-            <MapPinAvatar uid={uid} pin={pin} isDark={isDark} />
-            <g opacity={isHovered ? 1 : 0} style={{ transition: "opacity 0.2s ease" }} pointerEvents="none">
-              <rect
-                x={-18}
-                y={-34}
-                width={36}
-                height={12}
-                rx="3"
-                fill={isDark ? "#1A1F27" : "#FFFFFF"}
-                stroke={pinStroke}
-                strokeWidth="0.5"
-              />
-              <text
-                x={0}
-                y={-26}
-                textAnchor="middle"
-                fontSize="5.5"
-                fontWeight="600"
-                fill={pin.accent}
-                fontFamily="var(--font-secondary), system-ui, sans-serif"
-              >
-                {pin.label}
-              </text>
-            </g>
-          </g>
-        );
-      })}
-
-      {/* Live sessions hint */}
-      <g opacity={hoveredPin ? 0 : 0.85} style={{ transition: "opacity 0.25s ease" }}>
-        <circle cx="178" cy="14" r="2.2" fill={GREEN}>
-          <animate attributeName="opacity" values="1;0.35;1" dur="2s" repeatCount="indefinite" />
-        </circle>
-        <text
-          x="172"
-          y="14.5"
-          textAnchor="end"
-          fontSize="5.5"
-          fill={labelColor}
-          fontFamily="var(--font-secondary), system-ui, sans-serif"
-        >
-          Live now
-        </text>
-      </g>
     </svg>
   );
 };
 
-/* ─── Session Recordings Illustration (live → record → destinations) ─── */
+/* ─── Learn From Anywhere Illustration (dotted world map) ─── */
+
+type AnywherePinDef = Marker & { id: string };
+
+const ANYWHERE_PINS: AnywherePinDef[] = [
+  { id: "toronto", lat: 43.65, lng: -79.38, size: 0.24, color: ORANGE },
+  { id: "dubai", lat: 25.2, lng: 55.27, size: 0.24, color: GREEN },
+  { id: "sydney", lat: -33.87, lng: 151.21, size: 0.24, color: BLUE },
+];
+
+const ANYWHERE_MAP_MARKERS = ANYWHERE_PINS;
+
+const ANYWHERE_CONNECTIONS: {
+  id: string;
+  from: string;
+  to: string;
+  color: string;
+  bend: number;
+}[] = [
+  { id: "toronto-dubai", from: "toronto", to: "dubai", color: ORANGE, bend: 0.11 },
+  { id: "dubai-sydney", from: "dubai", to: "sydney", color: PURPLE, bend: 0.19 },
+  { id: "toronto-sydney", from: "toronto", to: "sydney", color: BLUE, bend: 0.26 },
+];
+
+const anywhereArcBetween = (
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  bend: number,
+) => {
+  const mx = (x1 + x2) / 2;
+  const my = (y1 + y2) / 2 - Math.abs(x2 - x1) * bend;
+  return `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`;
+};
+
+const AnywhereAnimatedPath = ({
+  d,
+  color,
+  trackColor,
+  index,
+}: {
+  d: string;
+  color: string;
+  trackColor: string;
+  index: number;
+}) => {
+  const dashDur = `${1.4 + index * 0.18}s`;
+  const motionDur = `${1.6 + index * 0.2}s`;
+
+  return (
+    <g>
+      <path d={d} fill="none" stroke={trackColor} strokeWidth="2.2" strokeLinecap="round" />
+      <path
+        d={d}
+        fill="none"
+        stroke={color}
+        strokeWidth="3.2"
+        strokeLinecap="round"
+        strokeDasharray="12 12"
+        opacity={0.72}
+      >
+        <animate
+          attributeName="stroke-dashoffset"
+          values="0;-48"
+          dur={dashDur}
+          repeatCount="indefinite"
+        />
+      </path>
+      <circle r="5.5" fill={color} opacity={0.92}>
+        <animateMotion dur={motionDur} repeatCount="indefinite" path={d} />
+      </circle>
+      <circle r="7" fill={color} opacity="0">
+        <animate attributeName="opacity" values="0.28;0;0.28" dur="1.2s" repeatCount="indefinite" />
+        <animate attributeName="r" values="4;11;4" dur="1.2s" repeatCount="indefinite" />
+        <animateMotion dur={motionDur} repeatCount="indefinite" path={d} />
+      </circle>
+    </g>
+  );
+};
+
+const LearnFromAnywhereIllustration = ({ isDark }: { isDark: boolean }) => {
+  const lineMuted = isDark ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.1)";
+
+  const connections = useMemo(() => {
+    const byId = Object.fromEntries(
+      ANYWHERE_PINS.map((pin) => [pin.id, projectMapPoint(pin.lat, pin.lng)]),
+    );
+
+    return ANYWHERE_CONNECTIONS.map((conn) => {
+      const from = byId[conn.from];
+      const to = byId[conn.to];
+      return {
+        id: conn.id,
+        color: conn.color,
+        d: anywhereArcBetween(from.x, from.y, to.x, to.y, conn.bend),
+      };
+    });
+  }, []);
+
+  return (
+    <div
+      className="relative h-full w-full"
+      role="img"
+      aria-label="Global map showing tutors connected across continents"
+    >
+      <DottedMap isDark={isDark} dotRadius={0.22} className="h-full w-full" />
+      <svg
+        viewBox={`0 0 ${DOTTED_MAP_VIEW_W} ${DOTTED_MAP_VIEW_H}`}
+        preserveAspectRatio="xMidYMid meet"
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full select-none"
+      >
+        {connections.map((conn, i) => (
+          <AnywhereAnimatedPath
+            key={conn.id}
+            d={conn.d}
+            color={conn.color}
+            trackColor={lineMuted}
+            index={i}
+          />
+        ))}
+        {ANYWHERE_PINS.map((pin) => {
+          const { x, y } = projectMapPoint(pin.lat, pin.lng);
+          const r = (pin.size ?? 0.24) * (DOTTED_MAP_VIEW_W / 200);
+          return (
+            <circle
+              key={pin.id}
+              cx={x}
+              cy={y}
+              r={r}
+              fill={pin.color ?? ORANGE}
+            />
+          );
+        })}
+      </svg>
+    </div>
+  );
+};
+
+/* ─── Session Recordings Illustration (primary → sync → replicas) ─── */
 
 const RecordingSyncIcon = ({ stroke }: { stroke: string }) => (
-  <g stroke={stroke} strokeWidth="0.9" fill="none" strokeLinecap="round" strokeLinejoin="round">
+  <g stroke={stroke} strokeWidth="0.85" fill="none" strokeLinecap="round" strokeLinejoin="round">
     <path d="M -3.5 -1 A 4 4 0 1 1 0.5 3.5" />
     <path d="M 0.5 3.5 L 3 3.5 L 0.5 6" />
     <path d="M 3.5 1 A 4 4 0 1 1 -0.5 -3.5" />
@@ -1706,111 +1797,76 @@ const RecordingSyncIcon = ({ stroke }: { stroke: string }) => (
   </g>
 );
 
-const RecordingDestIcon = ({ type, color }: { type: "playback" | "notes" | "library"; color: string }) => {
-  const sw = 0.75;
-  switch (type) {
-    case "playback":
-      return (
-        <g fill={color} stroke="none" opacity="0.9">
-          <polygon points="-2.5,-3 3.5,0 -2.5,3" />
-        </g>
-      );
-    case "notes":
-      return (
-        <g stroke={color} strokeWidth={sw} fill="none" strokeLinecap="round" opacity="0.9">
-          <rect x="-3.5" y="-4" width="7" height="8" rx="0.8" />
-          <line x1="-1.5" y1="-1" x2="1.5" y2="-1" />
-          <line x1="-1.5" y1="1" x2="1" y2="1" />
-        </g>
-      );
-    case "library":
-      return (
-        <g fill={color} stroke="none" opacity="0.9">
-          <ellipse cx="0" cy="-2.5" rx="3.5" ry="1.2" />
-          <rect x="-3.5" y="-2.5" width="7" height="4" />
-          <ellipse cx="0" cy="2.5" rx="3.5" ry="1.2" />
-        </g>
-      );
-    default:
-      return null;
-  }
-};
+const DatabaseIcon = ({ color }: { color: string }) => (
+  <g fill={color} stroke="none" opacity="0.92">
+    <ellipse cx="0" cy="-2.8" rx="3.6" ry="1.15" />
+    <rect x="-3.6" y="-2.8" width="7.2" height="4.8" />
+    <ellipse cx="0" cy="2" rx="3.6" ry="1.15" />
+  </g>
+);
 
-type RecordingDestDef = {
+type RecordingReplicaDef = {
   id: string;
   y: number;
   label: string;
   color: string;
-  icon: "playback" | "notes" | "library";
-  fromPath: string;
-  toPath: string;
-  flowPath: string;
+  iconBg: string;
 };
 
-const RECORDING_DESTS: RecordingDestDef[] = [
+const RECORDING_REPLICAS: RecordingReplicaDef[] = [
   {
-    id: "playback",
-    y: 10,
-    label: "Playback",
+    id: "replica-1",
+    y: 8,
+    label: "Replica 1",
     color: BLUE,
-    icon: "playback",
-    fromPath: "M 58 38 C 66 36, 70 52, 71 54",
-    toPath: "M 93 54 C 98 30, 102 23, 106 23",
-    flowPath: "M 58 38 C 66 36, 70 52, 71 54 L 93 54 C 98 30, 102 23, 106 23",
+    iconBg: "#EEF4FF",
   },
   {
-    id: "notes",
-    y: 47,
-    label: "Notes",
+    id: "replica-2",
+    y: 45,
+    label: "Replica 2",
     color: PURPLE,
-    icon: "notes",
-    fromPath: "M 58 60 L 71 60",
-    toPath: "M 93 60 L 106 60",
-    flowPath: "M 58 60 L 71 60 L 93 60 L 106 60",
+    iconBg: "#F5F3FF",
   },
   {
-    id: "library",
-    y: 84,
-    label: "Library",
+    id: "replica-3",
+    y: 82,
+    label: "Replica 3",
     color: GREEN,
-    icon: "library",
-    fromPath: "M 58 82 C 66 84, 70 68, 71 66",
-    toPath: "M 93 66 C 98 90, 102 97, 106 97",
-    flowPath: "M 58 82 C 66 84, 70 68, 71 66 L 93 66 C 98 90, 102 97, 106 97",
+    iconBg: "#ECFDF5",
   },
 ];
 
 const SessionRecordingsIllustration = ({ isDark }: { isDark: boolean }) => {
-  const uid = useId().replace(/:/g, "");
-  const [hoveredDest, setHoveredDest] = useState<string | null>(null);
-
-  const muted = isDark ? "rgba(255,255,255,0.12)" : "rgba(15,23,42,0.1)";
-  const cardFill = isDark ? "#12151A" : "#FFFFFF";
+  const cardFill = featureIllustrationCardFill(isDark);
   const cardStroke = isDark ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.08)";
   const textColor = isDark ? "#F5F7FA" : "#0F172A";
-  const subtext = isDark ? "rgba(245,247,250,0.45)" : "rgba(15,23,42,0.45)";
   const lineMuted = isDark ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.1)";
   const hubIcon = isDark ? "rgba(245,247,250,0.55)" : "rgba(15,23,42,0.45)";
-  const font = "var(--font-secondary), system-ui, sans-serif";
+  const font = "var(--font-inter, Inter), sans-serif";
 
-  const live = { x: 4, y: 18, w: 54, h: 84, rx: 6 };
+  const primary = { x: 8, y: 40, w: 56, h: 40, rx: 8 };
   const hub = { x: 82, y: 60, r: 11 };
-  const destW = 88;
-  const destH = 26;
-  const destX = 106;
+  const hubInset = 16;
+  const primaryPath = `M ${primary.x + primary.w} ${hub.y} L ${hub.x - hubInset} ${hub.y}`;
+  const replicaLeft = 148;
+  const destW = 50;
+  const destH = 30;
+  const spinDur = "1.8s";
 
-  const isDestActive = (id: string) => !hoveredDest || hoveredDest === id;
+  const replicaIconBg = (color: string, lightBg: string) =>
+    isDark ? `${color}${isDark ? "28" : "1A"}` : lightBg;
 
   return (
     <svg
       viewBox="0 0 200 120"
-      className="w-full h-full select-none"
+      className="w-full h-full"
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label="Live session recording distributed to playback, notes, and library"
+      aria-label="Session recording replicated to playback destinations"
     >
       <defs>
-        <filter id={`${uid}-shadow`} x="-20%" y="-20%" width="140%" height="140%">
+        <filter id="recording-card-shadow" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow
             dx="0"
             dy="1"
@@ -1821,98 +1877,65 @@ const SessionRecordingsIllustration = ({ isDark }: { isDark: boolean }) => {
         </filter>
       </defs>
 
-      {/* Connectors */}
-      {RECORDING_DESTS.map((dest, i) => {
-        const active = isDestActive(dest.id);
-        return (
-          <g key={dest.id} opacity={active ? 1 : 0.25} style={{ transition: "opacity 0.25s ease" }}>
-            <path d={dest.fromPath} fill="none" stroke={lineMuted} strokeWidth="0.65" strokeLinecap="round" />
-            <path d={dest.toPath} fill="none" stroke={lineMuted} strokeWidth="0.65" strokeLinecap="round" />
-            <path
-              d={dest.flowPath}
-              fill="none"
-              stroke={dest.color}
-              strokeWidth={active ? 0.9 : 0.65}
-              strokeLinecap="round"
-              strokeDasharray="3 3"
-              opacity={active ? 0.8 : 0.35}
-            >
-              <animate
-                attributeName="stroke-dashoffset"
-                values="0;-12"
-                dur={`${2.6 + i * 0.35}s`}
-                repeatCount="indefinite"
-              />
-            </path>
-            {active && (
-              <circle r="1.8" fill={dest.color}>
-                <animateMotion dur={`${3 + i * 0.4}s`} repeatCount="indefinite" path={dest.flowPath} />
-              </circle>
-            )}
-          </g>
-        );
-      })}
+      {/* Primary → hub connector (matching-style single path) */}
+      <MatchingAnimatedPath d={primaryPath} color={ORANGE} trackColor={lineMuted} index={0} />
 
-      {/* Live session card */}
-      <g filter={`url(#${uid}-shadow)`}>
+      {/* Hub → replica connectors */}
+      {RECORDING_REPLICAS.map((replica, i) => (
+        <MatchingAnimatedPath
+          key={`to-${replica.id}`}
+          d={
+            i === 0
+              ? `M ${hub.x + 14} ${hub.y} C ${hub.x + 30} ${hub.y - 8}, ${replicaLeft - 20} 22, ${replicaLeft} 23`
+              : i === 1
+                ? `M ${hub.x + 14} ${hub.y} L ${replicaLeft} ${hub.y}`
+                : `M ${hub.x + 14} ${hub.y} C ${hub.x + 30} ${hub.y + 8}, ${replicaLeft - 20} 98, ${replicaLeft} 97`
+          }
+          color={replica.color}
+          trackColor={lineMuted}
+          index={i + 1}
+        />
+      ))}
+
+      {/* Primary card */}
+      <g filter="url(#recording-card-shadow)">
         <rect
-          x={live.x}
-          y={live.y}
-          width={live.w}
-          height={live.h}
-          rx={live.rx}
+          x={primary.x}
+          y={primary.y}
+          width={primary.w}
+          height={primary.h}
+          rx={primary.rx}
           fill={cardFill}
           stroke={cardStroke}
           strokeWidth="0.6"
         />
-        <circle cx={live.x + 14} cy={live.y + 18} r="5" fill={`${ORANGE}${isDark ? "30" : "22"}`} />
-        <circle cx={live.x + 14} cy={live.y + 18} r="2" fill={ORANGE} opacity="0.85">
-          <animate attributeName="opacity" values="0.85;0.35;0.85" dur="1.6s" repeatCount="indefinite" />
-        </circle>
-        <text x={live.x + 24} y={live.y + 20} fontSize="7.5" fontWeight="700" fill={textColor} fontFamily={font}>
-          Live Session
+        <text
+          x={primary.x + 8}
+          y={primary.y + 15}
+          textAnchor="start"
+          dominantBaseline="middle"
+          fontSize="5.5"
+          fontWeight="700"
+          fill={textColor}
+          letterSpacing="0.5"
+          fontFamily={font}
+        >
+          VIDEO
         </text>
-        <text x={live.x + 24} y={live.y + 30} fontSize="5.5" fill={subtext} fontFamily={font}>
-          Recording
-        </text>
-        <line
-          x1={live.x + 12}
-          y1={live.y + 42}
-          x2={live.x + live.w - 12}
-          y2={live.y + 42}
-          stroke={muted}
-          strokeWidth="2.2"
-          strokeLinecap="round"
-        />
-        <line
-          x1={live.x + 12}
-          y1={live.y + 52}
-          x2={live.x + live.w - 22}
-          y2={live.y + 52}
-          stroke={muted}
-          strokeWidth="2.2"
-          strokeLinecap="round"
-        />
-        <rect
-          x={live.x + 10}
-          y={live.y + live.h - 22}
-          width={live.w - 20}
-          height={12}
-          rx="3"
-          fill={isDark ? "rgba(255,255,255,0.04)" : "rgba(15,23,42,0.04)"}
-          stroke={cardStroke}
-          strokeWidth="0.4"
-        />
-        <circle cx={live.x + 16} cy={live.y + live.h - 16} r="2" fill={GREEN} opacity="0.9">
-          <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" />
-        </circle>
-        <text x={live.x + 22} y={live.y + live.h - 14.5} fontSize="4.5" fill={subtext} fontFamily={font}>
-          In progress
-        </text>
+        <g transform={`translate(${primary.x + primary.w / 2}, ${primary.y + 28})`}>
+          <circle
+            r="7"
+            fill={`${ORANGE}${isDark ? "28" : "1A"}`}
+            stroke={ORANGE}
+            strokeWidth="0.5"
+            opacity="0.95"
+          />
+          <polygon points="-2.2,-3.2 4.2,0 -2.2,3.2" fill={ORANGE} opacity="0.92" />
+        </g>
       </g>
 
-      {/* Record / sync hub */}
-      <g filter={`url(#${uid}-shadow)`}>
+      {/* Sync hub */}
+      <g filter="url(#recording-card-shadow)">
         <circle
           cx={hub.x}
           cy={hub.y}
@@ -1922,61 +1945,57 @@ const SessionRecordingsIllustration = ({ isDark }: { isDark: boolean }) => {
           strokeWidth="0.6"
         />
         <g transform={`translate(${hub.x}, ${hub.y})`}>
-          <RecordingSyncIcon stroke={hubIcon} />
+          <g>
+            <animateTransform
+              attributeName="transform"
+              type="rotate"
+              from="0 0 0"
+              to="360 0 0"
+              dur={spinDur}
+              repeatCount="indefinite"
+            />
+            <RecordingSyncIcon stroke={hubIcon} />
+          </g>
         </g>
       </g>
 
-      {/* Destination cards */}
-      {RECORDING_DESTS.map((dest) => {
-        const cy = dest.y + destH / 2;
-        const active = isDestActive(dest.id);
-        const dimmed = hoveredDest !== null && !active;
-        const tint = `${dest.color}${isDark ? "28" : "1A"}`;
+      {/* Replica cards */}
+      {RECORDING_REPLICAS.map((replica) => {
+        const cy = replica.y + destH / 2;
 
         return (
-          <g
-            key={dest.id}
-            filter={`url(#${uid}-shadow)`}
-            opacity={dimmed ? 0.5 : 1}
-            transform={`translate(0, ${active && hoveredDest === dest.id ? -1 : 0})`}
-            style={{ transition: "opacity 0.25s ease, transform 0.2s ease", cursor: "pointer" }}
-            onMouseEnter={() => setHoveredDest(dest.id)}
-            onMouseLeave={() => setHoveredDest(null)}
-            role="button"
-            tabIndex={0}
-            aria-label={dest.label}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setHoveredDest((prev) => (prev === dest.id ? null : dest.id));
-              }
-            }}
-          >
+          <g key={replica.id} filter="url(#recording-card-shadow)">
             <rect
-              x={destX}
-              y={dest.y}
+              x={replicaLeft}
+              y={replica.y}
               width={destW}
               height={destH}
-              rx="5"
+              rx="3"
               fill={cardFill}
-              stroke={active && hoveredDest === dest.id ? `${dest.color}55` : cardStroke}
-              strokeWidth={hoveredDest === dest.id ? 0.85 : 0.6}
-              style={{ transition: "stroke 0.2s ease" }}
+              stroke={cardStroke}
+              strokeWidth="0.6"
             />
-            <rect x={destX + 8} y={dest.y + 6} width="14" height="14" rx="3" fill={tint} />
-            <g transform={`translate(${destX + 15}, ${cy})`}>
-              <RecordingDestIcon type={dest.icon} color={dest.color} />
+            <rect
+              x={replicaLeft + 6}
+              y={replica.y + 8}
+              width="10"
+              height="10"
+              rx="2"
+              fill={replicaIconBg(replica.color, replica.iconBg)}
+            />
+            <g transform={`translate(${replicaLeft + 11}, ${cy})`}>
+              <DatabaseIcon color={replica.color} />
             </g>
             <text
-              x={destX + 28}
+              x={replicaLeft + 21}
               y={cy + 1}
               dominantBaseline="middle"
-              fontSize="6.5"
+              fontSize="5.8"
               fontWeight="600"
               fill={textColor}
               fontFamily={font}
             >
-              {dest.label}
+              {replica.label}
             </text>
           </g>
         );
@@ -1987,27 +2006,26 @@ const SessionRecordingsIllustration = ({ isDark }: { isDark: boolean }) => {
 
 /* ─── Transparent Pricing Illustration (payment flow) ─── */
 
-const PRICING_STEP_COUNT = 3;
+const PRICING_STEP_COUNT = 5;
 
-const PricingCreditCardIcon = ({ x, y }: { x: number; y: number }) => (
-  <g transform={`translate(${x}, ${y})`}>
-    <rect x="0" y="1" width="14" height="10" rx="1.5" fill="none" stroke={ORANGE} strokeWidth="0.9" />
-    <line x1="0" y1="4.5" x2="14" y2="4.5" stroke={ORANGE} strokeWidth="0.7" opacity="0.55" />
-    <rect x="2" y="7" width="5" height="2.5" rx="0.5" fill={ORANGE} opacity="0.35" />
+const PricingCreditCardIcon = ({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) => (
+  <g transform={`translate(${x}, ${y}) scale(${scale})`}>
+    <rect x="0" y="1" width="12" height="8" rx="1.2" fill="none" stroke={ORANGE} strokeWidth="0.75" />
+    <line x1="0" y1="3.8" x2="12" y2="3.8" stroke={ORANGE} strokeWidth="0.6" opacity="0.5" />
+    <rect x="1.5" y="5.5" width="4" height="2" rx="0.4" fill={ORANGE} opacity="0.3" />
   </g>
 );
 
-const PricingReceiptIcon = ({ x, y }: { x: number; y: number }) => (
-  <g transform={`translate(${x}, ${y})`}>
+const PricingReceiptIcon = ({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) => (
+  <g transform={`translate(${x}, ${y}) scale(${scale})`}>
     <path
-      d="M1 0 L13 0 L13 11 L10.5 9.5 L8 11 L5.5 9.5 L3 11 L1 11 Z"
+      d="M1 0 L11 0 L11 9.5 L9 8.2 L6.5 9.5 L4 8.2 L1 9.5 Z"
       fill="none"
       stroke={PURPLE}
-      strokeWidth="0.85"
+      strokeWidth="0.7"
       strokeLinejoin="round"
     />
-    <rect x="4.5" y="3" width="5" height="4.5" rx="0.6" fill={`${PURPLE}${"22"}`} stroke={PURPLE} strokeWidth="0.5" />
-    <text x="7" y="6.6" textAnchor="middle" fontSize="4.5" fontWeight="700" fill={PURPLE}>
+    <text x="6" y="5.8" textAnchor="middle" fontSize="3.8" fontWeight="700" fill={PURPLE}>
       $
     </text>
   </g>
@@ -2015,13 +2033,13 @@ const PricingReceiptIcon = ({ x, y }: { x: number; y: number }) => (
 
 const PricingIllustration = ({ isDark }: { isDark: boolean }) => {
   const uid = useId().replace(/:/g, "");
-  const [activeStep, setActiveStep] = useState(0);
+  const [activePhase, setActivePhase] = useState(0);
   const [hoveredStep, setHoveredStep] = useState<number | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setActiveStep((s) => (s + 1) % PRICING_STEP_COUNT);
-    }, 3200);
+      setActivePhase((s) => (s + 1) % PRICING_STEP_COUNT);
+    }, 1200);
     return () => clearInterval(timer);
   }, []);
 
@@ -2031,21 +2049,36 @@ const PricingIllustration = ({ isDark }: { isDark: boolean }) => {
   const textColor = isDark ? "#F5F7FA" : "#0F172A";
   const subtext = isDark ? "rgba(245,247,250,0.45)" : "rgba(15,23,42,0.45)";
   const connectorBase = isDark ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.1)";
-  const connectorActive = GREEN;
+  const connectorActive = isDark ? "#E2E8F0" : "rgba(15,23,42,0.35)";
   const hatchStroke = isDark ? "rgba(255,255,255,0.06)" : "rgba(15,23,42,0.06)";
   const font = "var(--font-secondary), system-ui, sans-serif";
 
-  const cardX = 34;
-  const cardW = 132;
   const centerX = 100;
-  const payment = { x: cardX, y: 3, w: cardW, h: 28, rx: 5 };
-  const verified = { x: cardX, y: 37, w: cardW, h: 28, rx: 5 };
-  const receipt = { x: cardX, y: 71, w: cardW, h: 46, rx: 5 };
+  const topW = 108;
+  const topH = 26;
+  const topX = centerX - topW / 2;
+  const topRx = 4;
+  const stackGap = 5;
+  const payment = { x: topX, y: 6, w: topW, h: topH, rx: topRx };
+  const verified = { x: topX, y: payment.y + topH + stackGap, w: topW, h: topH, rx: topRx };
+  const receiptW = 44;
+  const receiptH = 48;
+  const receipt = {
+    x: centerX - receiptW / 2,
+    y: verified.y + topH + stackGap,
+    w: receiptW,
+    h: receiptH,
+    rx: topRx,
+  };
+
+  const activeStep = activePhase >= 4 ? 2 : Math.floor((activePhase + 1) / 2);
+  const isVisible = (index: number) => index <= activeStep;
+  const lineVisible = (index: 0 | 1) => activePhase >= (index === 0 ? 1 : 3);
 
   const stepOpacity = (index: number) => {
-    if (index <= activeStep) return 1;
+    if (isVisible(index)) return 1;
     if (hoveredStep === index) return 0.88;
-    return 0.42;
+    return 0.16;
   };
 
   const stepLift = (index: number) => (hoveredStep === index || activeStep === index ? -1.2 : 0);
@@ -2056,7 +2089,7 @@ const PricingIllustration = ({ isDark }: { isDark: boolean }) => {
     return cardStroke;
   };
 
-  const goToStep = (index: number) => setActiveStep(index);
+  const goToStep = (index: number) => setActivePhase(index * 2);
 
   return (
     <svg viewBox="0 0 200 120" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
@@ -2074,7 +2107,7 @@ const PricingIllustration = ({ isDark }: { isDark: boolean }) => {
           <line x1="0" y1="0" x2="0" y2="5" stroke={hatchStroke} strokeWidth="1.2" />
         </pattern>
         <clipPath id={`${uid}-verified-hatch`}>
-          <rect x={verified.x} y={verified.y} width="34" height={verified.h} rx={verified.rx} />
+          <rect x={verified.x} y={verified.y} width="26" height={verified.h} rx={verified.rx} />
         </clipPath>
       </defs>
 
@@ -2084,10 +2117,11 @@ const PricingIllustration = ({ isDark }: { isDark: boolean }) => {
         y1={payment.y + payment.h}
         x2={centerX}
         y2={verified.y}
-        stroke={activeStep >= 1 ? connectorActive : connectorBase}
+        stroke={lineVisible(0) ? connectorActive : connectorBase}
         strokeWidth="0.8"
         strokeLinecap="round"
-        style={{ transition: "stroke 0.4s ease" }}
+        opacity={lineVisible(0) ? 1 : 0.25}
+        style={{ transition: "stroke 0.35s ease, opacity 0.35s ease" }}
       />
       {/* Connector: verified → receipt */}
       <line
@@ -2095,10 +2129,11 @@ const PricingIllustration = ({ isDark }: { isDark: boolean }) => {
         y1={verified.y + verified.h}
         x2={centerX}
         y2={receipt.y}
-        stroke={activeStep >= 2 ? connectorActive : connectorBase}
+        stroke={lineVisible(1) ? connectorActive : connectorBase}
         strokeWidth="0.8"
         strokeLinecap="round"
-        style={{ transition: "stroke 0.4s ease" }}
+        opacity={lineVisible(1) ? 1 : 0.25}
+        style={{ transition: "stroke 0.35s ease, opacity 0.35s ease" }}
       />
 
       {/* Payment card */}
@@ -2128,43 +2163,43 @@ const PricingIllustration = ({ isDark }: { isDark: boolean }) => {
           stroke={stepStroke(0)}
           strokeWidth={activeStep === 0 ? 0.9 : 0.6}
         />
-        <PricingCreditCardIcon x={payment.x + 10} y={payment.y + 9} />
+        <PricingCreditCardIcon x={payment.x + 9} y={payment.y + 6} scale={0.92} />
         <text
-          x={payment.x + 28}
-          y={payment.y + 16}
-          fontSize="7"
+          x={payment.x + 26}
+          y={payment.y + 12}
+          fontSize="6.2"
           fontWeight="700"
           fill={textColor}
-          letterSpacing="0.5"
+          letterSpacing="0.4"
           fontFamily={font}
         >
           PAYMENT
         </text>
         <line
-          x1={payment.x + 10}
-          y1={payment.y + 22}
-          x2={payment.x + payment.w - 12}
-          y2={payment.y + 22}
+          x1={payment.x + 9}
+          y1={payment.y + 16}
+          x2={payment.x + payment.w - 9}
+          y2={payment.y + 16}
           stroke={muted}
-          strokeWidth="2.2"
+          strokeWidth="1.6"
           strokeLinecap="round"
         />
         <line
-          x1={payment.x + 10}
-          y1={payment.y + 28}
-          x2={payment.x + 72}
-          y2={payment.y + 28}
+          x1={payment.x + 9}
+          y1={payment.y + 21}
+          x2={payment.x + payment.w * 0.55}
+          y2={payment.y + 21}
           stroke={muted}
-          strokeWidth="2.2"
+          strokeWidth="1.6"
           strokeLinecap="round"
         />
         <line
-          x1={payment.x + 78}
-          y1={payment.y + 28}
-          x2={payment.x + payment.w - 12}
-          y2={payment.y + 28}
+          x1={payment.x + payment.w * 0.6}
+          y1={payment.y + 21}
+          x2={payment.x + payment.w - 9}
+          y2={payment.y + 21}
           stroke={muted}
-          strokeWidth="2.2"
+          strokeWidth="1.6"
           strokeLinecap="round"
         />
       </g>
@@ -2197,40 +2232,35 @@ const PricingIllustration = ({ isDark }: { isDark: boolean }) => {
           strokeWidth={activeStep === 1 ? 0.9 : 0.6}
         />
         <g clipPath={`url(#${uid}-verified-hatch)`}>
-          <rect x={verified.x} y={verified.y} width="34" height={verified.h} fill={`url(#${uid}-hatch)`} />
+          <rect x={verified.x} y={verified.y} width="26" height={verified.h} fill={`url(#${uid}-hatch)`} />
         </g>
-        <rect
-          x={verified.x + 8}
-          y={verified.y + 7}
-          width="18"
-          height="14"
-          rx="2"
-          fill={`${GREEN}${isDark ? "28" : "18"}`}
-        />
         <circle
-          cx={verified.x + 17}
-          cy={verified.y + 14}
-          r="6"
+          cx={verified.x + 15}
+          cy={verified.y + topH / 2}
+          r="5"
           fill={GREEN}
-          opacity={activeStep >= 1 ? 1 : 0.5}
+          opacity={activeStep >= 1 ? 1 : 0.55}
           style={{ transition: "opacity 0.35s ease" }}
-        >
-          {activeStep >= 1 && (
-            <animate attributeName="r" values="6;6.8;6" dur="1.2s" repeatCount="indefinite" />
-          )}
-        </circle>
+        />
         <path
-          d={`M ${verified.x + 14} ${verified.y + 14} L ${verified.x + 16.5} ${verified.y + 16.5} L ${verified.x + 21} ${verified.y + 11.5}`}
+          d={`M ${verified.x + 12.5} ${verified.y + topH / 2} L ${verified.x + 14.5} ${verified.y + topH / 2 + 2} L ${verified.x + 18} ${verified.y + topH / 2 - 2.5}`}
           fill="none"
           stroke="#F8FAFC"
-          strokeWidth="1.2"
+          strokeWidth="1"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <text x={verified.x + 32} y={verified.y + 13} fontSize="7.5" fontWeight="700" fill={textColor} fontFamily={font}>
+        <text
+          x={verified.x + 28}
+          y={verified.y + topH / 2 - 1}
+          fontSize="6.5"
+          fontWeight="700"
+          fill={textColor}
+          fontFamily={font}
+        >
           Verified
         </text>
-        <text x={verified.x + 32} y={verified.y + 22} fontSize="5.5" fill={subtext} fontFamily={font}>
+        <text x={verified.x + 28} y={verified.y + topH / 2 + 6} fontSize="4.8" fill={subtext} fontFamily={font}>
           Payment processed
         </text>
       </g>
@@ -2262,47 +2292,48 @@ const PricingIllustration = ({ isDark }: { isDark: boolean }) => {
           stroke={stepStroke(2)}
           strokeWidth={activeStep === 2 ? 0.9 : 0.6}
         />
-        <PricingReceiptIcon x={receipt.x + 10} y={receipt.y + 9} />
+        <PricingReceiptIcon x={receipt.x + 7} y={receipt.y + 6} scale={0.88} />
         <text
-          x={receipt.x + 28}
-          y={receipt.y + 16}
-          fontSize="7"
+          x={receipt.x + receipt.w / 2}
+          y={receipt.y + 11}
+          textAnchor="middle"
+          fontSize="5.5"
           fontWeight="700"
           fill={textColor}
-          letterSpacing="0.5"
+          letterSpacing="0.35"
           fontFamily={font}
         >
           RECEIPT
         </text>
-        {[0, 1, 2, 3, 4].map((i) => (
+        {[0, 1, 2, 3].map((i) => (
           <line
             key={i}
-            x1={receipt.x + 10}
-            y1={receipt.y + 22 + i * 5}
-            x2={receipt.x + receipt.w - 12 - i * 6}
-            y2={receipt.y + 22 + i * 5}
+            x1={receipt.x + 7}
+            y1={receipt.y + 16 + i * 5}
+            x2={receipt.x + receipt.w - 7 - i * 4}
+            y2={receipt.y + 16 + i * 5}
             stroke={muted}
-            strokeWidth="1.8"
+            strokeWidth="1.4"
             strokeLinecap="round"
-            opacity={activeStep >= 2 ? 1 : 0.6}
+            opacity={activeStep >= 2 ? 1 : 0.55}
             style={{ transition: "opacity 0.35s ease" }}
           />
         ))}
         <rect
-          x={receipt.x + 10}
-          y={receipt.y + receipt.h - 12}
-          width="28"
-          height="8"
-          rx="4"
+          x={receipt.x + 7}
+          y={receipt.y + receipt.h - 8}
+          width="14"
+          height="4"
+          rx="2"
           fill={isDark ? "rgba(255,255,255,0.06)" : "rgba(15,23,42,0.06)"}
           className="pointer-events-none"
         />
         <rect
-          x={receipt.x + receipt.w - 38}
-          y={receipt.y + receipt.h - 12}
-          width="28"
-          height="8"
-          rx="4"
+          x={receipt.x + receipt.w - 21}
+          y={receipt.y + receipt.h - 8}
+          width="14"
+          height="4"
+          rx="2"
           fill={GREEN}
           opacity={activeStep === 2 ? 1 : 0.65}
           style={{ transition: "opacity 0.3s ease" }}
@@ -2335,66 +2366,72 @@ const features: FeatureItem[] = [
     title: "Intelligent Matching",
     description: "Algorithm-powered pairing based on your learning style and goals.",
     Illustration: MatchingIllustration,
-    illustrationClassName: "w-[88%] max-w-[88%] mx-auto min-h-[10rem] h-44 sm:min-h-[11.5rem] sm:h-52",
-    illustrationWrapperClassName: "pt-5 pb-3 px-3 sm:px-4",
+    illustrationClassName: FEATURE_ROW_ILLUSTRATION_CLASS,
+    illustrationWrapperClassName: FEATURE_ROW_ILLUSTRATION_WRAPPER,
   },
   {
     key: "schedule",
     title: "Flexible Scheduling",
     description: "Book sessions when you're sharpest morning or midnight.",
     Illustration: ScheduleIllustration,
-    illustrationClassName: "w-[88%] max-w-[88%] mx-auto min-h-[10rem] h-44 sm:min-h-[11.5rem] sm:h-52 flex items-center justify-center",
-    illustrationWrapperClassName: "pt-5 pb-3 px-3 sm:px-4",
+    illustrationClassName: `${FEATURE_ROW_ILLUSTRATION_CLASS} flex items-center justify-center`,
+    illustrationWrapperClassName: FEATURE_ROW_ILLUSTRATION_WRAPPER,
   },
   {
     key: "progress",
     title: "Track Your Growth",
     description: "Visual analytics for every session, every milestone tracked.",
     Illustration: ProgressIllustration,
-    illustrationClassName: "w-full min-h-[18rem] h-[18rem] sm:min-h-[20rem] sm:h-[20rem]",
-    illustrationWrapperClassName: "py-4 px-3 sm:px-4",
+    illustrationClassName: FEATURE_ROW_ILLUSTRATION_CLASS,
+    illustrationWrapperClassName: FEATURE_ROW_ILLUSTRATION_WRAPPER,
   },
   {
     key: "subjects",
     title: "Every Subject Covered",
-    description: "Specialized tutors for math, sciences, languages, arts — all here.",
+    description: "Specialized tutors for math, sciences, languages, and humanities, all here.",
     Illustration: SubjectsIllustration,
-    illustrationClassName: "w-full min-h-[15rem] h-64 sm:min-h-[17rem] sm:h-72",
+    illustrationClassName: FEATURE_ROW_ILLUSTRATION_CLASS,
+    illustrationWrapperClassName: FEATURE_ROW_ILLUSTRATION_WRAPPER,
   },
   {
     key: "verified",
     title: "Verified & Vetted Tutors",
     description: "Rigorous background checks and teaching assessments for every tutor.",
     Illustration: VerifiedIllustration,
-    illustrationClassName: "w-full min-h-[15rem] h-64 sm:min-h-[17rem] sm:h-72",
+    illustrationClassName: FEATURE_ROW_ILLUSTRATION_CLASS,
+    illustrationWrapperClassName: FEATURE_ROW_ILLUSTRATION_WRAPPER,
   },
   {
     key: "connect",
     title: "Instant Connect",
     description: "Message your tutor and get answers between sessions instantly.",
     Illustration: ConnectIllustration,
-    illustrationClassName: "w-full min-h-[15rem] h-64 sm:min-h-[17rem] sm:h-72",
+    illustrationClassName: FEATURE_ROW_ILLUSTRATION_CLASS,
+    illustrationWrapperClassName: FEATURE_ROW_ILLUSTRATION_WRAPPER,
   },
   {
     key: "devices",
     title: "Learn From Anywhere",
-    description: "Connect with tutors across the globe — sessions from any timezone, any location.",
+    description: "Connect with tutors across the globe sessions from any timezone, any location.",
     Illustration: LearnFromAnywhereIllustration,
-    illustrationClassName: "w-full min-h-[15rem] h-64 sm:min-h-[17rem] sm:h-72",
+    illustrationClassName: FEATURE_ROW_ILLUSTRATION_CLASS,
+    illustrationWrapperClassName: FEATURE_ROW_ILLUSTRATION_WRAPPER,
   },
   {
     key: "resources",
     title: "Session Recordings",
     description: "Every session recorded and available with shared notes and resources.",
     Illustration: SessionRecordingsIllustration,
-    illustrationClassName: "w-full min-h-[15rem] h-64 sm:min-h-[17rem] sm:h-72",
+    illustrationClassName: FEATURE_ROW_ILLUSTRATION_CLASS,
+    illustrationWrapperClassName: FEATURE_ROW_ILLUSTRATION_WRAPPER,
   },
   {
     key: "pricing",
     title: "Transparent Pricing",
-    description: "No hidden fees — clear, affordable rates for every session.",
+    description: "No hidden fees clear, affordable rates for every session.",
     Illustration: PricingIllustration,
-    illustrationClassName: "w-full min-h-[15rem] h-64 sm:min-h-[17rem] sm:h-72",
+    illustrationClassName: FEATURE_ROW_ILLUSTRATION_CLASS,
+    illustrationWrapperClassName: FEATURE_ROW_ILLUSTRATION_WRAPPER,
   },
 ];
 
@@ -2441,7 +2478,13 @@ const Features = () => {
                     <Ill isDark={isDark} />
                   </div>
                 </div>
-                <div className="px-8 pb-8">
+                <div
+                  className={
+                    feat.illustrationWrapperClassName === FEATURE_ROW_ILLUSTRATION_WRAPPER
+                      ? FEATURE_ROW_TEXT_CLASS
+                      : "px-8 pb-8"
+                  }
+                >
                   <h3 className="font-[var(--font-primary)] text-xl font-normal text-[#0F172A] dark:text-[#F5F7FA] mb-3">
                     {feat.title}
                   </h3>

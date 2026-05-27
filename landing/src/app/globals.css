@@ -77,23 +77,14 @@
   }
 }
 
-html.lenis, html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 html {
+  scroll-behavior: smooth;
   touch-action: pan-x pan-y;
   -ms-touch-action: pan-x pan-y;
   -webkit-text-size-adjust: 100%;
