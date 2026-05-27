@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Loader from "./Loader";
 import SmoothScroll from "./SmoothScroll";
 
+const LOADER_MAX_MS = 650;
+
 export default function ClientWrapper({
   children,
 }: {
@@ -12,14 +14,25 @@ export default function ClientWrapper({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const handleLoad = () => setLoading(false);
-
-    if (document.readyState === "complete") {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
       setLoading(false);
+    };
+
+    const cap = window.setTimeout(finish, LOADER_MAX_MS);
+
+    if (document.readyState !== "loading") {
+      requestAnimationFrame(finish);
     } else {
-      window.addEventListener("load", handleLoad);
-      return () => window.removeEventListener("load", handleLoad);
+      document.addEventListener("DOMContentLoaded", finish, { once: true });
     }
+
+    return () => {
+      window.clearTimeout(cap);
+      document.removeEventListener("DOMContentLoaded", finish);
+    };
   }, []);
 
   return <>{loading ? <Loader /> : <SmoothScroll>{children}</SmoothScroll>}</>;

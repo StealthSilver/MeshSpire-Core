@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { ArrowRight } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useIsDark } from "@/hooks/useIsDark";
 
 function srand(seed: number): number {
   const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
@@ -18,8 +18,7 @@ const orangeShades = ["#FFA629", "#FFB84D", "#FF9500", "#FFCA70", "#E89420"];
 const blueShades = ["#809FFF", "#99B3FF", "#6688FF", "#B3C6FF", "#5577EE"];
 
 const CTA = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   const squares = useMemo(() => {
     const result: Array<{ x: number; y: number; opacity: number; color: string }> = [];

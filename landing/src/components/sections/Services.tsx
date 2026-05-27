@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useTheme } from "next-themes";
+import { useIsDark } from "@/hooks/useIsDark";
 
 function srand(seed: number): number {
   const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
@@ -15,8 +15,7 @@ const PATTERN_H = 600;
 const PATTERN_SHIFT_X = 18;
 
 const Services = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
   const [activeCard, setActiveCard] = useState<number | null>(null);
   const hoverLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { useTheme } from "next-themes";
+import { useIsDark } from "@/hooks/useIsDark";
 
 function srand(seed: number): number {
   const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
@@ -78,8 +78,7 @@ const GRID_H = 175;
 /* ─── Main section ─── */
 
 const StoryAnimation = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   const transitionSquares = useMemo(() => {
     const result: Array<{ x: number; y: number; opacity: number; color: string }> = [];

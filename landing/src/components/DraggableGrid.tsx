@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from "react";
-import { useTheme } from "next-themes";
+import { useIsDark } from "@/hooks/useIsDark";
 import { useDrag } from "@/hooks/useDrag";
 
 interface Subject {
@@ -81,6 +81,27 @@ function rectsOverlap(
   );
 }
 
+/** Hero layout: min center distance so card rects never touch (includes gap). */
+const HERO_MIN_X = CARD_W + 148;
+const HERO_MIN_Y = CARD_H + 136;
+
+function heroCardsOverlap(
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+) {
+  return (
+    Math.abs(a.x - b.x) < HERO_MIN_X &&
+    Math.abs(a.y - b.y) < HERO_MIN_Y
+  );
+}
+
+function isValidHeroPosition(
+  candidate: { x: number; y: number },
+  placed: { x: number; y: number }[],
+) {
+  return !placed.some((p) => heroCardsOverlap(candidate, p));
+}
+
 function seededPositions(): { x: number; y: number }[] {
   const rng = seededRng(42);
   const positions: { x: number; y: number }[] = [];
@@ -133,6 +154,103 @@ function seededPositions(): { x: number; y: number }[] {
 }
 
 const BASE_POSITIONS = seededPositions();
+
+const SUBJECT_IDX = {
+  Mathematics: 0,
+  Chemistry: 2,
+  Biology: 3,
+  Finance: 26,
+} as const;
+
+const HERO_ANCHOR_INDICES = new Set<number>([
+  SUBJECT_IDX.Chemistry,
+  SUBJECT_IDX.Biology,
+]);
+
+/** Viewport-center coordinates for the hero first paint (tuned ~1280–1600px wide). */
+function getHeroInitialLayout() {
+  const positions: Record<number, { x: number; y: number }> = {};
+
+  // Chemistry — right side, just below the navbar Contact link
+  positions[SUBJECT_IDX.Chemistry] = { x: 310, y: -290 };
+
+  // Biology — just above the hero headline (bottom-left copy block)
+  positions[SUBJECT_IDX.Biology] = { x: -300, y: 40 };
+
+  const occupied = Object.values(positions);
+  const remaining = SUBJECTS.map((_, i) => i).filter((i) => !HERO_ANCHOR_INDICES.has(i));
+
+  const rng = seededRng(9001);
+
+  const candidates: { x: number; y: number }[] = [];
+  for (let y = -920; y <= 980; y += HERO_MIN_Y) {
+    for (let x = -1200; x <= 1280; x += HERO_MIN_X) {
+      candidates.push({ x, y });
+    }
+  }
+
+  for (let i = candidates.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+  }
+
+  for (let i = remaining.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+  }
+
+  for (const subjectIndex of remaining) {
+    const placedSoFar = Object.values(positions);
+    let placed = false;
+
+    for (let k = 0; k < candidates.length; k++) {
+      const candidate = candidates[k];
+      if (!isValidHeroPosition(candidate, [...occupied, ...placedSoFar])) {
+        continue;
+      }
+      positions[subjectIndex] = candidate;
+      candidates.splice(k, 1);
+      placed = true;
+      break;
+    }
+
+    if (!placed) {
+      throw new Error(
+        "DraggableGrid: Unable to place all hero cards without overlap. Expand hero candidate bounds.",
+      );
+    }
+  }
+
+  const allHeroPositions = Object.values(positions);
+  for (let i = 0; i < allHeroPositions.length; i++) {
+    for (let j = i + 1; j < allHeroPositions.length; j++) {
+      if (heroCardsOverlap(allHeroPositions[i], allHeroPositions[j])) {
+        throw new Error("DraggableGrid: Hero layout contains overlapping cards.");
+      }
+    }
+  }
+
+  const subjectOrder = [
+    ...remaining,
+    SUBJECT_IDX.Chemistry,
+    SUBJECT_IDX.Biology,
+  ];
+
+  const xs = allHeroPositions.map((p) => p.x);
+  const ys = allHeroPositions.map((p) => p.y);
+  const tileW = Math.max(...xs) - Math.min(...xs) + HERO_MIN_X;
+  const tileH = Math.max(...ys) - Math.min(...ys) + HERO_MIN_Y;
+
+  return {
+    offset: { x: 0, y: 0 },
+    positions,
+    subjectOrder,
+    tileW,
+    tileH,
+  };
+}
+
+const HERO_INITIAL_LAYOUT = getHeroInitialLayout();
 
 /* ── Sketch illustrations ───────────────────────────────────── */
 
@@ -1959,8 +2077,7 @@ const SubjectCard = React.memo(function SubjectCard({
   style,
   rotation,
 }: SubjectCardProps) {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   return (
     <div
@@ -2053,27 +2170,67 @@ const SubjectCard = React.memo(function SubjectCard({
 
 /* ── Main grid ───────────────────────────────────────────────── */
 
+type CardInstance = {
+  key: string;
+  subjectIndex: number;
+  x: number;
+  y: number;
+};
+
+function buildCardInstances(
+  subjectOrder: number[],
+  heroBasePositions: Record<number, { x: number; y: number }>,
+  dragDelta: { x: number; y: number },
+  tileW: number,
+  tileH: number,
+  viewW: number,
+  viewH: number,
+): CardInstance[] {
+  const marginX = viewW / 2 + CARD_W;
+  const marginY = viewH / 2 + CARD_H;
+  const instances: CardInstance[] = [];
+
+  for (const subjectIndex of subjectOrder) {
+    const base = heroBasePositions[subjectIndex];
+    const subject = SUBJECTS[subjectIndex];
+    const px = base.x + dragDelta.x;
+    const py = base.y + dragDelta.y;
+
+    const colMin = Math.floor((-marginX - px) / tileW);
+    const colMax = Math.ceil((marginX - px) / tileW);
+    const rowMin = Math.floor((-marginY - py) / tileH);
+    const rowMax = Math.ceil((marginY - py) / tileH);
+
+    for (let col = colMin; col <= colMax; col++) {
+      for (let row = rowMin; row <= rowMax; row++) {
+        instances.push({
+          key: `${subject.name}-${col}-${row}`,
+          subjectIndex,
+          x: px + col * tileW,
+          y: py + row * tileH,
+        });
+      }
+    }
+  }
+
+  return instances;
+}
+
 export default function DraggableGrid() {
-  const [offset, setOffset] = useState({ x: 220, y: -170 });
-  const [subjectOrder, setSubjectOrder] = useState<number[]>(
-    () => SUBJECTS.map((_, i) => i),
-  );
+  const [offset, setOffset] = useState(HERO_INITIAL_LAYOUT.offset);
+  const [subjectOrder] = useState<number[]>(HERO_INITIAL_LAYOUT.subjectOrder);
+  const heroBasePositions = HERO_INITIAL_LAYOUT.positions;
+  const heroTileW = HERO_INITIAL_LAYOUT.tileW;
+  const heroTileH = HERO_INITIAL_LAYOUT.tileH;
+  const initialOffset = HERO_INITIAL_LAYOUT.offset;
+  const [viewport, setViewport] = useState({ w: 1600, h: 900 });
 
   useEffect(() => {
-    // Randomize first-load layout so cards appear around hero copy
-    // (and less directly behind the text block).
-    const randomizedOffset = {
-      x: 180 + Math.random() * 260,
-      y: -250 + Math.random() * 140,
-    };
-    setOffset(randomizedOffset);
-
-    const order = SUBJECTS.map((_, i) => i);
-    for (let i = order.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [order[i], order[j]] = [order[j], order[i]];
-    }
-    setSubjectOrder(order);
+    const update = () =>
+      setViewport({ w: window.innerWidth, h: window.innerHeight });
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, []);
 
   const handleOffsetChange = useCallback(
@@ -2083,16 +2240,38 @@ export default function DraggableGrid() {
 
   const { isDragging, handlers } = useDrag({ onOffsetChange: handleOffsetChange });
 
+  const dragDelta = useMemo(
+    () => ({
+      x: offset.x - initialOffset.x,
+      y: offset.y - initialOffset.y,
+    }),
+    [offset.x, offset.y, initialOffset.x, initialOffset.y],
+  );
+
   const patternOffsetX = ((offset.x % DOT_SPACING) + DOT_SPACING) % DOT_SPACING;
   const patternOffsetY = ((offset.y % DOT_SPACING) + DOT_SPACING) % DOT_SPACING;
 
-  const cardPositions = useMemo(
+  const cardInstances = useMemo(
     () =>
-      BASE_POSITIONS.map((base) => ({
-        x: ((base.x + offset.x) % REPEAT_W + REPEAT_W) % REPEAT_W - REPEAT_W / 2,
-        y: ((base.y + offset.y) % REPEAT_H + REPEAT_H) % REPEAT_H - REPEAT_H / 2,
-      })),
-    [offset.x, offset.y],
+      buildCardInstances(
+        subjectOrder,
+        heroBasePositions,
+        dragDelta,
+        heroTileW,
+        heroTileH,
+        viewport.w,
+        viewport.h,
+      ),
+    [
+      subjectOrder,
+      heroBasePositions,
+      dragDelta.x,
+      dragDelta.y,
+      heroTileW,
+      heroTileH,
+      viewport.w,
+      viewport.h,
+    ],
   );
 
   return (
@@ -2126,20 +2305,19 @@ export default function DraggableGrid() {
         <rect width="100%" height="100%" fill="url(#dot-grid)" />
       </svg>
 
-      {/* Cards */}
+      {/* Cards — tiled copies for infinite drag */}
       <div className="absolute inset-0" style={{ willChange: "transform" }}>
-        {subjectOrder.map((subjectIndex, i) => {
-          const subject = SUBJECTS[subjectIndex];
-          const pos = cardPositions[i];
+        {cardInstances.map((instance) => {
+          const subject = SUBJECTS[instance.subjectIndex];
           return (
             <SubjectCard
-              key={subject.name}
+              key={instance.key}
               subject={subject}
-              rotation={ROTATIONS[subjectIndex]}
+              rotation={ROTATIONS[instance.subjectIndex]}
               style={{
                 left: "50%",
                 top: "50%",
-                transform: `translate3d(${pos.x - CARD_W / 2}px, ${pos.y - CARD_H / 2}px, 0)`,
+                transform: `translate3d(${instance.x - CARD_W / 2}px, ${instance.y - CARD_H / 2}px, 0)`,
               }}
             />
           );

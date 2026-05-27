@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useTheme } from "next-themes";
+import { useIsDark } from "@/hooks/useIsDark";
 
 const ORANGE = "#FFA629";
 const BLUE = "#809FFF";
@@ -314,8 +314,7 @@ const features = [
 ];
 
 const Features = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   return (
     <section

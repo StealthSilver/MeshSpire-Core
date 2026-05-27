@@ -13,6 +13,29 @@
     display: none;
   }
 }
+@keyframes loaderSquarePulse {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: var(--loader-peak, 0.75);
+  }
+}
+
+.loader-grid-square {
+  opacity: 0;
+  animation: loaderSquarePulse ease-in-out infinite;
+  will-change: opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader-grid-square {
+    animation: none;
+    opacity: calc(var(--loader-peak, 0.6) * 0.65);
+  }
+}
+
 :root {
   --color-font: #141414;
   --background: #F8FAFC;

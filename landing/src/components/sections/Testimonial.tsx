@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useTheme } from "next-themes";
+import { useIsDark } from "@/hooks/useIsDark";
 import { Star } from "lucide-react";
 
 const testimonials = [
@@ -62,8 +62,7 @@ const testimonials = [
 ];
 
 const Testimonial = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   return (
     <section

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useTheme } from "next-themes";
+import { useIsDark } from "@/hooks/useIsDark";
 
 const faqs = [
   {
@@ -55,8 +55,7 @@ const ChevronIcon = ({ open }: { open: boolean }) => (
 );
 
 const FAQ = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const cardBg = isDark ? "#0A0C0F" : "#F1F5F9";

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useTheme } from "next-themes";
+import { useIsDark } from "@/hooks/useIsDark";
 import { useDraggableCard } from "@/hooks/useDraggableCard";
 import { Testimonial } from "@/data/testimonials";
 
@@ -103,8 +103,7 @@ const PolaroidCard: React.FC<PolaroidCardProps> = ({
   rotation,
   bounds,
 }) => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
   const { pos, isDragging, onPointerDown, wasClick } =
     useDraggableCard(initialPos, bounds);
   const [flipped, setFlipped] = useState(false);

@@ -6,7 +6,7 @@ import {
   motion,
 } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
-import { useTheme } from "next-themes";
+import { useIsDark } from "@/hooks/useIsDark";
 
 interface TimelineEntry {
   title: string;
@@ -22,8 +22,7 @@ export const Timeline = ({
   hoverEffect?: boolean;
   scaleOnHover?: boolean;
 }) => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   const ref = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);

@@ -4,15 +4,12 @@ import { useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useTheme } from "next-themes";
+import { useIsDark } from "@/hooks/useIsDark";
 
 export default function Navbar() {
   const [hovered, setHovered] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const { theme } = useTheme();
-
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const isDark = useIsDark();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -57,14 +54,8 @@ export default function Navbar() {
       <div className="flex items-center justify-between max-w-7xl mx-auto w-full">
         <Link href="/" className="flex items-center cursor-pointer group">
           <motion.img
-            key={mounted ? theme : "default"}
-            src={
-              !mounted
-                ? "/logos/ms_dark.svg"
-                : theme === "dark"
-                  ? "/logos/ms_dark.svg"
-                  : "/logos/ms_light.svg"
-            }
+            key={isDark ? "dark" : "light"}
+            src={isDark ? "/logos/ms_dark.svg" : "/logos/ms_light.svg"}
             alt="Meshspire logo"
             className="w-36 h-auto transition-opacity duration-300 group-hover:opacity-80"
             initial={{ opacity: 0 }}
