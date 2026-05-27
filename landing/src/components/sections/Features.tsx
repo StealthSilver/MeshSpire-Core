@@ -1651,9 +1651,9 @@ const ConnectIllustration = ({ isDark }: { isDark: boolean }) => {
 type AnywherePinDef = Marker & { id: string };
 
 const ANYWHERE_PINS: AnywherePinDef[] = [
-  { id: "toronto", lat: 43.65, lng: -79.38, size: 0.24, color: ORANGE },
-  { id: "dubai", lat: 25.2, lng: 55.27, size: 0.24, color: GREEN },
-  { id: "sydney", lat: -33.87, lng: 151.21, size: 0.24, color: BLUE },
+  { id: "japan", lat: 35.68, lng: 139.69 },
+  { id: "africa", lat: 0.5, lng: 25.0 },
+  { id: "canada", lat: 43.65, lng: -79.38 },
 ];
 
 const ANYWHERE_MAP_MARKERS = ANYWHERE_PINS;
@@ -1665,10 +1665,24 @@ const ANYWHERE_CONNECTIONS: {
   color: string;
   bend: number;
 }[] = [
-  { id: "toronto-dubai", from: "toronto", to: "dubai", color: ORANGE, bend: 0.11 },
-  { id: "dubai-sydney", from: "dubai", to: "sydney", color: PURPLE, bend: 0.19 },
-  { id: "toronto-sydney", from: "toronto", to: "sydney", color: BLUE, bend: 0.26 },
+  { id: "japan-africa", from: "japan", to: "africa", color: ORANGE, bend: 0.1 },
+  { id: "africa-canada", from: "africa", to: "canada", color: PURPLE, bend: 0.17 },
+  { id: "japan-canada", from: "japan", to: "canada", color: BLUE, bend: 0.24 },
 ];
+
+const AnywhereMapPin = ({ x, y }: { x: number; y: number }) => (
+  <g transform={`translate(${x}, ${y})`}>
+    <ellipse cx="0" cy="1.5" rx="5" ry="1.8" fill="rgba(0,0,0,0.14)" />
+    <path
+      d="M 0 0 C -5.5 -7.5 -8.5 -15 0 -21.5 C 8.5 -15 5.5 -7.5 0 0 Z"
+      fill="#FFFFFF"
+      stroke="rgba(15,23,42,0.14)"
+      strokeWidth="0.65"
+      strokeLinejoin="round"
+    />
+    <circle cx="0" cy="-14.5" r="3.4" fill="rgba(15,23,42,0.12)" />
+  </g>
+);
 
 const anywhereArcBetween = (
   x1: number,
@@ -1770,16 +1784,7 @@ const LearnFromAnywhereIllustration = ({ isDark }: { isDark: boolean }) => {
         ))}
         {ANYWHERE_PINS.map((pin) => {
           const { x, y } = projectMapPoint(pin.lat, pin.lng);
-          const r = (pin.size ?? 0.24) * (DOTTED_MAP_VIEW_W / 200);
-          return (
-            <circle
-              key={pin.id}
-              cx={x}
-              cy={y}
-              r={r}
-              fill={pin.color ?? ORANGE}
-            />
-          );
+          return <AnywhereMapPin key={pin.id} x={x} y={y} />;
         })}
       </svg>
     </div>
