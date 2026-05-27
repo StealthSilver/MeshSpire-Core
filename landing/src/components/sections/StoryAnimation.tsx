@@ -195,7 +195,7 @@ const StoryAnimation = () => {
           <h3 className="font-[var(--font-primary)] text-6xl font-thin tracking-tight leading-tight text-[#0F172A] dark:text-[#F5F7FA] shrink-0">
             The Inevitable<br />Transition
           </h3>
-          <div className="flex-1 relative ml-8 overflow-hidden" style={{ height: "180px" }}>
+          <div className="flex-1 relative ml-7 overflow-hidden" style={{ height: "180px" }}>
             <svg
               className="absolute inset-0 w-full h-full"
               viewBox={`0 0 ${GRID_W} ${GRID_H}`}
