@@ -1915,9 +1915,9 @@ const SessionRecordingsIllustration = ({ isDark }: { isDark: boolean }) => {
           strokeWidth="0.6"
         />
         <text
-          x={primary.x + 8}
-          y={primary.y + 15}
-          textAnchor="start"
+          x={primary.x + primary.w / 2}
+          y={primary.y + 11.5}
+          textAnchor="middle"
           dominantBaseline="middle"
           fontSize="5.5"
           fontWeight="700"
