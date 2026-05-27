@@ -1,6 +1,12 @@
 "use client";
 
+import React, { useMemo } from "react";
 import { useTheme } from "next-themes";
+
+function srand(seed: number): number {
+  const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+}
 
 const sunsetColors = [
   "#2D0A04", "#3A1007", "#47160A", "#541C0D", "#612210",
@@ -62,164 +68,85 @@ const StripedCircle = ({ id, isDark, rotation = 0 }: { id: string; isDark: boole
   );
 };
 
-/* ─── Chaos-to-order transition illustration ─── */
+/* ─── Grid constants for transition illustration ─── */
 
-const hash = (n: number) => {
-  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
-  return x - Math.floor(x);
-};
-
-const IW = 1400;
-const IH = 340;
-const GC = 32;
-const GR = 12;
-const CW = 34;
-const CH = 26;
-const GX = IW - GC * CW - 30;
-const GY = (IH - GR * CH) / 2;
-
-interface Dot { x: number; y: number; s: number; o: number; c: 0 | 1; round: boolean }
-interface Line { x1: number; y1: number; x2: number; y2: number; o: number }
-interface Block { x: number; y: number; w: number; h: number; o: number; c: 0 | 1 }
-
-const illDots: Dot[] = [];
-const illLines: Line[] = [];
-const illBlocks: Block[] = [];
-
-// Grid particles: left columns scatter as round dots toward bottom-left,
-// right columns lock into square grid positions
-for (let c = 0; c < GC; c++) {
-  for (let r = 0; r < GR; r++) {
-    const i = c * GR + r;
-    const order = Math.pow(c / (GC - 1), 1.3);
-
-    const gx = GX + c * CW + CW / 2;
-    const gy = GY + r * CH + CH / 2;
-    const rx = hash(i * 2) * IW * 0.44;
-    const ry = IH * 0.35 + hash(i * 2 + 1) * IH * 0.65;
-
-    illDots.push({
-      x: gx * order + rx * (1 - order),
-      y: gy * order + ry * (1 - order),
-      s: (3 + hash(i * 7) * 5) * order + (1 + hash(i * 3) * 3.5) * (1 - order),
-      o: (0.2 + hash(i * 4) * 0.3) * (0.3 + order * 0.7),
-      c: hash(i * 5) > 0.42 ? 1 : 0,
-      round: order < 0.55,
-    });
-  }
-}
-
-// Dense dust dots concentrated in bottom-left
-for (let i = 0; i < 200; i++) {
-  const x = hash(i * 11 + 500) * IW * 0.38;
-  const y = IH * 0.3 + hash(i * 13 + 700) * IH * 0.7;
-  illDots.push({
-    x, y,
-    s: 0.5 + hash(i * 17 + 900) * 2.5,
-    o: 0.06 + hash(i * 19 + 1100) * 0.25,
-    c: hash(i * 23 + 1300) > 0.42 ? 1 : 0,
-    round: true,
-  });
-}
-
-// Medium scattered dots in bottom-left and center-bottom
-for (let i = 0; i < 60; i++) {
-  const x = hash(i * 29 + 1500) * IW * 0.5;
-  const y = IH * 0.25 + hash(i * 31 + 1700) * IH * 0.75;
-  illDots.push({
-    x, y,
-    s: 2 + hash(i * 33 + 1900) * 5,
-    o: 0.08 + hash(i * 37 + 2100) * 0.2,
-    c: hash(i * 41 + 2300) > 0.42 ? 1 : 0,
-    round: true,
-  });
-}
-
-// Larger accent dots in bottom-left area
-for (let i = 0; i < 25; i++) {
-  const x = hash(i * 43 + 3500) * IW * 0.5;
-  const y = IH * 0.3 + hash(i * 47 + 3700) * IH * 0.7;
-  illDots.push({
-    x, y,
-    s: 7 + hash(i * 51 + 3900) * 12,
-    o: 0.05 + hash(i * 53 + 4100) * 0.1,
-    c: hash(i * 59 + 4300) > 0.42 ? 1 : 0,
-    round: true,
-  });
-}
-
-// Grid lines on the right side
-const lineStartCol = Math.floor(GC * 0.38);
-for (let c = lineStartCol; c < GC; c++) {
-  for (let r = 0; r < GR; r++) {
-    const x = GX + c * CW + CW / 2;
-    const y = GY + r * CH + CH / 2;
-    const p = (c - lineStartCol) / (GC - lineStartCol);
-    const o = Math.pow(p, 1.8) * 0.22;
-    if (c < GC - 1) illLines.push({ x1: x, y1: y, x2: x + CW, y2: y, o });
-    if (r < GR - 1) illLines.push({ x1: x, y1: y, x2: x, y2: y + CH, o });
-  }
-}
-
-// Extended vertical connectors above the grid
-for (let c = Math.floor(GC * 0.65); c < GC; c += 2) {
-  const x = GX + c * CW + CW / 2;
-  const topY = GY;
-  const ext = topY - 15 - hash(c + 5000) * 35;
-  const o = 0.08 + hash(c + 5100) * 0.1;
-  illLines.push({ x1: x, y1: topY, x2: x, y2: ext, o });
-  illDots.push({ x, y: ext, s: 2 + hash(c + 5200) * 2.5, o: o + 0.08, c: hash(c + 5300) > 0.5 ? 1 : 0, round: false });
-}
-
-// Filled block overlays on the right grid
-for (let c = Math.floor(GC * 0.5); c < GC - 1; c++) {
-  for (let r = 0; r < GR - 1; r++) {
-    const seed = c * GR + r;
-    if (hash(seed + 6000) > 0.72) {
-      const spanC = 1 + Math.floor(hash(seed + 6100) * 2.5);
-      const spanR = 1 + Math.floor(hash(seed + 6200) * 2.5);
-      illBlocks.push({
-        x: GX + c * CW,
-        y: GY + r * CH,
-        w: Math.min(spanC, GC - c) * CW,
-        h: Math.min(spanR, GR - r) * CH,
-        o: 0.03 + hash(seed + 6300) * 0.09,
-        c: hash(seed + 6400) > 0.42 ? 1 : 0,
-      });
-    }
-  }
-}
-
-const TransitionIllustration = ({ isDark }: { isDark: boolean }) => {
-  const c0 = "#FFA629";
-  const c1 = "#818CF8";
-  const pick = (idx: 0 | 1) => (idx === 0 ? c0 : c1);
-  const lineStroke = isDark ? "#F5F7FA" : "#0F172A";
-
-  return (
-    <svg viewBox={`0 0 ${IW} ${IH}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
-      {illLines.map((l, i) => (
-        <line key={`l${i}`} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={lineStroke} strokeWidth={0.5} opacity={l.o} />
-      ))}
-      {illBlocks.map((b, i) => (
-        <rect key={`b${i}`} x={b.x} y={b.y} width={b.w} height={b.h} fill={pick(b.c)} opacity={b.o} rx={1} />
-      ))}
-      {illDots.map((d, i) =>
-        d.round ? (
-          <circle key={`d${i}`} cx={d.x} cy={d.y} r={d.s / 2} fill={pick(d.c)} opacity={d.o} />
-        ) : (
-          <rect key={`d${i}`} x={d.x - d.s / 2} y={d.y - d.s / 2} width={d.s} height={d.s} fill={pick(d.c)} opacity={d.o} />
-        )
-      )}
-    </svg>
-  );
-};
+const GRID_SQ = 10;
+const GRID_CELL = 14;
+const GRID_W = 700;
+const GRID_H = 220;
 
 /* ─── Main section ─── */
 
 const StoryAnimation = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+
+  const transitionSquares = useMemo(() => {
+    const result: Array<{ x: number; y: number; opacity: number; color: string }> = [];
+    const cols = Math.floor(GRID_W / GRID_CELL);
+    const rows = Math.floor(GRID_H / GRID_CELL);
+    const orangeShades = ["#FFA629", "#FFB84D", "#FF9500", "#FFCA70", "#E89420"];
+    const blueShades = ["#809FFF", "#99B3FF", "#6688FF", "#B3C6FF", "#5577EE"];
+
+    for (let c = 0; c < cols; c++) {
+      for (let r = 0; r < rows; r++) {
+        const seed = c * 173 + r * 397 + 53;
+        const rand = srand(seed);
+        const nx = c / cols;
+        const ny = r / rows;
+
+        let density: number;
+
+        if (nx > 0.85) {
+          density = 0.94;
+        } else if (nx > 0.72) {
+          density = 0.7 + srand(seed + 50) * 0.15;
+        } else if (nx > 0.55) {
+          density = 0.4 + srand(seed + 100) * 0.12;
+        } else if (nx > 0.38) {
+          density = 0.22 + srand(seed + 150) * 0.08;
+        } else if (nx > 0.2) {
+          density = 0.12 + srand(seed + 200) * 0.06;
+        } else {
+          density = 0.06 + srand(seed + 250) * 0.04;
+        }
+
+        if (nx > 0.7) {
+          const edgeFade = ny < 0.08 ? ny / 0.08 : ny > 0.92 ? (1 - ny) / 0.08 : 1;
+          density *= 0.6 + 0.4 * edgeFade;
+        }
+
+        if (nx < 0.4) {
+          const scatter = Math.sin(c * 1.3 + r * 0.7) * 0.06;
+          density += Math.max(0, scatter);
+        }
+
+        if (rand < density) {
+          const shadeRand = srand(seed + 1234);
+          const shadeIdx = Math.floor(shadeRand * 5);
+          const colorPick = srand(seed + 999);
+          const color = colorPick < 0.55 ? orangeShades[shadeIdx] : blueShades[shadeIdx];
+
+          let snapX = c * GRID_CELL;
+          let snapY = r * GRID_CELL;
+
+          if (nx < 0.45) {
+            const jitter = (1 - nx / 0.45) * GRID_CELL * 0.5;
+            snapX += (srand(seed + 301) - 0.5) * jitter;
+            snapY += (srand(seed + 401) - 0.5) * jitter;
+          }
+
+          result.push({
+            x: snapX,
+            y: snapY,
+            opacity: 0.3 + srand(seed + 777) * 0.7,
+            color,
+          });
+        }
+      }
+    }
+    return result;
+  }, []);
 
   return (
     <section
@@ -264,11 +191,30 @@ const StoryAnimation = () => {
           ))}
         </div>
 
-        <div className="mt-24 relative">
-          <h3 className="absolute top-6 left-6 z-10 font-[var(--font-primary)] text-6xl font-thin tracking-tight leading-tight text-[#0F172A] dark:text-[#F5F7FA]">
+        <div className="mt-24 flex items-center">
+          <h3 className="font-[var(--font-primary)] text-6xl font-thin tracking-tight leading-tight text-[#0F172A] dark:text-[#F5F7FA] shrink-0">
             The Inevitable<br />Transition
           </h3>
-          <TransitionIllustration isDark={isDark} />
+          <div className="flex-1 relative ml-8 overflow-hidden" style={{ height: "180px" }}>
+            <svg
+              className="absolute inset-0 w-full h-full"
+              viewBox={`0 0 ${GRID_W} ${GRID_H}`}
+              preserveAspectRatio="xMinYMid slice"
+            >
+              {transitionSquares.map((sq, i) => (
+                <rect
+                  key={i}
+                  x={sq.x}
+                  y={sq.y}
+                  width={GRID_SQ}
+                  height={GRID_SQ}
+                  fill={sq.color}
+                  opacity={sq.opacity * (isDark ? 0.22 : 0.55)}
+                  rx={1}
+                />
+              ))}
+            </svg>
+          </div>
         </div>
       </div>
 

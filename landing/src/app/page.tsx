@@ -14,8 +14,9 @@ export default function Home() {
       <Navbar />
       <Hero />
       <StoryAnimation />
-      <Services />
       <Features />
+      <Services />
+   
       <StudentsSection />
       <FAQ />
       <CTA />

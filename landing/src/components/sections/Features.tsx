@@ -395,11 +395,6 @@ const Features = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const cardBg = isDark ? "#0A0C0F" : "#F1F5F9";
-  const cardBorder = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
-  const textPrimary = isDark ? "#F5F7FA" : "#0F172A";
-  const textSecondary = isDark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.45)";
-
   const colSpans = [7, 5, 5, 7];
   const illustrationHeights = ["260px", "250px", "240px", "220px"];
 
@@ -425,14 +420,16 @@ const Features = () => {
             return (
               <div
                 key={feat.key}
-                className="rounded-xl overflow-hidden"
-                style={{
-                  gridColumn: `span ${span}`,
-                  background: cardBg,
-                  border: `1px solid ${cardBorder}`,
-                }}
+                className={`
+                  group relative rounded-lg border overflow-hidden transition-all duration-300
+                  ${
+                    isDark
+                      ? "border-white/[0.06] bg-[#0A0C0F] hover:border-white/[0.12]"
+                      : "border-[#0F172A]/[0.06] bg-[#F1F5F9] hover:border-[#0F172A]/[0.12] hover:shadow-lg"
+                  }
+                `}
+                style={{ gridColumn: `span ${span}` }}
               >
-                {/* Illustration */}
                 <div
                   className="px-6 pt-6"
                   style={{ height: illustrationHeights[idx] }}
@@ -440,18 +437,11 @@ const Features = () => {
                   <Ill isDark={isDark} />
                 </div>
 
-                {/* Text */}
-                <div className="px-8 pt-5 pb-8">
-                  <h3
-                    className="font-[var(--font-primary)] text-xl font-normal mb-2"
-                    style={{ color: textPrimary }}
-                  >
+                <div className="px-8 pb-8">
+                  <h3 className="font-[var(--font-primary)] text-xl font-normal text-[#0F172A] dark:text-[#F5F7FA] mb-3">
                     {feat.title}
                   </h3>
-                  <p
-                    className="font-[var(--font-secondary)] text-sm font-light leading-relaxed"
-                    style={{ color: textSecondary }}
-                  >
+                  <p className="font-[var(--font-secondary)] text-sm font-light leading-relaxed text-[#0F172A]/55 dark:text-[#F5F7FA]/55">
                     {feat.description}
                   </p>
                 </div>

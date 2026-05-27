@@ -1,162 +1,146 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { ArrowRight } from "lucide-react";
 import { useTheme } from "next-themes";
 
-const hash = (n: number) => {
-  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+function srand(seed: number): number {
+  const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
   return x - Math.floor(x);
-};
+}
 
-const MeshPattern = ({ isDark }: { isDark: boolean }) => {
-  const nodes = useMemo(() => {
-    const pts: Array<{ x: number; y: number; r: number; color: string; opacity: number }> = [];
-    const colors = ["#FFA629", "#809FFF"];
+const SQUARE_SIZE = 10;
+const CELL_SIZE = 14;
+const PATTERN_W = 1240;
+const PATTERN_H = 500;
 
-    for (let i = 0; i < 80; i++) {
-      const angle = hash(i * 7 + 42) * Math.PI * 2;
-      const dist = 60 + hash(i * 13 + 99) * 340;
-      pts.push({
-        x: 500 + Math.cos(angle) * dist,
-        y: 200 + Math.sin(angle) * dist * 0.5,
-        r: 1 + hash(i * 17 + 200) * 3,
-        color: colors[hash(i * 23 + 300) > 0.45 ? 1 : 0],
-        opacity: 0.08 + hash(i * 29 + 400) * 0.18,
-      });
-    }
-    return pts;
-  }, []);
-
-  const lines = useMemo(() => {
-    const result: Array<{ x1: number; y1: number; x2: number; y2: number; opacity: number }> = [];
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        const dx = nodes[i].x - nodes[j].x;
-        const dy = nodes[i].y - nodes[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 120 && hash(i * 31 + j * 37) > 0.55) {
-          result.push({
-            x1: nodes[i].x,
-            y1: nodes[i].y,
-            x2: nodes[j].x,
-            y2: nodes[j].y,
-            opacity: 0.03 + (1 - dist / 120) * 0.06,
-          });
-        }
-      }
-    }
-    return result;
-  }, [nodes]);
-
-  const ringStroke = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)";
-
-  return (
-    <svg
-      viewBox="0 0 1000 400"
-      className="absolute inset-0 w-full h-full"
-      preserveAspectRatio="xMidYMid slice"
-    >
-      {[100, 180, 270, 360].map((r, i) => (
-        <ellipse
-          key={i}
-          cx="500"
-          cy="200"
-          rx={r}
-          ry={r * 0.5}
-          fill="none"
-          stroke={ringStroke}
-          strokeWidth="0.8"
-          strokeDasharray={i % 2 === 0 ? "4,6" : "none"}
-        />
-      ))}
-
-      {lines.map((l, i) => (
-        <line
-          key={`l-${i}`}
-          x1={l.x1}
-          y1={l.y1}
-          x2={l.x2}
-          y2={l.y2}
-          stroke={isDark ? "#F5F7FA" : "#0F172A"}
-          strokeWidth="0.4"
-          opacity={l.opacity}
-        />
-      ))}
-
-      {nodes.map((n, i) => (
-        <circle
-          key={`n-${i}`}
-          cx={n.x}
-          cy={n.y}
-          r={n.r}
-          fill={n.color}
-          opacity={n.opacity}
-        />
-      ))}
-    </svg>
-  );
-};
+const orangeShades = ["#FFA629", "#FFB84D", "#FF9500", "#FFCA70", "#E89420"];
+const blueShades = ["#809FFF", "#99B3FF", "#6688FF", "#B3C6FF", "#5577EE"];
 
 const CTA = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const cardBg = isDark ? "#0A0C0F" : "#F1F5F9";
-  const cardBorder = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
+  const squares = useMemo(() => {
+    const result: Array<{ x: number; y: number; opacity: number; color: string }> = [];
+    const cols = Math.floor(PATTERN_W / CELL_SIZE);
+    const rows = Math.floor(PATTERN_H / CELL_SIZE);
+    const halfCols = Math.ceil(cols / 2);
+
+    for (let c = 0; c < halfCols; c++) {
+      for (let r = 0; r < rows; r++) {
+        const seed = c * 137 + r * 311 + 7919;
+        const rand = srand(seed);
+        const nx = c / halfCols;
+        const ny = r / rows;
+
+        const distFromEdgeX = nx;
+        const distFromEdgeY = Math.min(ny, 1 - ny);
+
+        let density = 0.03;
+
+        if (distFromEdgeX < 0.12) density += 0.45;
+        else if (distFromEdgeX < 0.22) density += 0.25;
+        else if (distFromEdgeX < 0.35) density += 0.12;
+
+        if (distFromEdgeY < 0.15) density += 0.3;
+        else if (distFromEdgeY < 0.25) density += 0.15;
+
+        if (distFromEdgeX < 0.2 && distFromEdgeY < 0.2) density += 0.25;
+
+        if (distFromEdgeX > 0.4 && distFromEdgeY > 0.3) {
+          density *= 0.3;
+        }
+
+        const wave = Math.sin(c * 0.5) * Math.cos(r * 0.4) * 0.05;
+        density += Math.max(0, wave);
+
+        if (rand < density) {
+          const colorRand = srand(seed + 999);
+          const shadeRand = srand(seed + 1234);
+          const shadeIdx = Math.floor(shadeRand * 5);
+          const color =
+            colorRand < 0.55
+              ? orangeShades[shadeIdx]
+              : blueShades[shadeIdx];
+
+          const opacity = 0.35 + srand(seed + 777) * 0.65;
+          const leftX = c * CELL_SIZE;
+          const mirrorX = PATTERN_W - c * CELL_SIZE - SQUARE_SIZE;
+          const y = r * CELL_SIZE;
+
+          result.push({ x: leftX, y, opacity, color });
+
+          if (leftX !== mirrorX) {
+            result.push({ x: mirrorX, y, opacity, color });
+          }
+        }
+      }
+    }
+    return result;
+  }, []);
 
   return (
     <section
       id="cta"
-      className="relative w-full py-32 overflow-hidden bg-[var(--background)] transition-colors duration-700"
+      className="relative w-full py-40 overflow-hidden bg-[var(--background)] transition-colors duration-700"
     >
-      <div className="max-w-7xl mx-auto px-6">
-        <div
-          className="relative rounded-2xl overflow-hidden"
-          style={{
-            background: cardBg,
-            border: `1px solid ${cardBorder}`,
-          }}
-        >
-          <MeshPattern isDark={isDark} />
+      <svg
+        className="absolute inset-0 w-full h-full"
+        viewBox={`0 0 ${PATTERN_W} ${PATTERN_H}`}
+        preserveAspectRatio="xMidYMid slice"
+      >
+        {squares.map((sq, i) => (
+          <rect
+            key={i}
+            x={sq.x}
+            y={sq.y}
+            width={SQUARE_SIZE}
+            height={SQUARE_SIZE}
+            fill={sq.color}
+            opacity={sq.opacity * (isDark ? 0.25 : 0.6)}
+            rx={1}
+          />
+        ))}
+      </svg>
 
-          <div className="relative z-10 flex flex-col items-center text-center py-28 px-8">
-            <span className="inline-block text-sm font-[var(--font-secondary)] font-medium tracking-widest uppercase text-[#809FFF] mb-6">
-              Get Started
-            </span>
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
+        <div className="flex flex-col items-center text-center">
+          <h2 className="font-[var(--font-primary)] text-5xl md:text-6xl font-extralight tracking-tight leading-tight text-[#0F172A] dark:text-[#F5F7FA] max-w-2xl">
+            Start with your first lesson
+          </h2>
 
-            <h2 className="font-[var(--font-primary)] text-5xl md:text-6xl font-extralight tracking-tight leading-tight text-[#0F172A] dark:text-[#F5F7FA] max-w-2xl">
-              Your best learning<br />starts here
-            </h2>
-
-            <p className="mt-6 max-w-lg font-[var(--font-secondary)] text-base font-light leading-relaxed text-[#0F172A]/50 dark:text-[#F5F7FA]/50">
-              Join thousands of students already learning smarter. Find your perfect tutor, set your own schedule, and start growing today.
-            </p>
-
-            <div className="flex items-center gap-4 mt-10">
+          <div className="mt-12">
+            <div className="group relative flex items-center" style={{ filter: "url(#gooey-cta)" }}>
               <a
-                href="#"
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-[var(--font-primary)] text-sm font-medium text-white transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
-                style={{
-                  backgroundColor: "#FFA629",
-                  boxShadow: "0 4px 20px rgba(255,166,41,0.35)",
-                }}
+                href="https://meshspire-core.vercel.app/"
+                className="relative flex items-center font-[var(--font-secondary)] text-base font-normal
+                  bg-[#FFA629] text-[#0F172A] dark:text-[#F5F7FA] rounded-full px-8 py-3
+                  transition-colors duration-300 hover:bg-[#F09520]"
               >
-                Start Learning
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M3.5 8H12.5M12.5 8L8.5 4M12.5 8L8.5 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                Get Started
               </a>
-
               <a
-                href="#platform"
-                className="inline-flex items-center px-8 py-3.5 rounded-full font-[var(--font-primary)] text-sm font-medium transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] text-[#0F172A] dark:text-[#F5F7FA]"
-                style={{
-                  border: `1px solid ${isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)"}`,
-                }}
+                href="https://meshspire-core.vercel.app/"
+                className="absolute -right-2 flex items-center justify-center
+                  w-11 h-11 rounded-full bg-[#FFA629] group-hover:bg-[#F09520]
+                  text-[#0F172A] dark:text-[#F5F7FA]
+                  transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
+                  translate-x-0 scale-0 opacity-0
+                  group-hover:translate-x-[105%] group-hover:scale-100 group-hover:opacity-100"
               >
-                See How It Works
+                <ArrowRight size={17} strokeWidth={2.5} />
               </a>
             </div>
+            <svg className="absolute w-0 h-0" aria-hidden="true">
+              <defs>
+                <filter id="gooey-cta">
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
+                  <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10" result="gooey" />
+                  <feComposite in="SourceGraphic" in2="gooey" operator="atop" />
+                </filter>
+              </defs>
+            </svg>
           </div>
         </div>
       </div>
