@@ -214,8 +214,14 @@ function getHeroInitialLayout() {
 
   const xs = allHeroPositions.map((p) => p.x);
   const ys = allHeroPositions.map((p) => p.y);
-  const tileW = Math.max(...xs) - Math.min(...xs) + HERO_MIN_X;
-  const tileH = Math.max(...ys) - Math.min(...ys) + HERO_MIN_Y;
+  const bounds = {
+    minX: Math.min(...xs),
+    maxX: Math.max(...xs),
+    minY: Math.min(...ys),
+    maxY: Math.max(...ys),
+  };
+  const tileW = bounds.maxX - bounds.minX + HERO_MIN_X;
+  const tileH = bounds.maxY - bounds.minY + HERO_MIN_Y;
 
   return {
     offset: { x: 0, y: 0 },
@@ -223,6 +229,7 @@ function getHeroInitialLayout() {
     subjectOrder,
     tileW,
     tileH,
+    bounds,
   };
 }
 
@@ -2163,6 +2170,9 @@ type CardInstance = {
 function buildCardInstances(
   subjectOrder: number[],
   heroBasePositions: Record<number, { x: number; y: number }>,
+  bounds: { minX: number; maxX: number; minY: number; maxY: number },
+  offsetX: number,
+  offsetY: number,
   tileW: number,
   tileH: number,
   viewW: number,
@@ -2170,27 +2180,23 @@ function buildCardInstances(
 ): CardInstance[] {
   const marginX = viewW / 2 + CARD_W;
   const marginY = viewH / 2 + CARD_H;
-  const tileCoversViewport = tileW > viewW && tileH > viewH;
+  const TILE_PAD = 1;
+
+  // One tile column/row range for the whole pattern (all cards shift together).
+  const colMin =
+    Math.floor((-marginX - offsetX - bounds.maxX) / tileW) - TILE_PAD;
+  const colMax =
+    Math.ceil((marginX - offsetX - bounds.minX) / tileW) + TILE_PAD;
+  const rowMin =
+    Math.floor((-marginY - offsetY - bounds.maxY) / tileH) - TILE_PAD;
+  const rowMax =
+    Math.ceil((marginY - offsetY - bounds.minY) / tileH) + TILE_PAD;
+
   const instances: CardInstance[] = [];
 
   for (const subjectIndex of subjectOrder) {
     const base = heroBasePositions[subjectIndex];
     const subject = SUBJECTS[subjectIndex];
-
-    if (tileCoversViewport) {
-      instances.push({
-        key: `${subject.name}-0-0`,
-        subjectIndex,
-        x: base.x,
-        y: base.y,
-      });
-      continue;
-    }
-
-    const colMin = Math.floor((-marginX - base.x) / tileW);
-    const colMax = Math.ceil((marginX - base.x) / tileW);
-    const rowMin = Math.floor((-marginY - base.y) / tileH);
-    const rowMax = Math.ceil((marginY - base.y) / tileH);
 
     for (let col = colMin; col <= colMax; col++) {
       for (let row = rowMin; row <= rowMax; row++) {
@@ -2212,12 +2218,16 @@ export default function DraggableGrid() {
   const heroBasePositions = HERO_INITIAL_LAYOUT.positions;
   const heroTileW = HERO_INITIAL_LAYOUT.tileW;
   const heroTileH = HERO_INITIAL_LAYOUT.tileH;
+  const heroBounds = HERO_INITIAL_LAYOUT.bounds;
   const [viewport, setViewport] = useState({ w: 1600, h: 900 });
   const [isDraggingUi, setIsDraggingUi] = useState(false);
   const isDark = useIsDark();
 
   const cardsLayerRef = useRef<HTMLDivElement>(null);
   const dotPatternRef = useRef<SVGPatternElement>(null);
+  const offsetRef = useRef(HERO_INITIAL_LAYOUT.offset);
+  const tileWindowRef = useRef({ col: 0, row: 0 });
+  const [instanceRevision, setInstanceRevision] = useState(0);
 
   useEffect(() => {
     const update = () =>
@@ -2249,9 +2259,28 @@ export default function DraggableGrid() {
     applyVisualOffset(HERO_INITIAL_LAYOUT.offset);
   }, [applyVisualOffset]);
 
+  const syncTileInstances = useCallback(
+    (o: { x: number; y: number }) => {
+      const col = Math.floor(-o.x / heroTileW);
+      const row = Math.floor(-o.y / heroTileH);
+      if (
+        col !== tileWindowRef.current.col ||
+        row !== tileWindowRef.current.row
+      ) {
+        tileWindowRef.current = { col, row };
+        setInstanceRevision((n) => n + 1);
+      }
+    },
+    [heroTileW, heroTileH],
+  );
+
   const handleOffsetChange = useCallback(
-    (newOffset: { x: number; y: number }) => applyVisualOffset(newOffset),
-    [applyVisualOffset],
+    (newOffset: { x: number; y: number }) => {
+      offsetRef.current = newOffset;
+      applyVisualOffset(newOffset);
+      syncTileInstances(newOffset);
+    },
+    [applyVisualOffset, syncTileInstances],
   );
 
   const { isDragging, handlers } = useDrag({ onOffsetChange: handleOffsetChange });
@@ -2261,12 +2290,24 @@ export default function DraggableGrid() {
       buildCardInstances(
         subjectOrder,
         heroBasePositions,
+        heroBounds,
+        offsetRef.current.x,
+        offsetRef.current.y,
         heroTileW,
         heroTileH,
         viewport.w,
         viewport.h,
       ),
-    [subjectOrder, heroBasePositions, heroTileW, heroTileH, viewport.w, viewport.h],
+    [
+      instanceRevision,
+      subjectOrder,
+      heroBasePositions,
+      heroBounds,
+      heroTileW,
+      heroTileH,
+      viewport.w,
+      viewport.h,
+    ],
   );
 
   const onPointerDown = useCallback(
@@ -2314,7 +2355,7 @@ export default function DraggableGrid() {
         <rect width="100%" height="100%" fill="url(#dot-grid)" />
       </svg>
 
-      {/* Cards — one GPU layer moves on drag; positions are static */}
+      {/* Cards — GPU layer pans smoothly; tile copies refresh at tile boundaries */}
       <div
         ref={cardsLayerRef}
         className="absolute inset-0"

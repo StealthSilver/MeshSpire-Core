@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo } from "react";
 import { useIsDark } from "@/hooks/useIsDark";
 
 function srand(seed: number): number {
@@ -16,33 +16,6 @@ const PATTERN_SHIFT_X = 18;
 
 const Services = () => {
   const isDark = useIsDark();
-  const [activeCard, setActiveCard] = useState<number | null>(null);
-  const hoverLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (hoverLeaveTimerRef.current) {
-        clearTimeout(hoverLeaveTimerRef.current);
-      }
-    };
-  }, []);
-
-  const handleCardEnter = (cardId: number) => {
-    if (hoverLeaveTimerRef.current) {
-      clearTimeout(hoverLeaveTimerRef.current);
-      hoverLeaveTimerRef.current = null;
-    }
-    setActiveCard(cardId);
-  };
-
-  const handleCardLeave = () => {
-    if (hoverLeaveTimerRef.current) {
-      clearTimeout(hoverLeaveTimerRef.current);
-    }
-    hoverLeaveTimerRef.current = setTimeout(() => {
-      setActiveCard(null);
-    }, 120);
-  };
 
   const orangeShades = ["#FFA629", "#FFB84D", "#FF9500", "#FFCA70", "#E89420"];
   const blueShades = ["#809FFF", "#99B3FF", "#6688FF", "#B3C6FF", "#5577EE"];
@@ -160,12 +133,13 @@ const Services = () => {
   const mutedLight = isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.35)";
   const textPrimary = isDark ? "#F5F7FA" : "#0F172A";
   const textSecondary = isDark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.45)";
-  const cardBg = isDark ? "#0A0C0F" : "#F1F5F9";
-  const cardBorder = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
-  const cardShadow = isDark
-    ? "0 25px 60px rgba(0,0,0,0.4), 0 10px 24px rgba(0,0,0,0.28)"
-    : "0 25px 60px rgba(0,0,0,0.08), 0 10px 24px rgba(0,0,0,0.04)";
   const badgeBorder = isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.12)";
+
+  const stepCardClassName = `absolute rounded-lg border transition-all duration-300 ${
+    isDark
+      ? "border-white/[0.06] bg-[#0A0C0F] hover:border-white/[0.12]"
+      : "border-[#0F172A]/[0.06] bg-[#F1F5F9] hover:border-[#0F172A]/[0.12] hover:shadow-lg"
+  }`;
   const hrColor = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
 
 
@@ -272,19 +246,14 @@ const Services = () => {
 
           {/* ========== CARD 1: Plan Your Lessons ========== */}
           <div
-            className="absolute rounded-lg transition-[box-shadow,filter,border-color] duration-300 ease-out"
-            onMouseEnter={() => handleCardEnter(1)}
-            onMouseLeave={handleCardLeave}
+            className={stepCardClassName}
             style={{
               width: "370px",
               top: "35px",
               left: "50px",
               transform: "rotate(-6deg)",
-              zIndex: activeCard === 1 ? 20 : 2,
+              zIndex: 2,
               padding: "26px 28px",
-              background: cardBg,
-              border: `1px solid ${cardBorder}`,
-              boxShadow: cardShadow,
             }}
           >
             <div
@@ -439,19 +408,14 @@ const Services = () => {
 
           {/* ========== CARD 2: Get Better Matches ========== */}
           <div
-            className="absolute rounded-lg transition-[box-shadow,filter,border-color] duration-300 ease-out"
-            onMouseEnter={() => handleCardEnter(2)}
-            onMouseLeave={handleCardLeave}
+            className={stepCardClassName}
             style={{
               width: "370px",
               top: "5px",
               left: "420px",
               transform: "rotate(4deg)",
-              zIndex: activeCard === 2 ? 20 : 3,
+              zIndex: 3,
               padding: "26px 28px",
-              background: cardBg,
-              border: `1px solid ${cardBorder}`,
-              boxShadow: cardShadow,
             }}
           >
             <div
@@ -670,19 +634,14 @@ const Services = () => {
 
           {/* ========== CARD 3: Better Learning Experience ========== */}
           <div
-            className="absolute rounded-lg transition-[box-shadow,filter,border-color] duration-300 ease-out"
-            onMouseEnter={() => handleCardEnter(3)}
-            onMouseLeave={handleCardLeave}
+            className={stepCardClassName}
             style={{
               width: "370px",
               top: "240px",
               left: "240px",
               transform: "rotate(-2deg)",
-              zIndex: activeCard === 3 ? 20 : 4,
+              zIndex: 4,
               padding: "26px 28px",
-              background: cardBg,
-              border: `1px solid ${cardBorder}`,
-              boxShadow: cardShadow,
             }}
           >
             <div
