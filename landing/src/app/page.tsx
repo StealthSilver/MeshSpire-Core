@@ -39,8 +39,9 @@ export default function Home() {
       <Navbar />
       <Hero />
       <StoryAnimation />
-      <Features />
       <Services />
+      <Features />
+     
       <StudentsSection />
       <FAQ />
       <CTA />
