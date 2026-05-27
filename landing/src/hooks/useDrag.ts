@@ -21,12 +21,24 @@ export function useDrag({ onOffsetChange, friction = 0.92, minVelocity = 0.5 }: 
   const rafId = useRef<number | null>(null);
   const lastTime = useRef(0);
 
+  const pendingFrame = useRef<number | null>(null);
+
   const stopMomentum = useCallback(() => {
     if (rafId.current !== null) {
       cancelAnimationFrame(rafId.current);
       rafId.current = null;
     }
   }, []);
+
+  const flushOffset = useCallback(() => {
+    pendingFrame.current = null;
+    onOffsetChange({ ...offset.current });
+  }, [onOffsetChange]);
+
+  const scheduleOffsetFlush = useCallback(() => {
+    if (pendingFrame.current !== null) return;
+    pendingFrame.current = requestAnimationFrame(flushOffset);
+  }, [flushOffset]);
 
   const startMomentum = useCallback(() => {
     stopMomentum();
@@ -37,18 +49,19 @@ export function useDrag({ onOffsetChange, friction = 0.92, minVelocity = 0.5 }: 
 
       if (Math.abs(velocity.current.x) < minVelocity && Math.abs(velocity.current.y) < minVelocity) {
         rafId.current = null;
+        flushOffset();
         return;
       }
 
       offset.current.x += velocity.current.x;
       offset.current.y += velocity.current.y;
-      onOffsetChange({ ...offset.current });
+      scheduleOffsetFlush();
 
       rafId.current = requestAnimationFrame(tick);
     };
 
     rafId.current = requestAnimationFrame(tick);
-  }, [friction, minVelocity, onOffsetChange, stopMomentum]);
+  }, [friction, minVelocity, flushOffset, scheduleOffsetFlush, stopMomentum]);
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
@@ -77,12 +90,12 @@ export function useDrag({ onOffsetChange, friction = 0.92, minVelocity = 0.5 }: 
 
       offset.current.x += dx;
       offset.current.y += dy;
-      onOffsetChange({ ...offset.current });
+      scheduleOffsetFlush();
 
       lastPos.current = { x: e.clientX, y: e.clientY };
       lastTime.current = now;
     },
-    [onOffsetChange],
+    [scheduleOffsetFlush],
   );
 
   const handlePointerUp = useCallback(() => {
@@ -92,7 +105,12 @@ export function useDrag({ onOffsetChange, friction = 0.92, minVelocity = 0.5 }: 
   }, [startMomentum]);
 
   useEffect(() => {
-    return () => stopMomentum();
+    return () => {
+      stopMomentum();
+      if (pendingFrame.current !== null) {
+        cancelAnimationFrame(pendingFrame.current);
+      }
+    };
   }, [stopMomentum]);
 
   return {
