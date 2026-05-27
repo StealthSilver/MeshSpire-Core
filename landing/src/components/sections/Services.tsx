@@ -133,7 +133,7 @@ const Services = () => {
   const mutedLight = isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.35)";
   const textPrimary = isDark ? "#F5F7FA" : "#0F172A";
   const textSecondary = isDark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.45)";
-  const cardBg = isDark ? "#1C1F26" : "#FFFFFF";
+  const cardBg = isDark ? "#111418" : "#F1F5F9";
   const cardBorder = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
   const cardShadow = isDark
     ? "0 25px 60px rgba(0,0,0,0.4), 0 10px 24px rgba(0,0,0,0.28)"
