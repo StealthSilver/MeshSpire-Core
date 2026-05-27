@@ -1,3 +1,5 @@
+import CTA from "@/components/sections/Cta";
+import FAQ from "@/components/sections/FAQ";
 import Features from "@/components/sections/Features";
 import Footer from "@/components/sections/Footer";
 import Hero from "@/components/sections/Hero";
@@ -15,6 +17,8 @@ export default function Home() {
       <Services />
       <Features />
       <StudentsSection />
+      <FAQ />
+      <CTA />
       <Footer />
     </main>
   );

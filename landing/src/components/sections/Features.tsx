@@ -410,15 +410,12 @@ const Features = () => {
     >
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-20">
-          <span className="inline-block text-sm font-[var(--font-secondary)] font-medium tracking-widest uppercase text-[#7DD3A0] mb-6">
+          <span className="inline-block text-sm font-[var(--font-secondary)] font-medium tracking-widest uppercase text-[#FFA629] mb-6">
             Features
           </span>
           <h2 className="font-[var(--font-primary)] text-5xl font-thin tracking-tight leading-tight text-[#0F172A] dark:text-[#F5F7FA]">
             Built for how you learn
           </h2>
-          <p className="mt-5 text-base font-[var(--font-secondary)] font-light text-[#0F172A]/55 dark:text-[#F5F7FA]/55 max-w-lg mx-auto">
-            Every feature designed to put you in control of your education.
-          </p>
         </div>
 
         <div className="grid grid-cols-12 gap-5">
@@ -428,36 +425,16 @@ const Features = () => {
             return (
               <div
                 key={feat.key}
-                className="group rounded-xl overflow-hidden transition-all duration-300"
+                className="rounded-xl overflow-hidden"
                 style={{
                   gridColumn: `span ${span}`,
                   background: cardBg,
                   border: `1px solid ${cardBorder}`,
                 }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLDivElement;
-                  el.style.borderColor = isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.12)";
-                  el.style.boxShadow = isDark
-                    ? "0 12px 40px rgba(0,0,0,0.3)"
-                    : "0 12px 40px rgba(0,0,0,0.06)";
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLDivElement;
-                  el.style.borderColor = cardBorder;
-                  el.style.boxShadow = "none";
-                }}
               >
-                {/* Accent top line */}
-                <div
-                  className="h-[1.5px] w-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                  style={{
-                    background: `linear-gradient(to right, ${feat.accent}, transparent)`,
-                  }}
-                />
-
                 {/* Illustration */}
                 <div
-                  className="px-6 pt-6 transition-transform duration-500 group-hover:scale-[1.02] origin-center"
+                  className="px-6 pt-6"
                   style={{ height: illustrationHeights[idx] }}
                 >
                   <Ill isDark={isDark} />

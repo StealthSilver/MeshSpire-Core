@@ -52,6 +52,9 @@ const StudentsSection: React.FC = () => {
     >
       {/* Header */}
       <div className="max-w-7xl mx-auto px-6 mb-8 text-center">
+        <span className="inline-block text-sm font-[var(--font-secondary)] font-medium tracking-widest uppercase text-[#809FFF] mb-6">
+          Testimonials
+        </span>
         <h2 className="font-[var(--font-primary)] text-5xl font-thin tracking-tight leading-tight text-[#0F172A] dark:text-[#F5F7FA]">
           What the students say
         </h2>
@@ -60,7 +63,7 @@ const StudentsSection: React.FC = () => {
       {/* Draggable card field */}
       <div
         ref={containerRef}
-        className="relative max-w-7xl mx-auto px-6 h-[900px]"
+        className="relative max-w-7xl mx-auto px-6 h-[550px]"
       >
         {positions.length > 0 &&
           TESTIMONIALS.map((t, i) => (

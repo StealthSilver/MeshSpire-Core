@@ -88,55 +88,12 @@ export const TESTIMONIALS: Testimonial[] = [
     rating: 5,
     text: "I balanced board prep and NEET simultaneously thanks to the structured schedule. Got 680+ in NEET and 95% in boards!",
   },
-  {
-    id: 11,
-    name: "Arjun Gupta",
-    classCity: "Class 10 · Lucknow",
-    avatarIndex: 4,
-    rating: 5,
-    text: "The doubt-clearing sessions are lightning fast. I never have to wait more than a day to get my questions answered properly.",
-  },
-  {
-    id: 12,
-    name: "Ishita Banerjee",
-    classCity: "Class 11 · Kolkata",
-    avatarIndex: 5,
-    rating: 5,
-    text: "I love how the biology animations make complex processes so easy to visualize. Cell division finally makes sense!",
-  },
-  {
-    id: 13,
-    name: "Sahil Joshi",
-    classCity: "Class 12 · Nagpur",
-    avatarIndex: 0,
-    rating: 5,
-    text: "Went from 60% in my pre-boards to 89% in the final exam. The revision strategy they taught me was a game changer.",
-  },
-  {
-    id: 14,
-    name: "Divya Krishnan",
-    classCity: "Class 10 · Coimbatore",
-    avatarIndex: 1,
-    rating: 5,
-    text: "My English writing improved so much! The feedback on essays is detailed and the teachers actually read every word.",
-  },
-  {
-    id: 15,
-    name: "Aditya Rao",
-    classCity: "Class 12 · Mangalore",
-    avatarIndex: 4,
-    rating: 5,
-    text: "The peer study groups connected me with students who think like me. We push each other to do better every week.",
-  },
-  {
-    id: 16,
-    name: "Zara Hussain",
-    classCity: "Class 11 · Bhopal",
-    avatarIndex: 5,
-    rating: 5,
-    text: "I switched from a coaching institute to this platform and saved so much time on commuting. Results are even better now!",
-  },
 ];
+
+const seededRandom = (seed: number) => {
+  const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+};
 
 export const getInitialPosition = (
   index: number,
@@ -144,18 +101,17 @@ export const getInitialPosition = (
   containerW: number,
   containerH: number
 ) => {
-  const cols = 4;
-  const rows = Math.ceil(total / cols);
-  const col = index % cols;
-  const row = Math.floor(index / cols);
-  const cellW = containerW / cols;
-  const cellH = containerH / rows;
-  const jitterX = ((index * 137) % 60) - 30;
-  const jitterY = ((index * 89) % 60) - 30;
-  return {
-    x: col * cellW + cellW / 2 - 90 + jitterX,
-    y: row * cellH + cellH / 2 - 120 + jitterY,
-  };
+  const cardW = 180;
+  const cardH = 260;
+  const padX = 10;
+  const padY = 10;
+  const usableW = containerW - cardW - padX * 2;
+  const usableH = containerH - cardH - padY * 2;
+
+  const x = padX + seededRandom(index * 7 + 3) * usableW;
+  const y = padY + seededRandom(index * 13 + 7) * usableH;
+
+  return { x, y };
 };
 
 export const getRotation = (index: number) => {
