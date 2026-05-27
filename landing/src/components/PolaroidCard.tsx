@@ -5,9 +5,9 @@ import { useTheme } from "next-themes";
 import { useDraggableCard } from "@/hooks/useDraggableCard";
 import { Testimonial } from "@/data/testimonials";
 
-const STRIPE_COUNT = 25;
+const STRIPE_COUNT = 30;
 const STRIPE_H = 3;
-const STRIPE_GAP = 4;
+const STRIPE_GAP = 3;
 const CIRC_R = 70;
 const CIRC_CX = 80;
 const STRIPE_START = CIRC_CX - CIRC_R;

@@ -39,14 +39,14 @@ const CTA = () => {
 
         let density = 0.03;
 
-        if (distFromEdgeX < 0.12) density += 0.45;
-        else if (distFromEdgeX < 0.22) density += 0.25;
-        else if (distFromEdgeX < 0.35) density += 0.12;
+        if (distFromEdgeX < 0.12) density += 0.52;
+        else if (distFromEdgeX < 0.22) density += 0.3;
+        else if (distFromEdgeX < 0.35) density += 0.14;
 
-        if (distFromEdgeY < 0.15) density += 0.3;
-        else if (distFromEdgeY < 0.25) density += 0.15;
+        if (distFromEdgeY < 0.15) density += 0.36;
+        else if (distFromEdgeY < 0.25) density += 0.18;
 
-        if (distFromEdgeX < 0.2 && distFromEdgeY < 0.2) density += 0.25;
+        if (distFromEdgeX < 0.2 && distFromEdgeY < 0.2) density += 0.32;
 
         if (distFromEdgeX > 0.4 && distFromEdgeY > 0.3) {
           density *= 0.3;
@@ -77,6 +77,27 @@ const CTA = () => {
         }
       }
     }
+
+    // Add a dedicated bottom row with ~65% fill for a stronger base edge.
+    const bottomY = PATTERN_H - SQUARE_SIZE;
+    for (let c = 0; c < cols; c++) {
+      const seed = 51001 + c * 97;
+      if (srand(seed) < 0.65) {
+        const shadeIdx = Math.floor(srand(seed + 1234) * 5);
+        const color =
+          srand(seed + 999) < 0.55
+            ? orangeShades[shadeIdx]
+            : blueShades[shadeIdx];
+
+        result.push({
+          x: c * CELL_SIZE,
+          y: bottomY,
+          opacity: 0.45 + srand(seed + 777) * 0.55,
+          color,
+        });
+      }
+    }
+
     return result;
   }, []);
 

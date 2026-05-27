@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 
 function srand(seed: number): number {
@@ -17,6 +17,33 @@ const PATTERN_SHIFT_X = 18;
 const Services = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [activeCard, setActiveCard] = useState<number | null>(null);
+  const hoverLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (hoverLeaveTimerRef.current) {
+        clearTimeout(hoverLeaveTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleCardEnter = (cardId: number) => {
+    if (hoverLeaveTimerRef.current) {
+      clearTimeout(hoverLeaveTimerRef.current);
+      hoverLeaveTimerRef.current = null;
+    }
+    setActiveCard(cardId);
+  };
+
+  const handleCardLeave = () => {
+    if (hoverLeaveTimerRef.current) {
+      clearTimeout(hoverLeaveTimerRef.current);
+    }
+    hoverLeaveTimerRef.current = setTimeout(() => {
+      setActiveCard(null);
+    }, 120);
+  };
 
   const orangeShades = ["#FFA629", "#FFB84D", "#FF9500", "#FFCA70", "#E89420"];
   const blueShades = ["#809FFF", "#99B3FF", "#6688FF", "#B3C6FF", "#5577EE"];
@@ -246,13 +273,15 @@ const Services = () => {
 
           {/* ========== CARD 1: Plan Your Lessons ========== */}
           <div
-            className="absolute rounded-lg"
+            className="absolute rounded-lg transition-[box-shadow,filter,border-color] duration-300 ease-out"
+            onMouseEnter={() => handleCardEnter(1)}
+            onMouseLeave={handleCardLeave}
             style={{
               width: "370px",
               top: "35px",
               left: "50px",
               transform: "rotate(-6deg)",
-              zIndex: 2,
+              zIndex: activeCard === 1 ? 20 : 2,
               padding: "26px 28px",
               background: cardBg,
               border: `1px solid ${cardBorder}`,
@@ -411,13 +440,15 @@ const Services = () => {
 
           {/* ========== CARD 2: Get Better Matches ========== */}
           <div
-            className="absolute rounded-lg"
+            className="absolute rounded-lg transition-[box-shadow,filter,border-color] duration-300 ease-out"
+            onMouseEnter={() => handleCardEnter(2)}
+            onMouseLeave={handleCardLeave}
             style={{
               width: "370px",
               top: "5px",
               left: "420px",
               transform: "rotate(4deg)",
-              zIndex: 3,
+              zIndex: activeCard === 2 ? 20 : 3,
               padding: "26px 28px",
               background: cardBg,
               border: `1px solid ${cardBorder}`,
@@ -585,7 +616,7 @@ const Services = () => {
                     height: "36px",
                     fontSize: "11px",
                     fontWeight: 600,
-                    backgroundColor: "#EF4444",
+                    backgroundColor: "#3B82F6",
                   }}
                 >
                   JM
@@ -640,13 +671,15 @@ const Services = () => {
 
           {/* ========== CARD 3: Better Learning Experience ========== */}
           <div
-            className="absolute rounded-lg"
+            className="absolute rounded-lg transition-[box-shadow,filter,border-color] duration-300 ease-out"
+            onMouseEnter={() => handleCardEnter(3)}
+            onMouseLeave={handleCardLeave}
             style={{
               width: "370px",
               top: "240px",
               left: "240px",
               transform: "rotate(-2deg)",
-              zIndex: 4,
+              zIndex: activeCard === 3 ? 20 : 4,
               padding: "26px 28px",
               background: cardBg,
               border: `1px solid ${cardBorder}`,

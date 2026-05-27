@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useDrag } from "@/hooks/useDrag";
 
@@ -2054,7 +2054,27 @@ const SubjectCard = React.memo(function SubjectCard({
 /* ── Main grid ───────────────────────────────────────────────── */
 
 export default function DraggableGrid() {
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [offset, setOffset] = useState({ x: 220, y: -170 });
+  const [subjectOrder, setSubjectOrder] = useState<number[]>(
+    () => SUBJECTS.map((_, i) => i),
+  );
+
+  useEffect(() => {
+    // Randomize first-load layout so cards appear around hero copy
+    // (and less directly behind the text block).
+    const randomizedOffset = {
+      x: 180 + Math.random() * 260,
+      y: -250 + Math.random() * 140,
+    };
+    setOffset(randomizedOffset);
+
+    const order = SUBJECTS.map((_, i) => i);
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    setSubjectOrder(order);
+  }, []);
 
   const handleOffsetChange = useCallback(
     (newOffset: { x: number; y: number }) => setOffset(newOffset),
@@ -2108,13 +2128,14 @@ export default function DraggableGrid() {
 
       {/* Cards */}
       <div className="absolute inset-0" style={{ willChange: "transform" }}>
-        {SUBJECTS.map((subject, i) => {
+        {subjectOrder.map((subjectIndex, i) => {
+          const subject = SUBJECTS[subjectIndex];
           const pos = cardPositions[i];
           return (
             <SubjectCard
               key={subject.name}
               subject={subject}
-              rotation={ROTATIONS[i]}
+              rotation={ROTATIONS[subjectIndex]}
               style={{
                 left: "50%",
                 top: "50%",
