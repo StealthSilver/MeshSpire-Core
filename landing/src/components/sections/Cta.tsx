@@ -11,8 +11,8 @@ function srand(seed: number): number {
 
 const SQUARE_SIZE = 10;
 const CELL_SIZE = 14;
-const PATTERN_W = 1240;
-const PATTERN_H = 500;
+const PATTERN_W = 2000;
+const PATTERN_H = 470;
 
 const orangeShades = ["#FFA629", "#FFB84D", "#FF9500", "#FFCA70", "#E89420"];
 const blueShades = ["#809FFF", "#99B3FF", "#6688FF", "#B3C6FF", "#5577EE"];

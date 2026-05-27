@@ -5,7 +5,6 @@ import PolaroidCard from "@/components/PolaroidCard";
 import {
   TESTIMONIALS,
   getInitialPosition,
-  getRotation,
 } from "@/data/testimonials";
 
 const StudentsSection: React.FC = () => {
@@ -24,8 +23,8 @@ const StudentsSection: React.FC = () => {
     return () => window.removeEventListener("resize", measure);
   }, []);
 
-  const CARD_WIDTH = 180;
-  const CARD_HEIGHT = 260;
+  const CARD_WIDTH = 240;
+  const CARD_HEIGHT = 340;
 
   const positions = useMemo(
     () =>
@@ -51,7 +50,7 @@ const StudentsSection: React.FC = () => {
       className="relative w-full py-24 overflow-hidden bg-[var(--background)] transition-colors duration-700"
     >
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-6 mb-8 text-center">
+      <div className="max-w-7xl mx-auto px-6 mb-16 text-center">
         <span className="inline-block text-sm font-[var(--font-secondary)] font-medium tracking-widest uppercase text-[#809FFF] mb-6">
           Testimonials
         </span>
@@ -63,7 +62,7 @@ const StudentsSection: React.FC = () => {
       {/* Draggable card field */}
       <div
         ref={containerRef}
-        className="relative max-w-7xl mx-auto px-6 h-[550px]"
+        className="relative max-w-7xl mx-auto px-6 h-[760px]"
       >
         {positions.length > 0 &&
           TESTIMONIALS.map((t, i) => (
@@ -72,7 +71,7 @@ const StudentsSection: React.FC = () => {
               testimonial={t}
               index={i}
               initialPos={positions[i]}
-              rotation={getRotation(i)}
+              rotation={0}
               bounds={bounds}
             />
           ))}

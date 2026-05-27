@@ -90,26 +90,29 @@ export const TESTIMONIALS: Testimonial[] = [
   },
 ];
 
-const seededRandom = (seed: number) => {
-  const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
-  return x - Math.floor(x);
-};
-
 export const getInitialPosition = (
   index: number,
-  total: number,
+  _total: number,
   containerW: number,
   containerH: number
 ) => {
-  const cardW = 180;
-  const cardH = 260;
-  const padX = 10;
-  const padY = 10;
-  const usableW = containerW - cardW - padX * 2;
-  const usableH = containerH - cardH - padY * 2;
+  const cols = 5;
+  const rows = 2;
+  const col = index % cols;
+  const row = Math.floor(index / cols);
 
-  const x = padX + seededRandom(index * 7 + 3) * usableW;
-  const y = padY + seededRandom(index * 13 + 7) * usableH;
+  const cardW = 240;
+  const cardH = 340;
+  const gapX = 20;
+  const gapY = 28;
+
+  const totalGridW = cols * cardW + (cols - 1) * gapX;
+  const totalGridH = rows * cardH + (rows - 1) * gapY;
+  const startX = Math.max(0, (containerW - totalGridW) / 2);
+  const startY = Math.max(0, (containerH - totalGridH) / 2);
+
+  const x = startX + col * (cardW + gapX);
+  const y = startY + row * (cardH + gapY);
 
   return { x, y };
 };

@@ -72,8 +72,8 @@ const StripedCircle = ({ id, isDark, rotation = 0 }: { id: string; isDark: boole
 
 const GRID_SQ = 10;
 const GRID_CELL = 14;
-const GRID_W = 700;
-const GRID_H = 220;
+const GRID_W = 900;
+const GRID_H = 175;
 
 /* ─── Main section ─── */
 
