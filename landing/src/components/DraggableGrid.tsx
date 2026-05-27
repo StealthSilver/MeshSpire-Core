@@ -50,6 +50,29 @@ const SUBJECTS: Subject[] = [
 const CARD_W = 152;
 const CARD_H = 200;
 const FOLD = 20;
+const CARD_RADIUS = 8; // matches rounded-lg
+
+/** Inset SVG path tracing the folded paper shape (stable under rotation). */
+function getCardOutlinePath(inset = 0.5): string {
+  const w = CARD_W - inset;
+  const h = CARD_H - inset;
+  const r = CARD_RADIUS;
+  const foldX = CARD_W - FOLD;
+  const i = inset;
+
+  return [
+    `M ${r + i} ${i}`,
+    `H ${foldX - i}`,
+    `L ${w} ${FOLD + i}`,
+    `V ${h - r}`,
+    `Q ${w} ${h} ${w - r} ${h}`,
+    `H ${r + i}`,
+    `Q ${i} ${h} ${i} ${h - r}`,
+    `V ${r + i}`,
+    `Q ${i} ${i} ${r + i} ${i}`,
+    "Z",
+  ].join(" ");
+}
 const DOT_SPACING = 28;
 const DOT_RADIUS = 1;
 const ROTATIONS = SUBJECTS.map((_, i) => Math.round(Math.sin(i * 2.7) * 7));
@@ -2070,7 +2093,9 @@ const SubjectCard = React.memo(function SubjectCard({
       style={{
         ...style,
         contentVisibility: "auto",
-        contain: "layout style paint",
+        // Omit paint containment — rotated cards extend past their layout box and borders get clipped.
+        contain: "layout style",
+        overflow: "visible",
       }}
     >
       <div
@@ -2100,19 +2125,6 @@ const SubjectCard = React.memo(function SubjectCard({
             ${isDark ? "bg-[#0A0C0F]" : `bg-[#F1F5F9] ${reduceMotion ? "" : "hover:shadow-lg"}`}
           `}
         >
-          <div
-            className={`
-              absolute inset-0 rounded-lg border pointer-events-none transition-colors duration-300
-              ${
-                isDark
-                  ? "border-white/[0.06] group-hover:border-white/[0.12]"
-                  : "border-[#0F172A]/[0.06] group-hover:border-[#0F172A]/[0.12]"
-              }
-            `}
-            style={{
-              clipPath: `polygon(0 0, calc(100% - ${FOLD}px) 0, 100% ${FOLD}px, 100% 100%, 0 100%)`,
-            }}
-          />
           <div
             className="relative h-full"
             style={{
@@ -2152,6 +2164,31 @@ const SubjectCard = React.memo(function SubjectCard({
             "
             style={{ width: FOLD, height: FOLD }}
           />
+
+          {/* Outline on top so rotation / fold do not clip CSS borders */}
+          <svg
+            className="absolute inset-0 z-20 pointer-events-none"
+            width={CARD_W}
+            height={CARD_H}
+            viewBox={`0 0 ${CARD_W} ${CARD_H}`}
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d={getCardOutlinePath()}
+              strokeWidth={1}
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+              className={`
+                transition-colors duration-300
+                ${
+                  isDark
+                    ? "stroke-white/[0.06] group-hover:stroke-white/[0.12]"
+                    : "stroke-[#0F172A]/[0.06] group-hover:stroke-[#0F172A]/[0.12]"
+                }
+              `}
+            />
+          </svg>
         </div>
       </div>
     </div>

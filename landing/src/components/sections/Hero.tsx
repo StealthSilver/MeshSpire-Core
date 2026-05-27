@@ -23,9 +23,9 @@ const Hero = () => {
           text-[#0F172A] dark:text-[#F5F7FA] max-w-3xl">
           The Most Personalis<span className="text-[#0F172A] dark:text-[#F5F7FA]">ed</span><br />Learning Platform
         </h1>
-        <p className="mt-6 max-w-2xl text-base font-[var(--font-primary)] font-light leading-relaxed
+        <p className="mt-6 max-w-2xl text-base font-[var(--font-primary)] font-extralight leading-relaxed
           text-[#0F172A]/60 dark:text-[#F5F7FA]/60">
-          Study from your selected teachers, at your own pace, when-ever you want, what-ever you want, how-ever you want
+          Learn from your chosen teachers, at your own pace, whenever you want, whatever you want, however you want.
         </p>
       </div>
 
