@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
+import { useTheme } from "next-themes";
 import { useDrag } from "@/hooks/useDrag";
 
 interface Subject {
@@ -53,8 +54,10 @@ const REPEAT_W = 4200;
 const REPEAT_H = 3200;
 const DOT_SPACING = 28;
 const DOT_RADIUS = 1;
-const PAD_X = 40;
-const PAD_Y = 40;
+// Controls how tightly subject cards are packed in the hero grid.
+// Lower values => denser layout, but we still enforce "no overlap" via placement checks.
+const PAD_X = 28;
+const PAD_Y = 32;
 const SLOT_W = CARD_W + PAD_X;
 const SLOT_H = CARD_H + PAD_Y;
 
@@ -82,29 +85,50 @@ function seededPositions(): { x: number; y: number }[] {
   const rng = seededRng(42);
   const positions: { x: number; y: number }[] = [];
 
+  // Build a dense candidate "slot" grid and then pick non-overlapping slots.
+  // Using SLOT_W/SLOT_H ensures cards won't overlap even as the whole field is shifted.
+  const cols = Math.max(1, Math.floor(REPEAT_W / SLOT_W));
+  const rows = Math.max(1, Math.floor(REPEAT_H / SLOT_H));
+
+  const candidates: { x: number; y: number }[] = [];
+  for (let cx = 0; cx < cols; cx++) {
+    for (let cy = 0; cy < rows; cy++) {
+      candidates.push({
+        x: (cx + 0.5) * SLOT_W,
+        y: (cy + 0.5) * SLOT_H,
+      });
+    }
+  }
+
+  // Shuffle candidates for variety while staying deterministic.
+  for (let i = candidates.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+  }
+
   for (let i = 0; i < SUBJECTS.length; i++) {
     let placed = false;
-    for (let attempt = 0; attempt < 500; attempt++) {
-      const x = rng() * REPEAT_W;
-      const y = rng() * REPEAT_H;
-
-      let overlapping = false;
-      for (const prev of positions) {
-        if (rectsOverlap({ x, y }, prev)) {
-          overlapping = true;
-          break;
-        }
-      }
-      if (!overlapping) {
-        positions.push({ x, y });
+    for (let k = 0; k < candidates.length; k++) {
+      const candidate = candidates[k];
+      const overlapsAny = positions.some((prev) => rectsOverlap(candidate, prev));
+      if (!overlapsAny) {
+        positions.push(candidate);
         placed = true;
+        // Remove the used candidate so we never pick it again.
+        candidates.splice(k, 1);
         break;
       }
     }
+
+    // If spacing is ever too tight to fit all cards, fail loudly during development
+    // instead of returning overlapping placements.
     if (!placed) {
-      positions.push({ x: rng() * REPEAT_W, y: rng() * REPEAT_H });
+      throw new Error(
+        "DraggableGrid: Unable to place all subject cards without overlap. Increase REPEAT_* or PAD_*."
+      );
     }
   }
+
   return positions;
 }
 
@@ -1935,9 +1959,12 @@ const SubjectCard = React.memo(function SubjectCard({
   style,
   rotation,
 }: SubjectCardProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   return (
     <div
-      className="absolute select-none pointer-events-none"
+      className="group absolute select-none pointer-events-auto"
       style={style}
     >
       <div
@@ -1951,7 +1978,7 @@ const SubjectCard = React.memo(function SubjectCard({
       >
         {/* Back paper (stacked effect) */}
         <div
-          className="absolute rounded-[3px] bg-[#F1F5F9] dark:bg-[#0A0C0F]"
+          className={`absolute rounded-[3px] ${isDark ? "bg-[#0A0C0F]" : "bg-[#F1F5F9]"}`}
           style={{
             inset: 0,
             transform: `rotate(${rotation > 0 ? 3 : -3}deg)`,
@@ -1961,48 +1988,64 @@ const SubjectCard = React.memo(function SubjectCard({
 
         {/* Main paper */}
         <div
-          className="
-            relative h-full
-            bg-[#F1F5F9] dark:bg-[#0A0C0F]
-          "
-          style={{
-            clipPath: `polygon(0 0, calc(100% - ${FOLD}px) 0, 100% ${FOLD}px, 100% 100%, 0 100%)`,
-            boxShadow: "0 2px 10px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04)",
-          }}
+          className={`
+            relative h-full rounded-lg overflow-hidden transition-all duration-300
+            ${isDark ? "bg-[#0A0C0F]" : "bg-[#F1F5F9] hover:shadow-lg"}
+          `}
         >
-          <div className="px-3.5 pt-4 pb-2 h-full flex flex-col">
-            <p
-              className="
-                font-[var(--font-primary)] font-semibold text-[13px] leading-tight
-                text-[#1e293b] dark:text-[#e2e8f0]
-              "
-            >
-              {subject.name}
-            </p>
-
-            <div className="mt-3 flex-1 flex items-start justify-center">
-              <svg
-                viewBox="0 0 110 80"
-                className="w-full h-auto"
-                aria-hidden="true"
+          <div
+            className={`
+              absolute inset-0 rounded-lg border pointer-events-none transition-colors duration-300
+              ${
+                isDark
+                  ? "border-white/[0.06] group-hover:border-white/[0.12]"
+                  : "border-[#0F172A]/[0.06] group-hover:border-[#0F172A]/[0.12]"
+              }
+            `}
+            style={{
+              clipPath: `polygon(0 0, calc(100% - ${FOLD}px) 0, 100% ${FOLD}px, 100% 100%, 0 100%)`,
+            }}
+          />
+          <div
+            className="relative h-full"
+            style={{
+              clipPath: `polygon(0 0, calc(100% - ${FOLD}px) 0, 100% ${FOLD}px, 100% 100%, 0 100%)`,
+            }}
+          >
+            <div className="px-3.5 pt-4 pb-2 h-full flex flex-col">
+              <p
+                className="
+                  font-[var(--font-primary)] font-semibold text-[13px] leading-tight
+                  text-[#1e293b] dark:text-[#e2e8f0]
+                "
               >
-                <g strokeLinecap="round" strokeLinejoin="round">
-                  <SketchSVG {...subject} />
-                </g>
-              </svg>
+                {subject.name}
+              </p>
+
+              <div className="mt-3 flex-1 flex items-start justify-center">
+                <svg
+                  viewBox="0 0 110 80"
+                  className="w-full h-auto"
+                  aria-hidden="true"
+                >
+                  <g strokeLinecap="round" strokeLinejoin="round">
+                    <SketchSVG {...subject} />
+                  </g>
+                </svg>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Fold triangle */}
-        <div
-          className="
-            absolute top-0 right-0
-            bg-[linear-gradient(225deg,transparent_50%,#E2E8F0_50%)]
-            dark:bg-[linear-gradient(225deg,transparent_50%,#141619_50%)]
-          "
-          style={{ width: FOLD, height: FOLD }}
-        />
+          {/* Fold triangle */}
+          <div
+            className="
+              absolute top-0 right-0 pointer-events-none
+              bg-[linear-gradient(225deg,transparent_50%,#E2E8F0_50%)]
+              dark:bg-[linear-gradient(225deg,transparent_50%,#141619_50%)]
+            "
+            style={{ width: FOLD, height: FOLD }}
+          />
+        </div>
       </div>
     </div>
   );

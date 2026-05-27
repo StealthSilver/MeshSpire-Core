@@ -12,6 +12,7 @@ const SQUARE_SIZE = 10;
 const CELL_SIZE = 14;
 const PATTERN_W = 1240;
 const PATTERN_H = 600;
+const PATTERN_SHIFT_X = 18;
 
 const Services = () => {
   const { theme } = useTheme();
@@ -170,7 +171,7 @@ const Services = () => {
             {squares.map((sq, i) => (
               <rect
                 key={i}
-                x={sq.x}
+                x={sq.x - PATTERN_SHIFT_X}
                 y={sq.y}
                 width={SQUARE_SIZE}
                 height={SQUARE_SIZE}

@@ -25,12 +25,12 @@ const problems = [
   {
     title: "No flexibility in timing",
     description:
-      "Fixed schedules don't care if you're a morning learner or a night owl. You adapt to the system — not the other way around.",
+      "Fixed schedules don't care if you're a morning learner or a night owl. You adapt to the system not the other way around.",
   },
   {
     title: "No choice in what you learn",
     description:
-      "You don't pick what you study or how you study it. The curriculum is set in stone — your curiosity and interests don't matter.",
+      "You don't pick what you study or how you study it. The curriculum is set in stone your curiosity and interests don't matter.",
   },
 ];
 

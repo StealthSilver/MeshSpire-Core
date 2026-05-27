@@ -5,20 +5,52 @@ import { useTheme } from "next-themes";
 import { useDraggableCard } from "@/hooks/useDraggableCard";
 import { Testimonial } from "@/data/testimonials";
 
-const sunsetColors = [
-  "#2D0A04", "#3A1007", "#47160A", "#541C0D", "#612210",
-  "#6E2813", "#7B2E16", "#883419", "#953A1C", "#A2401F",
-  "#AF4622", "#B95028", "#C35A2E", "#CD6434", "#D76E3A",
-  "#DF7840", "#E78246", "#EF8C4C", "#F59652", "#F9A058",
-  "#FCAA5E", "#FEB464", "#FFBE6A", "#FFC870", "#FFD276",
-];
-
 const STRIPE_COUNT = 25;
 const STRIPE_H = 3;
 const STRIPE_GAP = 4;
 const CIRC_R = 70;
 const CIRC_CX = 80;
 const STRIPE_START = CIRC_CX - CIRC_R;
+
+// Students hover illustration palette:
+// black -> dark blue -> ascent blue (#809FFF).
+const GRAD_START = "#000000";
+const GRAD_MID = "#16213E"; // from HeroIllustration background gradient
+const GRAD_END = "#809FFF";
+
+function hexToRgb(hex: string) {
+  const normalized = hex.replace("#", "");
+  const full = normalized.length === 3 ? normalized.split("").map((c) => c + c).join("") : normalized;
+  const intVal = Number.parseInt(full, 16);
+  return {
+    r: (intVal >> 16) & 255,
+    g: (intVal >> 8) & 255,
+    b: intVal & 255,
+  };
+}
+
+function rgbToHex(r: number, g: number, b: number) {
+  const toHex = (n: number) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, "0");
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function mixHex(a: string, b: string, t: number) {
+  const A = hexToRgb(a);
+  const B = hexToRgb(b);
+  return rgbToHex(
+    A.r + (B.r - A.r) * t,
+    A.g + (B.g - A.g) * t,
+    A.b + (B.b - A.b) * t
+  );
+}
+
+const hoverGradientColors = Array.from({ length: STRIPE_COUNT }, (_, i) => {
+  const t = i / (STRIPE_COUNT - 1);
+  // Keep the darker range tighter; let the lighter (mid->end) dominate.
+  const DARK_PORTION = 0.22;
+  if (t <= DARK_PORTION) return mixHex(GRAD_START, GRAD_MID, t / DARK_PORTION);
+  return mixHex(GRAD_MID, GRAD_END, (t - DARK_PORTION) / (1 - DARK_PORTION));
+});
 
 const cardRotations = [0, 45, 90, -45, 30, -30, 60, -60, 135, 15];
 
@@ -41,7 +73,14 @@ const StripedCircle = ({ id, isDark }: { id: number; isDark: boolean }) => {
         <defs><clipPath id={`sc-${id}`}><circle cx={CIRC_CX} cy={CIRC_CX} r={CIRC_R} /></clipPath></defs>
         <g clipPath={`url(#sc-${id})`} transform={rotateTransform}>
           {Array.from({ length: STRIPE_COUNT }, (_, i) => (
-            <rect key={i} x={-40} y={STRIPE_START + i * (STRIPE_H + STRIPE_GAP)} width={240} height={STRIPE_H} fill={sunsetColors[i] || sunsetColors[sunsetColors.length - 1]} />
+            <rect
+              key={i}
+              x={-40}
+              y={STRIPE_START + i * (STRIPE_H + STRIPE_GAP)}
+              width={240}
+              height={STRIPE_H}
+              fill={hoverGradientColors[i] ?? hoverGradientColors[hoverGradientColors.length - 1]}
+            />
           ))}
         </g>
       </svg>
