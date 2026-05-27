@@ -66,7 +66,7 @@ export default function Navbar() {
         </Link>
 
         <div
-          className="flex items-center font-[var(--font-secondary)] relative gap-1 rounded-full bg-[#ECEEF2] dark:bg-[#111418] px-1.5 py-1.5"
+          className="flex items-center font-[var(--font-secondary)] relative gap-1 rounded-full bg-[#F1F5F9] dark:bg-[#0A0C0F] px-1.5 py-1.5"
           onMouseLeave={() => setHovered(null)}
         >
           {navItems.map((item) => (

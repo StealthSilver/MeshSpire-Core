@@ -1951,7 +1951,7 @@ const SubjectCard = React.memo(function SubjectCard({
       >
         {/* Back paper (stacked effect) */}
         <div
-          className="absolute rounded-[3px] bg-[#ededed] dark:bg-[#14171c]"
+          className="absolute rounded-[3px] bg-[#F1F5F9] dark:bg-[#0A0C0F]"
           style={{
             inset: 0,
             transform: `rotate(${rotation > 0 ? 3 : -3}deg)`,
@@ -1963,7 +1963,7 @@ const SubjectCard = React.memo(function SubjectCard({
         <div
           className="
             relative h-full
-            bg-white dark:bg-[#181C22]
+            bg-[#F1F5F9] dark:bg-[#0A0C0F]
           "
           style={{
             clipPath: `polygon(0 0, calc(100% - ${FOLD}px) 0, 100% ${FOLD}px, 100% 100%, 0 100%)`,
@@ -1998,8 +1998,8 @@ const SubjectCard = React.memo(function SubjectCard({
         <div
           className="
             absolute top-0 right-0
-            bg-[linear-gradient(225deg,transparent_50%,#ddd_50%)]
-            dark:bg-[linear-gradient(225deg,transparent_50%,#252A33_50%)]
+            bg-[linear-gradient(225deg,transparent_50%,#E2E8F0_50%)]
+            dark:bg-[linear-gradient(225deg,transparent_50%,#141619_50%)]
           "
           style={{ width: FOLD, height: FOLD }}
         />
@@ -2056,7 +2056,7 @@ export default function DraggableGrid() {
               cx={DOT_RADIUS}
               cy={DOT_RADIUS}
               r={DOT_RADIUS}
-              className="fill-[#CBD5E1] dark:fill-[#252A33]"
+              className="fill-[#CBD5E1] dark:fill-[#1A1D24]"
             />
           </pattern>
         </defs>

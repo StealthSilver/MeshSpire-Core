@@ -76,8 +76,8 @@ const PolaroidCard: React.FC<PolaroidCardProps> = ({
           {/* Front Face */}
           <div
             className={`
-              w-full rounded-[4px]
-              bg-white dark:bg-[#181C22]
+              w-full rounded-lg
+              bg-[#F1F5F9] dark:bg-[#0A0C0F]
               p-3 pb-9
               ${isDragging ? "shadow-[0_16px_48px_rgba(0,0,0,0.22)]" : "shadow-[0_4px_20px_rgba(0,0,0,0.12),0_1px_4px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.18)]"}
             `}
@@ -110,8 +110,8 @@ const PolaroidCard: React.FC<PolaroidCardProps> = ({
           {/* Back Face */}
           <div
             className={`
-              absolute top-0 left-0 w-full rounded-[4px]
-              bg-white dark:bg-[#181C22]
+              absolute top-0 left-0 w-full rounded-lg
+              bg-[#F1F5F9] dark:bg-[#0A0C0F]
               p-3 pb-9
               ${isDragging ? "shadow-[0_16px_48px_rgba(0,0,0,0.22)]" : "shadow-[0_4px_20px_rgba(0,0,0,0.12),0_1px_4px_rgba(0,0,0,0.08)]"}
             `}
@@ -121,7 +121,7 @@ const PolaroidCard: React.FC<PolaroidCardProps> = ({
               transform: "rotateY(180deg)",
             }}
           >
-            <div className="w-full aspect-square rounded-[2px] overflow-hidden bg-[#F8FAFC] dark:bg-[#111418] flex flex-col items-center justify-center p-4">
+            <div className="w-full aspect-square rounded-[2px] overflow-hidden bg-[#F8FAFC] dark:bg-[#07080A] flex flex-col items-center justify-center p-4">
               {/* Stars */}
               <div className="flex items-center gap-0.5 mb-3">
                 {[1, 2, 3, 4, 5].map((s) => (
