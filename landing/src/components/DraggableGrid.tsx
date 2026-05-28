@@ -161,40 +161,41 @@ const SUBJECT_IDX = {
 } as const;
 
 const HERO_ANCHOR_INDICES = new Set<number>([
-  SUBJECT_IDX.Chemistry,
   SUBJECT_IDX.Biology,
-  SUBJECT_IDX.Finance,
 ]);
 
 /** Viewport-center coordinates for the hero first paint (tuned ~1280–1600px wide). */
 function getHeroInitialLayout() {
   const positions: Record<number, { x: number; y: number }> = {};
 
-  // Chemistry — right side, just below the navbar Contact link
-  positions[SUBJECT_IDX.Chemistry] = { x: 280, y: -250 };
-
-  // Biology — just above the hero headline (bottom-left copy block)
-  positions[SUBJECT_IDX.Biology] = { x: -300, y: 40 };
-
-  // Finance — bottom-right, kept inside viewport with rotation padding
-  positions[SUBJECT_IDX.Finance] = { x: 400, y: 280 };
+  // Biology is the lead/anchor card: above the "Personalised" wordmark.
+  positions[SUBJECT_IDX.Biology] = { x: -230, y: -110 };
 
   const occupied = Object.values(positions);
   const remaining = SUBJECTS.map((_, i) => i).filter((i) => !HERO_ANCHOR_INDICES.has(i));
 
   const rng = seededRng(9001);
 
-  // Jittered lattice: minimum spacing HERO_MIN_* with uniform random offset per cell.
+  // Dense right cluster: all non-anchor cards stay to the right of Biology.
   const candidates: { x: number; y: number }[] = [];
-  const gridRingsX = 10;
-  const gridRingsY = 8;
-  const jitterX = HERO_MIN_X * 0.42;
-  const jitterY = HERO_MIN_Y * 0.42;
-  for (let gy = -gridRingsY; gy <= gridRingsY; gy++) {
-    for (let gx = -gridRingsX; gx <= gridRingsX; gx++) {
+  const anchor = positions[SUBJECT_IDX.Biology];
+  const clusterStartX = anchor.x + HERO_MIN_X * 0.95;
+  const topY = -HERO_REF_VIEW_H * 0.52;
+  const rows = 14;
+  const cols = 16;
+  const jitterX = HERO_MIN_X * 0.18;
+  const jitterY = HERO_MIN_Y * 0.16;
+
+  for (let row = 0; row < rows; row++) {
+    const rowShift = (row % 2 === 0 ? 0 : 0.42) * HERO_MIN_X;
+    for (let col = 0; col < cols; col++) {
       candidates.push({
-        x: gx * HERO_MIN_X + (rng() - 0.5) * 2 * jitterX,
-        y: gy * HERO_MIN_Y + (rng() - 0.5) * 2 * jitterY,
+        x:
+          clusterStartX +
+          col * HERO_MIN_X +
+          rowShift +
+          (rng() - 0.5) * 2 * jitterX,
+        y: topY + row * HERO_MIN_Y + (rng() - 0.5) * 2 * jitterY,
       });
     }
   }
@@ -218,6 +219,7 @@ function getHeroInitialLayout() {
 
     for (let k = 0; k < candidates.length; k++) {
       const candidate = candidates[k];
+      if (candidate.x < clusterStartX) continue;
       if (!canPlaceInViewport && isInHeroViewport(candidate)) continue;
       if (!isValidHeroPosition(candidate, [...occupied, ...placedSoFar])) {
         continue;
@@ -254,9 +256,7 @@ function getHeroInitialLayout() {
 
   const subjectOrder = [
     ...remaining,
-    SUBJECT_IDX.Chemistry,
     SUBJECT_IDX.Biology,
-    SUBJECT_IDX.Finance,
   ];
 
   const xs = allHeroPositions.map((p) => p.x);

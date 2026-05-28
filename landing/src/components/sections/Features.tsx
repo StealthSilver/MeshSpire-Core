@@ -417,7 +417,15 @@ const ScheduleIllustration = ({ isDark }: { isDark: boolean }) => {
     if (!activeId) return;
 
     const onPointerMove = (e: PointerEvent) => {
-      setOffsetY(e.clientY - dragStartY.current);
+      const rawOffset = e.clientY - dragStartY.current;
+      const currentIndex = order.indexOf(activeId);
+      if (currentIndex < 0) return;
+
+      const minOffset = -currentIndex * SCHEDULE_STEP;
+      const maxOffset = (order.length - 1 - currentIndex) * SCHEDULE_STEP;
+      const clampedOffset = Math.max(minOffset, Math.min(maxOffset, rawOffset));
+
+      setOffsetY(clampedOffset);
     };
 
     const onPointerUp = () => finishDrag();
@@ -1853,8 +1861,7 @@ const SessionRecordingsIllustration = ({ isDark }: { isDark: boolean }) => {
 
   const primary = { x: 8, y: 40, w: 56, h: 40, rx: 8 };
   const hub = { x: 82, y: 60, r: 11 };
-  const hubInset = 16;
-  const primaryPath = `M ${primary.x + primary.w} ${hub.y} L ${hub.x - hubInset} ${hub.y}`;
+  const primaryPath = `M ${primary.x + primary.w} ${hub.y} L ${hub.x - hub.r} ${hub.y}`;
   const replicaLeft = 148;
   const destW = 50;
   const destH = 30;

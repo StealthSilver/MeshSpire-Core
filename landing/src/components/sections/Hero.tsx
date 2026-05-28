@@ -49,6 +49,13 @@ const Hero = () => {
         </p>
       </div>
 
+      <div className="pointer-events-none absolute right-8 bottom-10 z-20 flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-[#0F172A]/65 dark:text-[#F5F7FA]/70">
+        <span className="font-[var(--font-primary)]">Drag The Page</span>
+        <span className="hero-drag-hint-arrows" aria-hidden="true">
+          &gt;&gt;
+        </span>
+      </div>
+
       <div className="absolute bottom-0 left-0 right-0 z-10">
         <hr className="border-t border-[var(--foreground)]/10" />
       </div>

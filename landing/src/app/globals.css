@@ -133,6 +133,18 @@
   }
 }
 
+@keyframes heroDragHintArrows {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateX(4px);
+  }
+}
+
 .hero-text-fade {
   opacity: 0;
   animation: heroTextFadeIn 1.65s ease-out forwards;
@@ -147,6 +159,13 @@
   animation: heroCardPaste 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+.hero-drag-hint-arrows {
+  display: inline-block;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  animation: heroDragHintArrows 1.4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-text-fade,
   .hero-text-fade--delayed {
@@ -157,6 +176,12 @@
   .hero-card-paste {
     animation: none;
     opacity: 1;
+    transform: none;
+  }
+
+  .hero-drag-hint-arrows {
+    animation: none;
+    opacity: 0.75;
     transform: none;
   }
 }

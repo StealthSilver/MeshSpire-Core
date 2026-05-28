@@ -77,7 +77,7 @@ export default function Navbar() {
               {hovered === item.name && (
                 <motion.span
                   layoutId="navHover"
-                  className="absolute inset-0 rounded-full bg-[#F4F7FF] dark:bg-[#1F2530]"
+                  className="absolute inset-0 rounded-full bg-[#FFFFFF] dark:bg-[#1F2530]"
                   transition={{
                     type: "spring",
                     stiffness: 400,
